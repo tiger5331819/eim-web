@@ -31,7 +31,7 @@
   <!-- 新增/修改EIM对话框 -->
   <el-dialog ref="formDialogRef" :title="dialog.title" v-model="dialog.visible" width="1200px" append-to-body
     @close="closeDialog">
-    <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="180px">
+    <el-form :model="form" :rules="rules" ref="eimFormRef" label-width="180px">
       <el-form-item label="EIMId" prop="eimId">
         <el-input v-model="form.eimId" placeholder="请输入EIMId" />
       </el-form-item>
@@ -100,15 +100,36 @@
 <script setup name="In" lang="ts">
 import { ref } from "vue"
 import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
+import { globalHeaders } from "@/utils/request";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sye_eim_method } = toRefs<any>(proxy?.useDict('sye_eim_method'));
-const deviceFormRef = ref<ElFormInstance>();
+const eimFormRef = ref<ElFormInstance>();
 const formDialogRef = ref<ElDialogInstance>();
 const dialog = reactive<DialogOption>({
   visible: false,
   title: ''
 });
+const fileList = ref([])
+const uploadData = ref({})
+/*** 上传文件参数 */
+const upload = reactive({
+  // 设置上传的请求头部
+  headers: globalHeaders(),
+  // 上传的地址
+  url: import.meta.env.VITE_APP_BASE_API + "/resource/oss/upload"
+})
+const props = defineProps({
+  id: {
+    type: Number,
+    required: true
+  }
+})
+let fileParams: any = {
+  objectId: "",
+  uploadName: "",
+  uploadFile: "",
+}
 // const tableData = ref([])
 const tableData = ref([
   {
@@ -248,11 +269,75 @@ const closeDialog = () => {
  * 重置表单
  */
 const resetForm = () => {
-  deviceFormRef.value?.resetFields();
-  deviceFormRef.value?.clearValidate();
+  eimFormRef.value?.resetFields();
+  eimFormRef.value?.clearValidate();
 
   // form.value.id = undefined;
   form.value.authenticationMethod = '0';
+}
+
+/** 重置操作表单 */
+const reset = () => {
+  form.value = { ...initFormData };
+  eimFormRef.value?.resetFields();
+}
+
+/** 取消按钮 */
+const cancel = () => {
+  dialog.visible = false;
+  reset();
+}
+
+/** 提交按钮 */
+const submitForm = () => {
+  eimFormRef.value?.validate(async (valid: boolean) => {
+    if (valid) {
+      // form.value.userId ? await api.updateUser(form.value) : await api.addUser(form.value);
+      proxy?.$modal.msgSuccess("操作成功");
+      dialog.visible = false;
+      // await getList();
+    }
+  })
+}
+
+function handleRemove(file: any, fileList: any) {
+  fileList.value = []
+  fileParams.uploadName = ''
+  fileParams.uploadFile = ''
+};
+
+function beforeUpload(file: any) {
+  uploadData.value = { inId: props.id }; //上传携带的参数名
+  let type = file.name.substr((file.name.lastIndexOf(".")))
+  if (type != '.xlsx' && type != '.xls') {
+    proxy?.$modal.msgError("文件格式错误");
+    return false
+  }
+  let promise = new Promise((resolve) => {
+    nextTick(function () {
+      resolve(true);
+    });
+  });
+  return promise;
+}
+
+//上传成功
+function uploadFileSuccess(res: any, file: any, fileList: any) {
+  console.log('res', res)
+  if (res.code == 200) {
+    proxy?.$modal.msgSuccess("文件上传成功");
+    isDisabled.value = false
+    tableData.value = res.data || [];
+    fileParams.uploadName = res.data.fileName
+    fileParams.uploadFile = res.data.ossId
+    totalItems.value = tableData.value.length;
+    const start = (currentPage.value - 1) * pageSize.value;
+    const end = start + pageSize.value;
+    paginatedData.value = tableData.value.slice(start, end);
+  } else {
+    proxy?.$modal.msgError("文件上传失败");
+    isDisabled.value = true
+  }
 }
 
 </script>
