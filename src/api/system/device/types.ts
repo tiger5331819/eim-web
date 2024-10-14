@@ -6,8 +6,8 @@ export interface DeviceQuery extends PageQuery {
   pageSize: 10,
   eid?: string;
   iccid?: string;
-  providerName?: string;
-  status?: string;
+  companyName?: string;
+  online?: string;
   eimid?: string;
   isAsc?: string;
   params: {
@@ -19,23 +19,26 @@ export interface DeviceQuery extends PageQuery {
  */
 export interface DeviceVO extends BaseEntity {
   eid: string;
+  eimid: string;
+  eimFqdn: string;
 }
 
 /**
  * 设备表单类型
  */
 export interface DeviceForm {
+  eid?: string;
   eimIdOriginal?: string;
   eimId?: string;
-  eimAddress?: string;
+  eimFqdn?: string;
   eimIdType?: string;
   counterValue?: string;
   associationToken?: string;
   authenticationMethod?: string | number;
   eimPublicKey?: string;
   eimCertificate?: any;
-  trustedPublicKeyDataTls?: string;
+  trustedEimPkTls?: string;
   eimSupportedProtocol?: string;
-  euiccCiPKld?: string;
+  euiccCipkId?: string;
 }
 

@@ -24,9 +24,10 @@ const activeLabel = ref('first')
 const router = useRouter();
 
 const backTo = () => {
-  router.push({
-    path: "/device",
-  });
+  // router.push({
+  //   path: "/device",
+  // });
+  router.go(-1)
 }
 
 </script>

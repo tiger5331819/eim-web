@@ -1,294 +1,239 @@
 <template>
-  <div class="detail">
-    <el-page-header @back="goBack" :content="`添加${type}号`" />
-    <el-form :rules="rules" :model="form" style="margin-top: 20px" ref="form">
-      <!-- <h2>添加业务号</h2> -->
-      <el-row v-if="type == '业务'">
-        <el-col :span="12">
-          <el-form-item label="运营商所属地" prop="providerLocal">
-            <el-select v-model="form.providerLocal" @change="handleSelect" style="width: 300px">
-              <el-option v-for="item in localList" :key="item.local" :label="item.local"
-                :value="item.local"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="运营商" prop="provider">
-            <el-select v-model="form.provider" style="width: 300px" value-key="name">
-              <el-option v-for="item in providerList" :key="item.id" :label="item.name" :value="item"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row v-else>
-        <el-col :span="12">
-          <el-form-item label="运营商" prop="provider">
-            <el-select style="width: 300px" v-model="form.provider" filterable remote placeholder="请输入关键词"
-              :remote-method="remoteMethod" :loading="loading" value-key="name">
-              <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item">
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12" v-if="type == '种子'">
-          <el-form-item label="数量" prop="size">
-            <el-input v-model="form.size" placeholder="请输入" style="width: 300px" />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-button type="primary" @click="search" size="small">{{
-        `查询${type}资源`
-      }}</el-button>
-      <el-divider></el-divider>
-      <div class="search">
-        <span v-if="searchResult.length == 0">{{
-          `查询结果：当前无可用的${type}号资源`
-        }}</span>
-        <span v-else>{{ `查询结果：以下为预分配的${type}号资源` }}</span>
-        <el-table :data="searchResult" style="width: 40%; margin-top: 20px" v-if="searchResult.length > 0">
-          <el-table-column label="序号" type="index" />
-          <el-table-column prop="providerName" label="运营商" />
-          <el-table-column prop="iccid" label="ICCID" />
-        </el-table>
-        <el-button type="primary" @click="handleAdd" size="small" style="margin-top: 20px"
-          v-if="searchResult.length > 0">{{ `确认使用该${type}号资源` }}</el-button>
-      </div>
-    </el-form>
+  <div class="p-2">
+
+    <el-card shadow="hover">
+      <template #header>
+        <div>
+          <el-button link type="primary" icon="Back" @click="backTo">返回</el-button>
+        </div>
+      </template>
+
+      <span class="m-2" style="font-size: 24px;">下载业务号</span>
+
+      <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="100px" style="margin-top: 20px;">
+
+        <el-form-item label="请求方式：" prop="method">
+          <el-radio-group v-model="form.method">
+            <el-radio v-for="dict in sys_code_method" :key="dict.value" :label="dict.value">{{
+              dict.label }}</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item v-if="form.method == '1'" label="输入code：" prop="code">
+          <el-input type="textarea" v-model="form.code" placeholder="请输入code" style="max-width: 500px;" />
+        </el-form-item>
+
+        <el-form-item v-if="form.method == '2'" label="上传code：" prop="code">
+          <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
+            list-type="picture-card" action="#" :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove"
+            :limit="1" :file-list="fileList" :data="uploadData" :on-preview="handlePictureCardPreview">
+            <!-- <el-upload style="width: auto;" accept=".jpg" :headers="upload.headers" :action="upload.url"
+            :on-remove="handleRemove" :limit="1" :file-list="fileList" list-type="picture-card"
+            :before-upload="beforeUpload" :data="uploadData" :on-success="uploadFileSuccess" :auto-upload="false"> -->
+            <el-icon>
+              <Plus />
+            </el-icon>
+            <template #tip>
+              <div class="text-center">
+                <span>支持扩展名：.jpg</span>
+              </div>
+            </template>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="">
+          <el-button v-if="form.method == '0'" type="primary" @click="profileDownload">获取并下载资源</el-button>
+          <el-button v-else type="primary" @click="profileDownload">识别并下载资源</el-button>
+        </el-form-item>
+
+        <el-form-item v-if="form.method == '1'" label="">
+          <span v-if="errorCode && errorCode == '200'" style="font-size: 16px;">code文本识别成功，正在下载资源！</span>
+          <span v-else style="font-size: 16px;">code文本识别失败，请重新输入！</span>
+        </el-form-item>
+
+        <el-form-item v-if="form.method == '2'" label="">
+          <span v-if="errorCode && errorCode == '200'" style="font-size: 16px;">code图片识别成功，正在下载资源！</span>
+          <span v-else style="font-size: 16px;">code图片识别失败，请重新上传！</span>
+        </el-form-item>
+
+        <el-form-item label="下载进度：">
+          <div>
+            <el-progress :percentage="progress" :status="success" style="width: 500px;"></el-progress>
+          </div>
+        </el-form-item>
+        <!-- <div class="m-4" style="max-width: 600px;">
+          <el-progress :percentage="50" />
+          <el-progress :percentage="100" :format="format" />
+          <el-progress :percentage="100" status="success" />
+          <el-progress :percentage="100" status="warning" />
+          <el-progress :percentage="50" status="exception" />
+        </div> -->
+        <el-form-item label="">
+          <!-- <span style="font-size: 16px;">code图片识别失败，请重新上传！</span> -->
+          <!-- <span style="font-size: 16px;">code图片识别成功，正在下载资源！</span> -->
+        </el-form-item>
+        <el-form-item label="">
+          <!-- <span style="font-size: 16px;">code图片识别失败，请重新上传！</span> -->
+          <!-- <span style="font-size: 16px;">code图片识别成功，正在下载资源！</span> -->
+        </el-form-item>
+        <el-form-item label="">
+          <!-- <span style="font-size: 16px;">code图片识别失败，请重新上传！</span> -->
+          <!-- <span style="font-size: 16px;">code图片识别成功，正在下载资源！</span> -->
+        </el-form-item>
+      </el-form>
+
+
+    </el-card>
+
+    <el-dialog v-model="dialogVisible">
+      <img w-full :src="dialogImageUrl" alt="Preview Image" />
+    </el-dialog>
   </div>
 </template>
-<script>
-import {
-  profileList,
-  seedList,
-  addProfile,
-  addSeed,
-  getResponse,
-} from "@/api/configuration/equipments";
-import {
-  getProviderDict,
-  getLocalDict,
-  getAllProvider,
-} from "@/api/configuration/operator";
-export default {
-  dicts: ["connected_type", "online"],
-  data () {
-    return {
-      loading: false,
-      form: {},
-      rules: {
-        provider: [
-          { required: true, message: "请选择运营商", trigger: "blur" },
-        ],
-        providerLocal: [
-          { required: true, message: "请选择运营商所属地", trigger: "blur" },
-        ],
-        size: [
-          { required: true, message: "请输入数量", trigger: "blur" },
-          {
-            pattern: /^\d*\.?\d*$/,
-            message: "请输入正确的数量",
-            trigger: "change",
-          },
-        ],
-      },
-      searchResult: [],
-      type: "种子",
-      providerList: [],
-      localList: [],
-      options: [],
-      result: null, //轮询结果
-      allProvider: [],
-    };
-  },
-  created () {
-    // 获取运营所属地
-    getLocalDict().then((res) => {
-      this.localList = res.data;
-    });
-    if (this.$route.query.type == 1) {
-      this.type = "种子";
-    } else {
-      this.type = "业务";
-    }
-    // 获取所有运营商
-    getAllProvider().then((res) => {
-      this.allProvider = res.data;
-    });
-  },
 
-  methods: {
-    goBack () {
-      this.$router.push({
-        path: "/equipments/detail",
-        query: {
-          id: this.$route.query.id,
-        },
-      });
-    },
-    // 选择运营商操作
-    handleSelect (val) {
-      getProviderDict(val).then((res) => {
-        this.providerList = res.data;
-      });
-    },
-    // 查询列表
-    search () {
-      console.log(this.form);
-      this.$refs["form"].validate((valid) => {
-        if (valid) {
-          if (this.type == "种子") {
-            seedList({
-              providerId: this.form.provider.id,
-              size: this.form.size,
-            }).then((res) => {
-              this.searchResult = res.data;
-            });
-          } else {
-            profileList({ providerId: this.form.provider.id }).then((res) => {
-              this.searchResult = res.data;
-            });
-          }
-        }
-      });
-    },
-    // 轮询结果
-    pollResult (code, msg) {
-      console.log(this.result, code);
-      let countdown;
-      var timer = setInterval(() => {
-        console.log("11", this.result);
-        if (!this.result) {
-          getResponse(code).then((res) => {
-            if (res.code == 200) {
-              if (res.data.result) {
-                this.result = res.data.result;
-                this.$alert(`${this.result}`, `${msg}成功`, {
-                  type: "success",
-                  confirmButtonText: "确定",
-                }).then(() => {
-                  this.goBack();
-                });
-                clearInterval(timer);
-                clearInterval(countdown);
-              }
-            } else {
-              this.$alert(`${res.msg}`, `${msg}失败`, {
-                type: "error",
-                confirmButtonText: "确定",
-              });
-              clearInterval(timer);
-            }
-          });
-        }
-      }, 1000);
-      countdown = setTimeout(() => {
-        // 五分钟后清除定时器，提示失败
-        clearInterval(timer);
-        this.$alert(`${msg}失败`, {
-          type: "error",
-          confirmButtonText: "确定",
-        });
-      }, 5 * 60 * 1000);
-    },
-    // 确认添加
-    handleAdd () {
-      this.result = null;
-      if (this.type == "种子") {
-        const iccidList = this.searchResult.map((item) => item.iccid);
-        const param = {
-          providerId: this.form.provider.id,
-          providerName: this.form.provider.name,
-          providerLocal: this.form.provider.local,
-          iccidList,
-        };
-        addSeed(this.$route.query.id, param)
-          .then((res) => {
-            if (res.code == 200) {
-              // 轮询查询设备响应结果
-              this.pollResult(res.data.code, "添加");
-              console.log(this.result);
-            }
-          })
-          .catch((error) => {
-            this.$alert(`${error}`, "添加失败", {
-              type: "error",
-              confirmButtonText: "确定",
-            });
-          });
-      } else {
-        const param = {
-          iccid: this.searchResult[0].iccid,
-          providerId: this.form.provider.id,
-          providerName: this.form.provider.name,
-          providerLocal: this.form.providerLocal,
-        };
-        addProfile(this.$route.query.id, param)
-          .then((res) => {
-            if (res.code == 200) {
-              // 轮询查询设备响应结果
-              this.pollResult(res.data.code, "添加");
-              console.log(this.result);
-            }
-          })
-          .catch((error) => {
-            this.$alert(`${error}`, "添加失败", {
-              type: "error",
-              confirmButtonText: "确定",
-            });
-          });
-      }
-    },
-    // 筛选运营商
-    remoteMethod (query) {
-      console.log(query)
-      if (query !== "") {
-        this.loading = true;
-        setTimeout(() => {
-          this.loading = false;
-          this.options = this.allProvider.filter((item) => {
-            return item.keyName.toLowerCase().indexOf(query.toLowerCase()) > -1;
-          });
-        }, 200);
-      } else {
-        this.options = [];
-      }
-    },
-  },
+<script setup name="In" lang="ts">
+import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
+import { eimDownload, dpDownload, toDownload } from '@/api/system/device/index';
+import { globalHeaders } from "@/utils/request";
+import QrCode from 'qrcode-decoder'
+
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { sys_code_method } = toRefs<any>(proxy?.useDict('sys_code_method'));
+const fileList = ref([])
+const progress = ref('0')
+const success = ref('')
+const eid = ref<any>('0')
+const trigger = ref<any>('')
+const errorCode = ref<any>('')
+const deviceFormRef = ref<ElFormInstance>();
+const form = ref({
+  method: '0',
+  code: undefined
+})
+const rules = ref({
+  method: [{ required: true, message: "请求方式不能为空", trigger: "blur" }],
+  code: [{ required: true, message: "code不能为空", trigger: "blur" }]
+})
+
+
+const uploadData = ref({})
+/*** 上传文件参数 */
+const upload = reactive({
+  // 设置上传的请求头部
+  headers: globalHeaders(),
+  // 上传的地址
+  url: import.meta.env.VITE_APP_BASE_API + "/resource/oss/upload"
+})
+
+const router = useRouter();
+
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
+
+const handlePictureCardPreview = () => {
+  // dialogImageUrl.value = uploadFile.url!
+  dialogVisible.value = true
+}
+
+function changeFile(file: any) {
+  let type = file.name.substr((file.name.lastIndexOf(".")))
+  if (type != '.jpg') {
+    proxy?.$modal.msgError("文件格式错误");
+    return false
+  }
+
+  dialogImageUrl.value = window.URL.createObjectURL(file.raw)
+
+  getQrUrl(file.raw).then((res: any) => {
+    console.log('res', res.data)
+    trigger.value = res.data
+  })
+}
+
+function handleRemove(file: any, fileList: any) {
+  fileList.value = []
+  dialogImageUrl.value = ''
 };
+
+const backTo = () => {
+  // router.push({
+  //   path: "/device",
+  // });
+  router.go(-1)
+}
+
+const profileDownload = async () => {
+  if (form.value.method == '0') {
+    const res = await dpDownload(eid.value)
+    if (res.code == 200) {
+      errorCode.value = res.code
+      const val = await eimDownload(eid.value)
+      progress.value = val.data
+      if (val.data < 100) {
+        setTimeout(downloadProgress, 500)
+      }
+    } else {
+      errorCode.value = '500'
+    }
+  } else {
+    if (form.value.method == '1') {
+      const res = await toDownload(eid.value, { trigger: form.value.code })
+      if (res.code == 200) {
+        errorCode.value = res.code
+        const val = await eimDownload(eid.value)
+        progress.value = val.data
+        if (val.data < 100) {
+          setTimeout(downloadProgress, 500)
+        }
+      } else {
+        errorCode.value = '500'
+      }
+    } else if (form.value.method == '2') {
+      const res = await toDownload(eid.value, { trigger: trigger.value })
+      if (res.code == 200) {
+        errorCode.value = res.code
+        const val = await eimDownload(eid.value)
+        progress.value = val.data
+        if (val.data < 100) {
+          setTimeout(downloadProgress, 500)
+        }
+      } else {
+        errorCode.value = '500'
+      }
+    }
+  }
+}
+
+const downloadProgress = async () => {
+  const val = await eimDownload(eid.value)
+  progress.value = val.data
+  if (val.data < 100) {
+    setTimeout(downloadProgress, 500)
+  }
+}
+
+const getQrUrl = (file: any) => {
+  //使用这个方法或者下面被注释的方法设置浏览器读取文件方式，chrome和ie有效，其他浏览器没测试
+  const URi = window.webkitURL.createObjectURL(file) || window.URL.createObjectURL(file)
+  // if (window.webkitURL) {
+  //     URi = window.webkitURL.createObjectURL(file);
+  // } else if (window.URL && window.URL.createObjectURL) {
+  //     URi = window.URL.createObjectURL(file);
+  // } else {
+  //     URi = null;
+  // }
+  const url = URi
+  // 初始化
+  const qr = new QrCode()
+  // 解析二维码，返回promise
+  return qr.decodeFromImage(url)
+}
+
+
+
+onMounted(() => {
+  eid.value = localStorage.getItem('eid')
+  // getList();
+})
+
 </script>
-<style scoped>
-.detail {
-  padding: 20px;
-}
-
-.title {
-  display: inline-block;
-  border-left: 2px solid #46a6ff;
-  margin-right: 20px;
-  padding-left: 10px;
-}
-
-.tip {
-  display: inline-block;
-  color: #46a6ff;
-  font-size: 12px;
-  margin-right: 20px;
-}
-
-.footer {
-  margin: 30px 20px;
-  float: right;
-}
-
-.el-menu-item {
-  margin: 0 20px;
-}
-
-.search span {
-  font-size: 14px;
-}
-
-.el-form-item .el-form-item__error {
-  left: 50px !important;
-}
-</style>

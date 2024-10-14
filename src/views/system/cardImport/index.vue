@@ -44,7 +44,7 @@
         <el-table-column label="预制EIM" align="center" prop="eimFqdn" />
         <el-table-column label="制卡商" align="center" prop="cardProviderName" />
         <el-table-column label="运营商" align="center" prop="providerName" />
-        <el-table-column label="操作时间" sortable align="center" prop="createTime">
+        <el-table-column label="操作时间" sortable align="center" prop="creationTime">
           <!-- <template #default="scope">
             <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
           </template> -->
@@ -58,7 +58,7 @@
     <!-- 导入卡明细对话框 -->
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="1200px" append-to-body @close="cancel">
       <div class="mt-4" style="position: relative;">
-        <el-upload style="width: auto;" accept=".xlsx, .xls" :headers="upload.headers" :action="upload.url"
+        <el-upload style="width: auto;" accept=".xlsx" :headers="upload.headers" :action="upload.url"
           :on-remove="handleRemove" :limit="1" :file-list="fileList" :before-upload="beforeUpload" :data="uploadData"
           :on-success="uploadFileSuccess">
           <el-button type="default" icon="Upload">上传文件</el-button>
@@ -192,7 +192,7 @@ function handleRemove() {
 
 function beforeUpload(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
-  if (type != '.xlsx' && type != '.xls') {
+  if (type != '.xlsx') {
     proxy?.$modal.msgError("文件格式错误");
     return false
   }

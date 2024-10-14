@@ -1,25 +1,40 @@
 <template>
   <el-card shadow="hover">
-    <el-table :data="paginatedData" stripe style="width: 100%">
-      <el-table-column label="创建时间" align="center" prop="eid" width="300px" />
-      <el-table-column label="动作" align="center" prop="iccid" width="200px" />
-      <el-table-column label="描述" align="center" prop="eimFqdn" />
+    <el-table :data="tableData" stripe style="width: 100%; height: 640px" :row-style="{ height: '60px' }">
+      <el-table-column label="创建时间" align="center" prop="creationTime" width="300px" show-overflow-tooltip/>
+      <el-table-column label="动作" align="center" prop="name" width="200px" max-height="250" show-overflow-tooltip/>
+      <el-table-column label="描述" align="center" prop="message" show-overflow-tooltip/>
     </el-table>
-    <el-pagination class="mt-6" v-show="totalItems" layout="total, sizes, prev, pager, next, jumper"
-      v-model:page="currentPage" v-model:limit="pageSize" @size-change="handleSizeChange"
-      @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30, 50]"
-      :page-size="pageSize" :total="totalItems">
-    </el-pagination>
+    <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+      v-model:limit="queryParams.pageSize" @pagination="getList" />
   </el-card>
 </template>
 <script setup name="In" lang="ts">
 import { ref } from "vue"
-// 实现分页
+import { operationLog } from "@/api/system/device/index"
+
+// const logData = ref<any>([]);
+const loading = ref(true);
+const total = ref(0);
+
+
 const currentPage = ref(1);
 const pageSize = ref(10);
 const totalItems = ref(0);
 const paginatedData = ref([]);
 const tableData = ref([])
+const eid = ref<any>('')
+const queryParams = ref({
+  eid: <any>undefined,
+  pageNum: 1,
+  pageSize: 10,
+  isAsc: undefined,
+  orderByColumn: undefined,
+  params: {
+  }
+})
+
+// 实现分页
 const handleCurrentChange = (newPage: any) => {
   currentPage.value = newPage;
   const start = (currentPage.value - 1) * pageSize.value;
@@ -34,4 +49,19 @@ const handleSizeChange = (newSize: any) => {
   const end = start + pageSize.value;
   paginatedData.value = tableData.value.slice(start, end);
 };
+
+/** 查询运营信息列表 */
+const getList = async () => {
+  loading.value = true;
+  eid.value = localStorage.getItem('eid')
+  const res = await operationLog(eid.value, queryParams.value);
+  tableData.value = res.rows;
+  total.value = res.total;
+  // handleCurrentChange(currentPage)
+  loading.value = false;
+}
+
+onMounted(() => {
+  getList();
+})
 </script>
