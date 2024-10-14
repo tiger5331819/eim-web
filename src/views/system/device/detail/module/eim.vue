@@ -9,7 +9,7 @@
           :search="false"></right-toolbar>
       </el-row>
     </template>
-    <el-table :data="tableData" stripe style="width: 100%">
+    <el-table :data="tableData" stripe style="width: 100%; height: 65vh">
       <el-table-column label="EIMId" align="center" prop="eimId" />
       <el-table-column label="EIM地址" align="center" prop="eimAddress" />
       <el-table-column label="EIMIdType" align="center" prop="eimIdType" />
@@ -26,21 +26,154 @@
         </template>
       </el-table-column>
     </el-table>
-    <!-- <el-pagination class="mt-6" v-show="totalItems" layout="total, sizes, prev, pager, next, jumper"
-      v-model:page="currentPage" v-model:limit="pageSize" @size-change="handleSizeChange"
-      @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30, 50]"
-      :page-size="pageSize" :total="totalItems">
-    </el-pagination> -->
   </el-card>
+
+  <!-- 新增/修改EIM对话框 -->
+  <el-dialog ref="formDialogRef" :title="dialog.title" v-model="dialog.visible" width="1200px" append-to-body
+    @close="closeDialog">
+    <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="180px">
+      <el-form-item label="EIMId" prop="eimId">
+        <el-input v-model="form.eimId" placeholder="请输入EIMId" />
+      </el-form-item>
+
+      <el-form-item label="EIM地址" prop="eimAddress">
+        <el-input v-model="form.eimAddress" placeholder="请输入EIM地址" />
+      </el-form-item>
+
+      <el-form-item label="EIMIdType" prop="eimIdType">
+        <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" />
+      </el-form-item>
+
+      <el-form-item label="counterValue" prop="counterValue">
+        <el-input v-model="form.counterValue" placeholder="请输入counterValue" />
+      </el-form-item>
+
+      <el-form-item label="associationToken" prop="associationToken">
+        <el-input v-model="form.associationToken" placeholder="请输入associationToken" />
+      </el-form-item>
+
+      <el-form-item label="authenticationMethod">
+        <el-radio-group v-model="form.authenticationMethod">
+          <el-radio v-for="dict in sye_eim_method" :key="dict.value" :label="dict.value">{{
+            dict.label }}</el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-form-item v-if="form.authenticationMethod == '0'" label="eimPublicKey" prop="eimPublicKey">
+        <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" />
+      </el-form-item>
+
+      <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate">
+        <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
+          :action="upload.url" :on-remove="handleRemove" :limit="1" :file-list="fileList" :before-upload="beforeUpload"
+          :data="uploadData" :on-success="uploadFileSuccess">
+          <el-button type="default" icon="Upload">上传文件</el-button>
+          <template #tip>
+            <div class="text-center">
+              <span>支持扩展名：.rar .zip .doc .docx .pdf .jpg...</span>
+            </div>
+          </template>
+        </el-upload>
+      </el-form-item>
+
+      <el-form-item label="trustedPublicKeyDataTls" prop="trustedPublicKeyDataTls">
+        <el-input v-model="form.trustedPublicKeyDataTls" placeholder="请输入trustedPublicKeyDataTls" />
+      </el-form-item>
+
+      <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
+        <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" />
+      </el-form-item>
+
+      <el-form-item label="euiccCiPKld" prop="euiccCiPKld">
+        <el-input v-model="form.euiccCiPKld" placeholder="请输入euiccCiPKld" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel()">取 消</el-button>
+      </div>
+    </template>
+  </el-dialog>
+
 </template>
 <script setup name="In" lang="ts">
 import { ref } from "vue"
+import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
 
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { sye_eim_method } = toRefs<any>(proxy?.useDict('sye_eim_method'));
+const deviceFormRef = ref<ElFormInstance>();
+const formDialogRef = ref<ElDialogInstance>();
+const dialog = reactive<DialogOption>({
+  visible: false,
+  title: ''
+});
 // const tableData = ref([])
 const tableData = ref([
   {
     eimId: 1
-  }
+  },
+  {
+    eimId: 2
+  },
+  {
+    eimId: 3
+  },
+  {
+    eimId: 4
+  },
+  {
+    eimId: 5
+  },
+  {
+    eimId: 6
+  },
+  {
+    eimId: 7
+  },
+  {
+    eimId: 8
+  },
+  {
+    eimId: 9
+  },
+  {
+    eimId: 10
+  },
+  {
+    eimId: 11
+  },
+  {
+    eimId: 12
+  },
+  {
+    eimId: 13
+  },
+  {
+    eimId: 14
+  },
+  {
+    eimId: 15
+  },
+  {
+    eimId: 16
+  },
+  {
+    eimId: 17
+  },
+  {
+    eimId: 18
+  },
+  {
+    eimId: 19
+  },
+  {
+    eimId: 20
+  },
+  {
+    eimId: 21
+  },
 ])
 
 const showSearch = ref(true)
@@ -55,5 +188,71 @@ const columns = ref<FieldOption[]>([
   { key: 5, label: `创建时间`, visible: true, children: [] },
   // { key: 6, label: `部门`, visible: false, children: [] },
 ])
+
+const initFormData: DeviceForm = {
+  eimIdOriginal: undefined,
+  eimId: undefined,
+  eimAddress: undefined,
+  eimIdType: undefined,
+  counterValue: undefined,
+  associationToken: undefined,
+  authenticationMethod: '0',
+  eimPublicKey: undefined,
+  eimCertificate: undefined,
+  trustedPublicKeyDataTls: undefined,
+  eimSupportedProtocol: undefined,
+  euiccCiPKld: undefined,
+}
+const data = reactive<PageData<DeviceForm, DeviceQuery>>({
+  form: { ...initFormData },
+  queryParams: {
+    pageNum: 1,
+    pageSize: 10,
+    eid: undefined,
+    iccid: undefined,
+    providerName: undefined,
+    status: undefined,
+    eimid: undefined,
+    isAsc: undefined,
+    params: {
+    },
+  },
+  rules: {
+    userName: [{ required: true, message: "账号不能为空", trigger: "blur" }, { min: 2, max: 20, message: "账号长度必须介于 2 和 20 之间", trigger: "blur" }],
+    nickName: [{ required: true, message: "姓名不能为空", trigger: "blur" }],
+    password: [{ required: true, message: "用户密码不能为空", trigger: "blur" }, { min: 5, max: 20, message: "用户密码长度必须介于 5 和 20 之间", trigger: "blur" }],
+    email: [{ type: "email", message: "请输入正确的邮箱地址", trigger: ["blur", "change"] }],
+    phonenumber: [{ pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur" }],
+    roleIds: [{ type: 'array', required: true, message: "角色权限不能为空", trigger: ["blur", "change"] }],
+  }
+})
+
+const { queryParams, form, rules } = toRefs<PageData<DeviceForm, DeviceQuery>>(data)
+
+/**
+ * 打开弹窗
+ */
+const handleUpdate = (e: any) => {
+  dialog.visible = true
+}
+
+/**
+ * 关闭弹窗
+ */
+const closeDialog = () => {
+  dialog.visible = false;
+  resetForm();
+}
+
+/**
+ * 重置表单
+ */
+const resetForm = () => {
+  deviceFormRef.value?.resetFields();
+  deviceFormRef.value?.clearValidate();
+
+  // form.value.id = undefined;
+  form.value.authenticationMethod = '0';
+}
 
 </script>

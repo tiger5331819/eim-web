@@ -11,7 +11,7 @@
         <Eim />
       </el-tab-pane>
     </el-tabs>
-    <el-button link type="primary" icon="Back" style="width: 100px; height: 40px; position: absolute; right: 20px; top: 20px;">返回</el-button>
+    <el-button link type="primary" icon="Back" style="width: 100px; height: 40px; position: absolute; right: 20px; top: 20px;" @click="backTo">返回</el-button>
   </div>
 </template>
 <script setup name="In" lang="ts">
