@@ -223,7 +223,9 @@ const getQrUrl = (file: any) => {
   //     URi = null;
   // }
   const url = URi
+  // 初始化
   const qr = new QrCode()
+  // 解析二维码，返回promise
   return qr.decodeFromImage(url)
 }
 
