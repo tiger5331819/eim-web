@@ -269,3 +269,16 @@ export const toDownload = (eid:any, data:any) => {
     data: data
   });
 };
+
+/**
+ * 业务号下载结果
+ * @param data
+ * @returns {*}
+ */
+
+export const toResult = (eid:any) => {
+  return request({
+    url: `/manager/device/${eid}/profileDownload/result`,
+    method: 'get',
+  });
+};

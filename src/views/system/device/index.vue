@@ -358,6 +358,7 @@ const submitForm = () => {
       let param = new FormData();
       const data = cloneDeep(form.value);
       const json = JSON.stringify(data);
+      // param.append('req', json);
       // 将 json 字符串转化为 Blob 对象
       const req = new Blob([json], {
         type: 'application/json',

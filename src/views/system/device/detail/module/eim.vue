@@ -149,6 +149,7 @@ const dialogSuccess = reactive<DialogOption>({
   visible: false,
   title: ''
 });
+
 const eid = ref<any>('')
 const eimId = ref<any>('')
 const isEdit = ref(false)
@@ -261,6 +262,7 @@ const handleAdd = (e: any) => {
  * 打开修改弹窗
  */
 const handleUpdate = async (e: any) => {
+  fileList.value = []
   dialog.visible = true;
   dialog.title = '更新EIM';
   isEdit.value = true;
@@ -270,6 +272,9 @@ const handleUpdate = async (e: any) => {
   form.value = res.data
   if (!form.value.eimPublicKey) {
     form.value.authenticationMethod = '1'
+    fileList.value = [{
+      name: '证书',
+    }]
   } else {
     form.value.authenticationMethod = '0'
   }
@@ -343,8 +348,10 @@ const submitForm = () => {
       const req = new Blob([json], {
         type: 'application/json',
       });
-      if(fileData.value){
+      if (fileData.value) {
         param.append('eimCertificate', fileData.value?.raw)
+      }else{
+        param.append('eimCertificate', '')
       }
       param.append('req', req)
 

@@ -48,12 +48,12 @@
 
         <el-form-item v-if="form.method == '1'" label="">
           <span v-if="errorCode && errorCode == '200'" style="font-size: 16px;">code文本识别成功，正在下载资源！</span>
-          <span v-else style="font-size: 16px;">code文本识别失败，请重新输入！</span>
+          <span v-if="errorCode && errorCode != '200'" style="font-size: 16px;">code文本识别失败，请重新输入！</span>
         </el-form-item>
 
         <el-form-item v-if="form.method == '2'" label="">
           <span v-if="errorCode && errorCode == '200'" style="font-size: 16px;">code图片识别成功，正在下载资源！</span>
-          <span v-else style="font-size: 16px;">code图片识别失败，请重新上传！</span>
+          <span v-if="errorCode && errorCode != '200'" style="font-size: 16px;">code图片识别失败，请重新上传！</span>
         </el-form-item>
 
         <el-form-item label="下载进度：">
@@ -68,17 +68,17 @@
           <el-progress :percentage="100" status="warning" />
           <el-progress :percentage="50" status="exception" />
         </div> -->
-        <el-form-item label="">
-          <!-- <span style="font-size: 16px;">code图片识别失败，请重新上传！</span> -->
-          <!-- <span style="font-size: 16px;">code图片识别成功，正在下载资源！</span> -->
+        <el-form-item v-if="progress == '100'" label="">
+          <span style="font-size: 16px; font-weight:bold;">{{ downloadData.iccid }}-详细信息</span>
         </el-form-item>
-        <el-form-item label="">
-          <!-- <span style="font-size: 16px;">code图片识别失败，请重新上传！</span> -->
-          <!-- <span style="font-size: 16px;">code图片识别成功，正在下载资源！</span> -->
+        <el-form-item v-if="progress == '100'" label="">
+          <span style="font-size: 16px;">运营商：{{ downloadData.issue }}</span>
         </el-form-item>
-        <el-form-item label="">
-          <!-- <span style="font-size: 16px;">code图片识别失败，请重新上传！</span> -->
-          <!-- <span style="font-size: 16px;">code图片识别成功，正在下载资源！</span> -->
+        <el-form-item v-if="progress == '100'" label="">
+          <span style="font-size: 16px;">所属地：{{ downloadData.country }}</span>
+        </el-form-item>
+        <el-form-item v-if="progress == '100'" label="">
+          <span style="font-size: 16px;">ICCID：{{ downloadData.iccid }}</span>
         </el-form-item>
       </el-form>
 
@@ -93,13 +93,13 @@
 
 <script setup name="In" lang="ts">
 import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
-import { eimDownload, dpDownload, toDownload } from '@/api/system/device/index';
+import { eimDownload, dpDownload, toDownload, toResult } from '@/api/system/device/index';
 import { globalHeaders } from "@/utils/request";
 import QrCode from 'qrcode-decoder'
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_code_method } = toRefs<any>(proxy?.useDict('sys_code_method'));
-const fileList = ref([])
+const fileList = ref<any>([])
 const progress = ref('0')
 const success = ref('')
 const eid = ref<any>('0')
@@ -109,6 +109,11 @@ const deviceFormRef = ref<ElFormInstance>();
 const form = ref({
   method: '0',
   code: undefined
+})
+const downloadData = ref<any>({
+  iccid: undefined,
+  issue: undefined,
+  country: undefined,
 })
 const rules = ref({
   method: [{ required: true, message: "请求方式不能为空", trigger: "blur" }],
@@ -142,11 +147,15 @@ function changeFile(file: any) {
     return false
   }
 
+  // fileList.value.push(file)
+
   dialogImageUrl.value = window.URL.createObjectURL(file.raw)
 
   getQrUrl(file.raw).then((res: any) => {
-    console.log('res', res.data)
-    trigger.value = res.data
+    trigger.value = res?.data
+    if (!trigger.value) {
+      proxy?.$modal.msgError("文件信息错误");
+    }
   })
 }
 
@@ -163,6 +172,7 @@ const backTo = () => {
 }
 
 const profileDownload = async () => {
+  progress.value ='0'
   if (form.value.method == '0') {
     const res = await dpDownload(eid.value)
     if (res.code == 200) {
@@ -196,6 +206,8 @@ const profileDownload = async () => {
         progress.value = val.data
         if (val.data < 100) {
           setTimeout(downloadProgress, 500)
+        } else {
+          downloadResult()
         }
       } else {
         errorCode.value = '500'
@@ -209,6 +221,8 @@ const downloadProgress = async () => {
   progress.value = val.data
   if (val.data < 100) {
     setTimeout(downloadProgress, 500)
+  } else {
+    downloadResult()
   }
 }
 
@@ -229,10 +243,21 @@ const getQrUrl = (file: any) => {
   return qr.decodeFromImage(url)
 }
 
+const downloadResult = async () => {
+  const res = await toResult(eid.value)
+  downloadData.value = res.data
+}
+
 
 
 onMounted(() => {
   eid.value = localStorage.getItem('eid')
+  errorCode.value = ''
+  downloadData.value = {
+    iccid: undefined,
+    issue: undefined,
+    country: undefined,
+  }
   // getList();
 })
 
