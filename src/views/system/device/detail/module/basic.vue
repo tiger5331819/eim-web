@@ -58,7 +58,7 @@
           <span>{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="运营商" align="center" prop="serviceProviderName" />
+      <el-table-column label="运营商" align="center" prop="issuer" />
       <el-table-column label="ICCID" align="center" prop="iccid" />
       <el-table-column label="状态" align="center" prop="state">
         <template #default="scope">
