@@ -43,7 +43,7 @@
         <el-table-column label="业务号数量" align="center" prop="profileCount" />
         <el-table-column label="在线状态" align="center" prop="online">
           <template #default="scope">
-          <dict-tag :options="sys_device_status" :value="scope.row.online" />
+            <dict-tag :options="sys_device_status" :value="scope.row.online" />
             <!-- <span v-if="scope.row.online == '1'">在线</span>
             <span v-if="scope.row.online == '0'">离线</span> -->
           </template>
@@ -92,7 +92,10 @@
         </el-form-item>
 
         <el-form-item label="EIMIdType" prop="eimIdType">
-          <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" />
+          <!-- <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" /> -->
+          <el-select v-model="form.eimIdType" placeholder="请选择EIMIdType" clearable style="width:100%">
+            <el-option v-for="dict in sys_eim_id" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="counterValue" prop="counterValue">
@@ -115,16 +118,16 @@
         </el-form-item>
 
         <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
-          <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
-            action="#" :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1"
-            :file-list="fileList" :data="uploadData">
+          <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
+            :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
+            :data="uploadData">
             <!-- <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
             :action="upload.url" :on-remove="handleRemove" :limit="1" :file-list="fileList"
             :before-upload="beforeUpload" :data="uploadData" :on-success="uploadFileSuccess"> -->
             <el-button type="default" icon="Upload">上传文件</el-button>
             <template #tip>
               <div class="text-center">
-                <span>支持扩展名：.rar .zip .doc .docx .pdf .jpg...</span>
+                <span>支持扩展名：.der .pem</span>
               </div>
             </template>
           </el-upload>
@@ -135,7 +138,10 @@
         </el-form-item>
 
         <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
-          <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" />
+          <!-- <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" /> -->
+          <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable style="width:100%">
+            <el-option v-for="dict in sys_eim_sp" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="euiccCiPKld" prop="euiccCipkId">
@@ -162,7 +168,7 @@ import { globalHeaders } from "@/utils/request";
 import { cloneDeep } from "lodash";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_status, sye_eim_method } = toRefs<any>(proxy?.useDict('sys_device_status', 'sye_eim_method'));
+const { sys_device_status, sye_eim_method, sys_eim_id, sys_eim_sp } = toRefs<any>(proxy?.useDict('sys_device_status', 'sye_eim_method', 'sys_eim_id', 'sys_eim_sp'));
 const fileList = ref([])
 const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
 const deviceFormRef = ref<ElFormInstance>();
@@ -326,7 +332,7 @@ const cancel = () => {
 
 function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
-  if (type != '.rar' && type != '.zip' && type != '.doc' && type != '.docx' && type != '.pdf' && type != '.jpg') {
+  if (type != '.der' && type != '.pem') {
     proxy?.$modal.msgError("文件格式错误");
     return false
   }
@@ -344,10 +350,10 @@ function optionChange() {
 }
 
 function radioChange() {
-  if(form.value.authenticationMethod == '0'){
+  if (form.value.authenticationMethod == '0') {
     form.value.eimCertificate = undefined
     fileData.value = undefined
-  }else{
+  } else {
     form.value.eimPublicKey = undefined
   }
 }
@@ -364,7 +370,7 @@ const submitForm = () => {
       const req = new Blob([json], {
         type: 'application/json',
       });
-      if(fileData.value){
+      if (fileData.value) {
         param.append('eimCertificate', fileData.value?.raw)
       }
       param.append('req', req)

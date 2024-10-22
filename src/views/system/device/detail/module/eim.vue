@@ -41,7 +41,10 @@
       </el-form-item>
 
       <el-form-item label="EIMIdType" prop="eimIdType">
-        <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" />
+        <!-- <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" /> -->
+        <el-select v-model="form.eimIdType" placeholder="请选择EIMIdType" clearable style="width:100%">
+            <el-option v-for="dict in sys_eim_id" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
       </el-form-item>
 
       <el-form-item label="counterValue" prop="counterValue">
@@ -64,7 +67,7 @@
       </el-form-item>
 
       <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
-        <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
+        <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers"
           action="#" :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1"
           :file-list="fileList" :data="uploadData">
           <!-- <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
@@ -73,7 +76,7 @@
           <el-button type="default" icon="Upload">上传文件</el-button>
           <template #tip>
             <div class="text-center">
-              <span>支持扩展名：.rar .zip .doc .docx .pdf .jpg...</span>
+              <span>支持扩展名：.der .pem</span>
             </div>
           </template>
         </el-upload>
@@ -84,7 +87,10 @@
       </el-form-item>
 
       <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
-        <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" />
+        <!-- <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" /> -->
+        <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable style="width:100%">
+            <el-option v-for="dict in sys_eim_sp" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
       </el-form-item>
 
       <el-form-item label="euiccCiPKld" prop="euiccCipkId">
@@ -134,7 +140,7 @@ import axios from "axios";
 import { cloneDeep } from "lodash";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sye_eim_method } = toRefs<any>(proxy?.useDict('sye_eim_method'));
+const { sye_eim_method, sys_eim_id, sys_eim_sp } = toRefs<any>(proxy?.useDict('sye_eim_method', 'sys_eim_id', 'sys_eim_sp'));
 const eimFormRef = ref<ElFormInstance>();
 const formDialogRef = ref<ElDialogInstance>();
 const dialog = reactive<DialogOption>({
@@ -380,7 +386,7 @@ const submitForm = () => {
 
 function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
-  if (type != '.rar' && type != '.zip' && type != '.doc' && type != '.docx' && type != '.pdf' && type != '.jpg') {
+  if (type != '.der' && type != '.pem') {
     proxy?.$modal.msgError("文件格式错误");
     return false
   }

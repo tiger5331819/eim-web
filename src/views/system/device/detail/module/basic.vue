@@ -203,6 +203,10 @@ const handleDisable = async (row: any) => {
   }
 }
 
+const handleStatusChange = () => {
+
+}
+
 /** 删除  */
 const handleDelete = async (row: any) => {
   const res = await toDelete(eid.value, row.iccid)
