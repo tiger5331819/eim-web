@@ -32,8 +32,11 @@
           v-else>修改</el-button>
       </el-form-item>
       <el-form-item label="在线状态:">
-        <span v-if="detailData.online == '1'">在线</span>
-        <span v-if="detailData.online == '0'">离线</span>
+        <template #default="">
+          <dict-tag :options="sys_device_status" :value="detailData.online" />
+        </template>
+        <!-- <span v-if="detailData.online == '1'">在线</span>
+        <span v-if="detailData.online == '0'">离线</span> -->
       </el-form-item>
       <el-form-item label="激活时间:">
         <span>{{ detailData.activationTime || '--' }}</span>
@@ -62,21 +65,18 @@
       <el-table-column label="ICCID" align="center" prop="iccid" />
       <el-table-column label="状态" align="center" prop="state">
         <template #default="scope">
-          <span v-if="scope.row.state == '0'">disable</span>
-          <span v-else>enable</span>
+          <dict-tag :options="sys_profile_status" :value="scope.row.state" />
         </template>
       </el-table-column>
       <el-table-column label="操作" fixed="right" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip v-if="scope.row.state == '0'" content="启用业务号" placement="top">
-              <el-switch v-model="scope.row.state" active-value="1" inactive-value="0" active-text="启用"
-                inactive-text="停用" class="mr-8" :loading="switchLoading"
-                :before-change="() => handleEnable(scope.row)"></el-switch>
+            <el-switch v-model="scope.row.state" active-value="1" inactive-value="0" active-text="启用" inactive-text="停用"
+              class="mr-8" :loading="switchLoading" :before-change="() => handleEnable(scope.row)"></el-switch>
           </el-tooltip>
           <el-tooltip v-else content="停用业务号" placement="top">
-              <el-switch v-model="scope.row.state" active-value="1" inactive-value="0" active-text="启用"
-                inactive-text="停用" class="mr-8" :loading="switchLoading"
-                :before-change="() => handleDisable(scope.row)"></el-switch>
+            <el-switch v-model="scope.row.state" active-value="1" inactive-value="0" active-text="启用" inactive-text="停用"
+              class="mr-8" :loading="switchLoading" :before-change="() => handleDisable(scope.row)"></el-switch>
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
             <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"> </el-button>
@@ -84,8 +84,8 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="totalItems > 0" :total="totalItems" v-model:page="currentPage"
-      v-model:limit="pageSize" @pagination="getList" />
+    <pagination v-show="totalItems > 0" :total="totalItems" v-model:page="currentPage" v-model:limit="pageSize"
+      @pagination="getList" />
     <!-- <el-pagination class="mt-6" v-show="totalItems" layout="total, sizes, prev, pager, next, jumper"
       v-model:page="currentPage" v-model:limit="pageSize" @size-change="handleSizeChange"
       @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30, 50]"
@@ -96,8 +96,11 @@
 <script setup name="In" lang="ts">
 import { ref } from "vue"
 import { deviceDetail, deviceName, companyName, toEnable, toDisable, toDelete, updateDetail } from "@/api/system/device/index";
+import { ta } from "element-plus/es/locale";
+import tab from "@/plugins/tab";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { sys_profile_status, sys_device_status } = toRefs<any>(proxy?.useDict('sys_profile_status', 'sys_device_status'));
 
 const router = useRouter();
 const detailData = ref<any>({})
@@ -132,9 +135,16 @@ const getList = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
   const res = await deviceDetail(eid.value);
+  // console.log('tableData.value', JSON.parse(JSON.stringify(res.data.profileList)))
   detailData.value = res.data;
   tableData.value = res.data.profileList;
   totalItems.value = res.data.profileList.length;
+  // detailData.value = JSON.parse(JSON.stringify(res.data));
+  // tableData.value = JSON.parse(JSON.stringify(res.data.profileList));
+  // totalItems.value = JSON.parse(JSON.stringify(res.data.profileList.length));
+  tableData.value.forEach((item:any) => {
+    item.state = item.state.toString()
+  })
   handleCurrentChange(currentPage.value)
   loading.value = false;
 }
@@ -219,11 +229,11 @@ const handleUpdate = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
   const res = await updateDetail(eid.value)
-  if(res.code == 200){
+  if (res.code == 200) {
     getList();
     proxy?.$modal.msgSuccess("操作成功");
     loading.value = false;
-  }else{
+  } else {
     proxy?.$modal.msgError("操作失败");
     loading.value = false;
   }

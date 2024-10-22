@@ -43,8 +43,9 @@
         <el-table-column label="业务号数量" align="center" prop="profileCount" />
         <el-table-column label="在线状态" align="center" prop="online">
           <template #default="scope">
-            <span v-if="scope.row.online == '1'">在线</span>
-            <span v-if="scope.row.online == '0'">离线</span>
+          <dict-tag :options="sys_device_status" :value="scope.row.online" />
+            <!-- <span v-if="scope.row.online == '1'">在线</span>
+            <span v-if="scope.row.online == '0'">离线</span> -->
           </template>
         </el-table-column>
         <el-table-column label="EIMid" align="center" prop="eimFqdn" />
