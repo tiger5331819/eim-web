@@ -24,8 +24,8 @@
         </el-form-item>
 
         <el-form-item v-if="form.method == '2'" label="上传QRcode：" prop="code">
-          <meta http-equiv="Content-Security-Policy"
-            content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src *  blob: ; " />
+          <!-- <meta http-equiv="Content-Security-Policy"
+            content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src *  blob: ; " /> -->
           <el-upload style="width: auto;" accept=".jpg, .png, .svg" :headers="upload.headers" list-type="picture-card"
             action="#" :on-change="changeFile" :on-remove="handleRemove" :auto-upload="false" :limit="1"
             :file-list="fileList" :data="uploadData" :on-preview="handlePictureCardPreview">
