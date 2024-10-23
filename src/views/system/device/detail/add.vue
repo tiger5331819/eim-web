@@ -96,6 +96,7 @@ import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance
 import { eimDownload, dpDownload, toDownload, toResult } from '@/api/system/device/index';
 import { globalHeaders } from "@/utils/request";
 import QrCode from 'qrcode-decoder'
+import { get } from "http";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_code_method } = toRefs<any>(proxy?.useDict('sys_code_method'));
@@ -140,7 +141,7 @@ const handlePictureCardPreview = () => {
   // dialogVisible.value = true
 }
 
-function changeFile(file: any) {
+async function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
   if (type != '.jpg' && type != '.png' && type != '.svg') {
     proxy?.$modal.msgError("文件格式错误");
@@ -152,13 +153,18 @@ function changeFile(file: any) {
   console.log('file.raw1',file.raw)
   // dialogImageUrl.value = window.URL.createObjectURL(file.raw)
 
-  getQrUrl(file.raw).then((res: any) => {
-    console.log('res',res)
-    trigger.value = res?.data
-    if (!trigger.value) {
-      proxy?.$modal.msgError("文件信息错误");
-    }
-  })
+  const val:any = await getQrUrl(file.raw)
+  console.log('val',val)
+  trigger.value = val.data
+
+
+  // getQrUrl(file.raw).then((res: any) => {
+  //   console.log('res',res)
+  //   trigger.value = res?.data
+  //   if (!trigger.value) {
+  //     proxy?.$modal.msgError("文件信息错误");
+  //   }
+  // })
 }
 
 function handleRemove(file: any, fileList: any) {
