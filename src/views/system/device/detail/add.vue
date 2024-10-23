@@ -19,12 +19,12 @@
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item v-if="form.method == '1'" label="输入code：" prop="code">
-          <el-input type="textarea" v-model="form.code" placeholder="请输入code" style="max-width: 500px;" />
+        <el-form-item v-if="form.method == '1'" label="输入QRcode：" prop="code">
+          <el-input type="textarea" v-model="form.code" placeholder="请输入QRcode" style="max-width: 500px;" />
         </el-form-item>
 
-        <el-form-item v-if="form.method == '2'" label="上传code：" prop="code">
-          <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
+        <el-form-item v-if="form.method == '2'" label="上传QRcode：" prop="code">
+          <el-upload style="width: auto;" accept=".jpg, .png, .svg" :headers="upload.headers"
             list-type="picture-card" action="#" :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove"
             :limit="1" :file-list="fileList" :data="uploadData" :on-preview="handlePictureCardPreview">
             <!-- <el-upload style="width: auto;" accept=".jpg" :headers="upload.headers" :action="upload.url"
@@ -35,7 +35,7 @@
             </el-icon>
             <template #tip>
               <div class="text-center">
-                <span>支持扩展名：.jpg</span>
+                <span>支持扩展名：.jpg .png .svg</span>
               </div>
             </template>
           </el-upload>
@@ -142,7 +142,7 @@ const handlePictureCardPreview = () => {
 
 function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
-  if (type != '.jpg') {
+  if (type != '.jpg' && type != '.png' && type != '.svg') {
     proxy?.$modal.msgError("文件格式错误");
     return false
   }
