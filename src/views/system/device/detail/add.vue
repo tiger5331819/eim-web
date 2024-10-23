@@ -148,7 +148,8 @@ function changeFile(file: any) {
   }
 
   // fileList.value.push(file)
-
+  console.log('file1',file)
+  console.log('file.raw1',file.raw)
   dialogImageUrl.value = window.URL.createObjectURL(file.raw)
 
   getQrUrl(file.raw).then((res: any) => {
@@ -227,6 +228,7 @@ const downloadProgress = async () => {
 }
 
 const getQrUrl = (file: any) => {
+  console.log('file',file)
   //使用这个方法或者下面被注释的方法设置浏览器读取文件方式，chrome和ie有效，其他浏览器没测试
   const URi = window.webkitURL.createObjectURL(file) || window.URL.createObjectURL(file)
   // if (window.webkitURL) {
@@ -237,6 +239,7 @@ const getQrUrl = (file: any) => {
   //     URi = null;
   // }
   const url = URi
+  console.log('url',url)
   // 初始化
   const qr = new QrCode()
   // 解析二维码，返回promise
