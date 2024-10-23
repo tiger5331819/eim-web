@@ -85,9 +85,9 @@
 
     </el-card>
 
-    <!-- <el-dialog v-model="dialogVisible">
-      <img w-full :src="dialogImageUrl" alt="Preview Image" />
-    </el-dialog> -->
+    <el-dialog v-model="dialogVisible">
+      <img w-full :src="dialogImageUrl" alt="Preview Image" content="font-src 'self' data:; img-src 'self' data:; default-src 'self' https://eim-web.kube.yunbaitech.cn/" />
+    </el-dialog>
   </div>
 </template>
 
@@ -153,6 +153,7 @@ function changeFile(file: any) {
   // dialogImageUrl.value = window.URL.createObjectURL(file.raw)
 
   getQrUrl(file.raw).then((res: any) => {
+    console.log('res',res)
     trigger.value = res?.data
     if (!trigger.value) {
       proxy?.$modal.msgError("文件信息错误");
