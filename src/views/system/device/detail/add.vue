@@ -85,9 +85,9 @@
 
     </el-card>
 
-    <el-dialog v-model="dialogVisible">
+    <!-- <el-dialog v-model="dialogVisible">
       <img w-full :src="dialogImageUrl" alt="Preview Image" />
-    </el-dialog>
+    </el-dialog> -->
   </div>
 </template>
 
@@ -137,7 +137,7 @@ const dialogVisible = ref(false)
 
 const handlePictureCardPreview = () => {
   // dialogImageUrl.value = uploadFile.url!
-  dialogVisible.value = true
+  // dialogVisible.value = true
 }
 
 function changeFile(file: any) {
@@ -150,7 +150,7 @@ function changeFile(file: any) {
   // fileList.value.push(file)
   console.log('file1',file)
   console.log('file.raw1',file.raw)
-  dialogImageUrl.value = window.URL.createObjectURL(file.raw)
+  // dialogImageUrl.value = window.URL.createObjectURL(file.raw)
 
   getQrUrl(file.raw).then((res: any) => {
     trigger.value = res?.data
