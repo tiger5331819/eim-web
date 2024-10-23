@@ -24,9 +24,11 @@
         </el-form-item>
 
         <el-form-item v-if="form.method == '2'" label="上传QRcode：" prop="code">
-          <el-upload style="width: auto;" accept=".jpg, .png, .svg" :headers="upload.headers"
-            list-type="picture-card" action="#" :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove"
-            :limit="1" :file-list="fileList" :data="uploadData" :on-preview="handlePictureCardPreview">
+          <!-- <meta http-equiv="Content-Security-Policy"
+            content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src *  blob: ; " /> -->
+          <el-upload style="width: auto;" accept=".jpg, .png, .svg" :headers="upload.headers" list-type="picture-card"
+            action="#" :on-change="changeFile" :on-remove="handleRemove" :auto-upload="false" :limit="1"
+            :file-list="fileList" :data="uploadData" :on-preview="handlePictureCardPreview">
             <!-- <el-upload style="width: auto;" accept=".jpg" :headers="upload.headers" :action="upload.url"
             :on-remove="handleRemove" :limit="1" :file-list="fileList" list-type="picture-card"
             :before-upload="beforeUpload" :data="uploadData" :on-success="uploadFileSuccess" :auto-upload="false"> -->
@@ -61,13 +63,6 @@
             <el-progress :percentage="progress" :status="success" style="width: 500px;"></el-progress>
           </div>
         </el-form-item>
-        <!-- <div class="m-4" style="max-width: 600px;">
-          <el-progress :percentage="50" />
-          <el-progress :percentage="100" :format="format" />
-          <el-progress :percentage="100" status="success" />
-          <el-progress :percentage="100" status="warning" />
-          <el-progress :percentage="50" status="exception" />
-        </div> -->
         <el-form-item v-if="progress == '100'" label="">
           <span style="font-size: 16px; font-weight:bold;">{{ downloadData.iccid }}-详细信息</span>
         </el-form-item>
@@ -86,7 +81,7 @@
     </el-card>
 
     <el-dialog v-model="dialogVisible">
-      <img w-full :src="dialogImageUrl" alt="Preview Image" content="font-src 'self' data:; img-src 'self' data:; default-src 'self' https://eim-web.kube.yunbaitech.cn/" />
+      <img w-full :src="dialogImageUrl" alt="Preview Image" content="default-src 'self' *; img-src *;" />
     </el-dialog>
   </div>
 </template>
@@ -127,8 +122,10 @@ const uploadData = ref({})
 const upload = reactive({
   // 设置上传的请求头部
   headers: globalHeaders(),
+  // headers: { 'Content-Type': 'multipart/form-data' },
   // 上传的地址
   url: import.meta.env.VITE_APP_BASE_API + "/resource/oss/upload"
+  // url: "https://mis.latenight.cc/prod-api/file/oss/upload"
 })
 
 const router = useRouter();
@@ -138,10 +135,10 @@ const dialogVisible = ref(false)
 
 const handlePictureCardPreview = () => {
   // dialogImageUrl.value = uploadFile.url!
-  // dialogVisible.value = true
+  dialogVisible.value = true
 }
 
-async function changeFile(file: any) {
+function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
   if (type != '.jpg' && type != '.png' && type != '.svg') {
     proxy?.$modal.msgError("文件格式错误");
@@ -149,22 +146,22 @@ async function changeFile(file: any) {
   }
 
   // fileList.value.push(file)
-  console.log('file1',file)
-  console.log('file.raw1',file.raw)
-  // dialogImageUrl.value = window.URL.createObjectURL(file.raw)
+  console.log('file1', file)
+  console.log('file.raw1', file.raw)
+  dialogImageUrl.value = window.URL.createObjectURL(file.raw)
 
-  const val:any = await getQrUrl(file.raw)
-  console.log('val',val)
-  trigger.value = val.data
+  // const val:any = await getQrUrl(file.raw)
+  // console.log('val',val)
+  // trigger.value = val.data
 
 
-  // getQrUrl(file.raw).then((res: any) => {
-  //   console.log('res',res)
-  //   trigger.value = res?.data
-  //   if (!trigger.value) {
-  //     proxy?.$modal.msgError("文件信息错误");
-  //   }
-  // })
+  getQrUrl(file.raw).then((res: any) => {
+    console.log('res', res)
+    trigger.value = res?.data
+    if (!trigger.value) {
+      proxy?.$modal.msgError("文件信息错误");
+    }
+  })
 }
 
 function handleRemove(file: any, fileList: any) {
@@ -180,7 +177,7 @@ const backTo = () => {
 }
 
 const profileDownload = async () => {
-  progress.value ='0'
+  progress.value = '0'
   if (form.value.method == '0') {
     const res = await dpDownload(eid.value)
     if (res.code == 200) {
@@ -235,20 +232,20 @@ const downloadProgress = async () => {
 }
 
 const getQrUrl = (file: any) => {
-  console.log('file',file)
+  console.log('file', file)
   //使用这个方法或者下面被注释的方法设置浏览器读取文件方式，chrome和ie有效，其他浏览器没测试
   const URi = window.webkitURL.createObjectURL(file) || window.URL.createObjectURL(file)
-  let uri:any = ''
-  if (window.webkitURL) {
-    uri = window.webkitURL.createObjectURL(file);
-  } else if (window.URL && window.URL.createObjectURL) {
-    uri = window.URL.createObjectURL(file);
-  } else {
-    uri = null;
-  }
+  // let uri:any = ''
+  // if (window.webkitURL) {
+  //   uri = window.webkitURL.createObjectURL(file);
+  // } else if (window.URL && window.URL.createObjectURL) {
+  //   uri = window.URL.createObjectURL(file);
+  // } else {
+  //   uri = null;
+  // }
   const url = URi
-  console.log('url',url)
-  console.log('uri',uri)
+  console.log('url', url)
+  // console.log('uri',uri)
   // 初始化
   const qr = new QrCode()
   // 解析二维码，返回promise
