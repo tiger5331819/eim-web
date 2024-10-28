@@ -1,7 +1,7 @@
 {
-  "name": "ruoyi-vue-plus",
+  "name": "eIM设备管理平台",
   "version": "5.1.2",
-  "description": "RuoYi-Vue-Plus多租户管理系统",
+  "description": "eIM设备管理平台",
   "author": "LionLi",
   "license": "MIT",
   "scripts": {
