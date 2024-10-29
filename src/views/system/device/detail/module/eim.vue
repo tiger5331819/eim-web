@@ -67,8 +67,9 @@
       </el-form-item>
 
       <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
-        <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#" :on-change="changeFile"
-          :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList" :data="uploadData">
+        <el-upload ref="uploadRef" style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
+          :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
+          :data="uploadData" :on-exceed="handleExceed">
           <!-- <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
           :action="upload.url" :on-remove="handleRemove" :limit="1" :file-list="fileList" :before-upload="beforeUpload"
           :data="uploadData" :on-success="uploadFileSuccess"> -->
@@ -143,6 +144,7 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sye_eim_method, sys_eim_id, sys_eim_sp } = toRefs<any>(proxy?.useDict('sye_eim_method', 'sys_eim_id', 'sys_eim_sp'));
 const eimFormRef = ref<ElFormInstance>();
 const formDialogRef = ref<ElDialogInstance>();
+const uploadRef = ref<any>()
 const dialog = reactive<DialogOption>({
   visible: false,
   title: ''
@@ -286,6 +288,9 @@ const handleUpdate = async (e: any) => {
   eimId.value = e.eimId;
   const res = await eimDetail(eid.value, e.eimId);
   form.value = res.data
+  if (!form.value.counterValue) {
+    form.value.counterValue = '0'
+  }
   if (!form.value.eimPublicKey) {
     form.value.authenticationMethod = '1'
     fileList.value = [{
@@ -419,35 +424,13 @@ function handleRemove(file: any, fileList: any) {
   form.value.eimCertificate = undefined
 };
 
-// function beforeUpload(file: any) {
-//   // uploadData.value = { inId: props.id }; //上传携带的参数名
-//   let type = file.name.substr((file.name.lastIndexOf(".")))
-//   if (type != '.rar' && type != '.zip' && type != '.doc' && type != '.docx' && type != '.pdf' && type != '.jpg') {
-//     proxy?.$modal.msgError("文件格式错误");
-//     return false
-//   }
-//   let promise = new Promise((resolve) => {
-//     nextTick(function () {
-//       resolve(true);
-//     });
-//   });
-//   return promise;
-// }
-
-// //上传成功
-// function uploadFileSuccess(res: any, file: any, fileList: any) {
-//   console.log('res', res)
-//   if (res.code == 200) {
-//     proxy?.$modal.msgSuccess("文件上传成功");
-//     tableData.value = res.data || [];
-//     // totalItems.value = tableData.value.length;
-//     // const start = (currentPage.value - 1) * pageSize.value;
-//     // const end = start + pageSize.value;
-//     // paginatedData.value = tableData.value.slice(start, end);
-//   } else {
-//     proxy?.$modal.msgError("文件上传失败");
-//   }
-// }
+// 限制上传一个文件，重新选择文件替换原来的文件
+const handleExceed = (files: any) => {
+  uploadRef.value.clearFiles()
+  nextTick(() => {
+    uploadRef.value.handleStart(files[0])
+  })
+}
 
 onMounted(() => {
   getList();
