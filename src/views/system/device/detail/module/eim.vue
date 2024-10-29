@@ -5,16 +5,16 @@
         <el-col :span="1.5">
           <el-button type="primary" icon="Plus" @click="handleAdd">新增EIM</el-button>
         </el-col>
+        <el-col :span="1.5">
+          <el-button type="primary" icon="Refresh" @click="handleSynchronize" class="mr-4">同步数据</el-button>
+        </el-col>
         <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" :columns="columns"
           :search="false"></right-toolbar>
       </el-row>
     </template>
     <el-table :data="tableData" stripe style="width: 100%; max-height: 65vh">
       <el-table-column label="EIMId" align="center" prop="eimId" />
-      <el-table-column label="EIM地址" align="center" prop="eimFqdn" />
       <el-table-column label="EIMIdType" align="center" prop="eimIdType" />
-      <el-table-column label="eimSupportedProtocol" align="center" prop="eimSupportedProtocol" />
-      <el-table-column label="euiccCiPKId" align="center" prop="euiccCipkId" />
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip content="更新" placement="top">
@@ -43,8 +43,8 @@
       <el-form-item label="EIMIdType" prop="eimIdType">
         <!-- <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" /> -->
         <el-select v-model="form.eimIdType" placeholder="请选择EIMIdType" clearable style="width:100%">
-            <el-option v-for="dict in sys_eim_id" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
+          <el-option v-for="dict in sys_eim_id" :key="dict.value" :label="dict.label" :value="dict.value" />
+        </el-select>
       </el-form-item>
 
       <el-form-item label="counterValue" prop="counterValue">
@@ -67,9 +67,8 @@
       </el-form-item>
 
       <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
-        <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers"
-          action="#" :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1"
-          :file-list="fileList" :data="uploadData">
+        <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#" :on-change="changeFile"
+          :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList" :data="uploadData">
           <!-- <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
           :action="upload.url" :on-remove="handleRemove" :limit="1" :file-list="fileList" :before-upload="beforeUpload"
           :data="uploadData" :on-success="uploadFileSuccess"> -->
@@ -88,9 +87,10 @@
 
       <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
         <!-- <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" /> -->
-        <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable style="width:100%">
-            <el-option v-for="dict in sys_eim_sp" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
+        <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable
+          style="width:100%">
+          <el-option v-for="dict in sys_eim_sp" :key="dict.value" :label="dict.label" :value="dict.value" />
+        </el-select>
       </el-form-item>
 
       <el-form-item label="euiccCiPKld" prop="euiccCipkId">
@@ -133,7 +133,7 @@
 <script setup name="In" lang="ts">
 import { ref } from "vue"
 import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
-import { eimList, eimDetail, eimAdd, eimDelete, eimEdit } from '@/api/system/device/index';
+import { eimList, eimDetail, eimAdd, eimDelete, eimEdit, updateEim } from '@/api/system/device/index';
 import { globalHeaders } from "@/utils/request";
 import { to } from "await-to-js";
 import axios from "axios";
@@ -166,7 +166,7 @@ const uploadData = ref<any>({
   eimId: undefined,
   eimFqdn: undefined,
   eimIdType: undefined,
-  counterValue: undefined,
+  counterValue: '0',
   associationToken: undefined,
   authenticationMethod: '0',
   eimPublicKey: undefined,
@@ -200,6 +200,15 @@ const getList = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
   const res = await eimList(eid.value);
+  tableData.value = res.rows;
+  loading.value = false;
+}
+
+/** 同步数据 */
+const handleSynchronize = async () => {
+  eid.value = localStorage.getItem('eid')
+  loading.value = true;
+  const res = await updateEim(eid.value);
   tableData.value = res.rows;
   loading.value = false;
 }
@@ -247,6 +256,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" }],
     eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" }],
     eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
+    counterValue: [{ required: true, message: "counterValue不能为空", trigger: "blur" }],
     authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
     eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" }],
     eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
@@ -356,7 +366,7 @@ const submitForm = () => {
       });
       if (fileData.value) {
         param.append('eimCertificate', fileData.value?.raw)
-      }else{
+      } else {
         param.append('eimCertificate', '')
       }
       param.append('req', req)

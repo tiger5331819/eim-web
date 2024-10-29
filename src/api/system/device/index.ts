@@ -282,3 +282,17 @@ export const toResult = (eid:any) => {
     method: 'get',
   });
 };
+
+/**
+ * 同步EIM
+ * @param eid
+ * @returns {*}
+ */
+
+export const updateEim = (eid?:any) => {
+  return request({
+    url: `/manager/device/${eid}/eim/listEim`,
+    method: 'post',
+  });
+};
+ 
