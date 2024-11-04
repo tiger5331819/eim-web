@@ -24,14 +24,9 @@
         </el-form-item>
 
         <el-form-item v-if="form.method == '2'" label="上传QRcode：" prop="code">
-          <!-- <meta http-equiv="Content-Security-Policy"
-            content="default-src 'self' 'unsafe-inline' 'unsafe-eval'; img-src *  blob: ; " /> -->
           <el-upload style="width: auto;" accept=".jpg, .png, .svg" :headers="upload.headers" list-type="picture-card"
             action="#" :on-change="changeFile" :on-remove="handleRemove" :auto-upload="false" :limit="1"
             :file-list="fileList" :data="uploadData" :on-preview="handlePictureCardPreview">
-            <!-- <el-upload style="width: auto;" accept=".jpg" :headers="upload.headers" :action="upload.url"
-            :on-remove="handleRemove" :limit="1" :file-list="fileList" list-type="picture-card"
-            :before-upload="beforeUpload" :data="uploadData" :on-success="uploadFileSuccess" :auto-upload="false"> -->
             <el-icon>
               <Plus />
             </el-icon>
@@ -122,10 +117,8 @@ const uploadData = ref({})
 const upload = reactive({
   // 设置上传的请求头部
   headers: globalHeaders(),
-  // headers: { 'Content-Type': 'multipart/form-data' },
   // 上传的地址
   url: import.meta.env.VITE_APP_BASE_API + "/resource/oss/upload"
-  // url: "https://mis.latenight.cc/prod-api/file/oss/upload"
 })
 
 const router = useRouter();
@@ -133,11 +126,13 @@ const router = useRouter();
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 
+// 图片预览
 const handlePictureCardPreview = () => {
   // dialogImageUrl.value = uploadFile.url!
   dialogVisible.value = true
 }
 
+// 预上传
 function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
   if (type != '.jpg' && type != '.png' && type != '.svg') {
@@ -145,15 +140,9 @@ function changeFile(file: any) {
     return false
   }
 
-  // fileList.value.push(file)
   console.log('file1', file)
   console.log('file.raw1', file.raw)
   dialogImageUrl.value = window.URL.createObjectURL(file.raw)
-
-  // const val:any = await getQrUrl(file.raw)
-  // console.log('val',val)
-  // trigger.value = val.data
-
 
   getQrUrl(file.raw).then((res: any) => {
     console.log('res', res)
@@ -164,6 +153,7 @@ function changeFile(file: any) {
   })
 }
 
+// 删除上传文件
 function handleRemove(file: any, fileList: any) {
   fileList.value = []
   dialogImageUrl.value = ''
@@ -176,6 +166,7 @@ const backTo = () => {
   router.go(-1)
 }
 
+// 开始下载
 const profileDownload = async () => {
   progress.value = '0'
   if (form.value.method == '0') {
@@ -221,6 +212,7 @@ const profileDownload = async () => {
   }
 }
 
+// 执行下载
 const downloadProgress = async () => {
   const val = await eimDownload(eid.value)
   progress.value = val.data
@@ -231,9 +223,10 @@ const downloadProgress = async () => {
   }
 }
 
+// 二维码转字符串
 const getQrUrl = (file: any) => {
   console.log('file', file)
-  //使用这个方法或者下面被注释的方法设置浏览器读取文件方式，chrome和ie有效，其他浏览器没测试
+  //使用这个方法或者下面被注释的方法设置浏览器读取文件方式
   const URi = window.webkitURL.createObjectURL(file) || window.URL.createObjectURL(file)
   // let uri:any = ''
   // if (window.webkitURL) {
@@ -245,19 +238,17 @@ const getQrUrl = (file: any) => {
   // }
   const url = URi
   console.log('url', url)
-  // console.log('uri',uri)
   // 初始化
   const qr = new QrCode()
   // 解析二维码，返回promise
   return qr.decodeFromImage(url)
 }
 
+// 下载结果
 const downloadResult = async () => {
   const res = await toResult(eid.value)
   downloadData.value = res.data
 }
-
-
 
 onMounted(() => {
   eid.value = localStorage.getItem('eid')
@@ -267,7 +258,6 @@ onMounted(() => {
     issue: undefined,
     country: undefined,
   }
-  // getList();
 })
 
 </script>

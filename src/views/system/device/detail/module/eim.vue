@@ -41,7 +41,6 @@
       </el-form-item>
 
       <el-form-item label="EIMIdType" prop="eimIdType">
-        <!-- <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" /> -->
         <el-select v-model="form.eimIdType" placeholder="请选择EIMIdType" clearable style="width:100%">
           <el-option v-for="dict in sys_eim_id" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
@@ -70,9 +69,6 @@
         <el-upload ref="uploadRef" style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
           :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
           :data="uploadData" :on-exceed="handleExceed">
-          <!-- <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
-          :action="upload.url" :on-remove="handleRemove" :limit="1" :file-list="fileList" :before-upload="beforeUpload"
-          :data="uploadData" :on-success="uploadFileSuccess"> -->
           <el-button type="default" icon="Upload">上传文件</el-button>
           <template #tip>
             <div class="text-center">
@@ -87,7 +83,6 @@
       </el-form-item>
 
       <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
-        <!-- <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" /> -->
         <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable
           style="width:100%">
           <el-option v-for="dict in sys_eim_sp" :key="dict.value" :label="dict.label" :value="dict.value" />
@@ -190,11 +185,7 @@ const props = defineProps({
     required: true
   }
 })
-// let fileParams: any = {
-//   objectId: "",
-//   uploadName: "",
-//   uploadFile: "",
-// }
+
 const tableData = ref<any>([])
 
 /** 查询设备列表 */
@@ -340,7 +331,6 @@ const resetForm = () => {
   eimFormRef.value?.clearValidate();
   isEdit.value = false;
 
-  // form.value.id = undefined;
   form.value.authenticationMethod = '0';
 }
 
@@ -399,6 +389,7 @@ const submitForm = () => {
   })
 }
 
+// 预上传
 function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
   if (type != '.der' && type != '.pem') {
@@ -410,6 +401,7 @@ function changeFile(file: any) {
   form.value.eimCertificate = file.name
 }
 
+// 认证方式
 function radioChange() {
   if (form.value.authenticationMethod == '0') {
     form.value.eimCertificate = undefined
@@ -419,6 +411,7 @@ function radioChange() {
   }
 }
 
+// 删除上传文件
 function handleRemove(file: any, fileList: any) {
   fileList.value = []
   form.value.eimCertificate = undefined

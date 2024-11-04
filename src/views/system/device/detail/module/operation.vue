@@ -17,11 +17,10 @@ import { operationLog } from "@/api/system/device/index"
 const loading = ref(true);
 const total = ref(0);
 
-
-const currentPage = ref(1);
-const pageSize = ref(10);
-const totalItems = ref(0);
-const paginatedData = ref([]);
+// const currentPage = ref(1);
+// const pageSize = ref(10);
+// const totalItems = ref(0);
+// const paginatedData = ref([]);
 const tableData = ref([])
 const eid = ref<any>('')
 const queryParams = ref({
@@ -34,21 +33,19 @@ const queryParams = ref({
   }
 })
 
-// 实现分页
-const handleCurrentChange = (newPage: any) => {
-  currentPage.value = newPage;
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  paginatedData.value = tableData.value.slice(start, end);
-};
-
-
-const handleSizeChange = (newSize: any) => {
-  pageSize.value = newSize;
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  paginatedData.value = tableData.value.slice(start, end);
-};
+// 分页备用
+// const handleCurrentChange = (newPage: any) => {
+//   currentPage.value = newPage;
+//   const start = (currentPage.value - 1) * pageSize.value;
+//   const end = start + pageSize.value;
+//   paginatedData.value = tableData.value.slice(start, end);
+// };
+// const handleSizeChange = (newSize: any) => {
+//   pageSize.value = newSize;
+//   const start = (currentPage.value - 1) * pageSize.value;
+//   const end = start + pageSize.value;
+//   paginatedData.value = tableData.value.slice(start, end);
+// };
 
 /** 查询运营信息列表 */
 const getList = async () => {

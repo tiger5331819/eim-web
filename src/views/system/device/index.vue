@@ -44,8 +44,6 @@
         <el-table-column label="在线状态" align="center" prop="online">
           <template #default="scope">
             <dict-tag :options="sys_device_status" :value="scope.row.online" />
-            <!-- <span v-if="scope.row.online == '1'">在线</span>
-            <span v-if="scope.row.online == '0'">离线</span> -->
           </template>
         </el-table-column>
         <el-table-column label="EIMid" align="center" prop="eimFqdn" />
@@ -76,7 +74,6 @@
       @close="closeDialog">
       <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="180px">
         <el-form-item label="原EIMId" prop="eimIdOriginal">
-          <!-- <el-input v-model="form.eimIdOriginal" placeholder="请输入原EIMId" /> -->
           <el-select v-model="form.eimIdOriginal" clearable placeholder="请选择原EIMId" style="width: 100%">
             <el-option v-for="item in eimIdList" :key="item.eimFqdn" :label="item.eimFqdn" :value="item.eimFqdn"
               @change="optionChange"></el-option>
@@ -92,7 +89,6 @@
         </el-form-item>
 
         <el-form-item label="EIMIdType" prop="eimIdType">
-          <!-- <el-input v-model="form.eimIdType" placeholder="请输入EIMIdType" /> -->
           <el-select v-model="form.eimIdType" placeholder="请选择EIMIdType" clearable style="width:100%">
             <el-option v-for="dict in sys_eim_id" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
@@ -121,9 +117,6 @@
           <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
             :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
             :data="uploadData">
-            <!-- <el-upload style="width: auto;" accept=".rar, .zip, .doc, .docx, .pdf, .jpg" :headers="upload.headers"
-            :action="upload.url" :on-remove="handleRemove" :limit="1" :file-list="fileList"
-            :before-upload="beforeUpload" :data="uploadData" :on-success="uploadFileSuccess"> -->
             <el-button type="default" icon="Upload">上传文件</el-button>
             <template #tip>
               <div class="text-center">
@@ -138,8 +131,8 @@
         </el-form-item>
 
         <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
-          <!-- <el-input v-model="form.eimSupportedProtocol" placeholder="请输入eimSupportedProtocol" /> -->
-          <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable style="width:100%">
+          <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable
+            style="width:100%">
             <el-option v-for="dict in sys_eim_sp" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
@@ -330,6 +323,7 @@ const cancel = () => {
   reset();
 }
 
+// 预上传
 function changeFile(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
   if (type != '.der' && type != '.pem') {
@@ -341,6 +335,7 @@ function changeFile(file: any) {
   form.value.eimCertificate = file.name
 }
 
+// 替换EIM下拉列表
 function optionChange() {
   eimIdList.value.forEach((item: any) => {
     if (item.eimId == form.value.eimIdOriginal) {
@@ -349,6 +344,7 @@ function optionChange() {
   })
 }
 
+// 认证方式
 function radioChange() {
   if (form.value.authenticationMethod == '0') {
     form.value.eimCertificate = undefined
@@ -403,7 +399,6 @@ const resetForm = () => {
   deviceFormRef.value?.resetFields();
   deviceFormRef.value?.clearValidate();
 
-  // form.value.id = undefined;
   form.value.authenticationMethod = '0';
 }
 </script>

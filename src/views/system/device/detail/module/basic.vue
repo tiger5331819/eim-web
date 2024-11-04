@@ -35,8 +35,6 @@
         <template #default="scope">
           <dict-tag :options="sys_device_status" :value="detailData.online" />
         </template>
-        <!-- <span v-if="detailData.online == '1'">在线</span>
-        <span v-if="detailData.online == '0'">离线</span> -->
       </el-form-item>
       <el-form-item label="激活时间:">
         <span>{{ detailData.activationTime || '--' }}</span>
@@ -86,11 +84,6 @@
     </el-table>
     <pagination v-show="totalItems > 0" :total="totalItems" v-model:page="currentPage" v-model:limit="pageSize"
       @pagination="getList" />
-    <!-- <el-pagination class="mt-6" v-show="totalItems" layout="total, sizes, prev, pager, next, jumper"
-      v-model:page="currentPage" v-model:limit="pageSize" @size-change="handleSizeChange"
-      @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30, 50]"
-      :page-size="pageSize" :total="totalItems">
-    </el-pagination> -->
   </el-card>
 </template>
 <script setup name="In" lang="ts">
@@ -123,25 +116,22 @@ const handleCurrentChange = (newPage: any) => {
   paginatedData.value = tableData.value.slice(start, end);
 };
 
-const handleSizeChange = (newSize: any) => {
-  pageSize.value = newSize;
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  paginatedData.value = tableData.value.slice(start, end);
-};
+// 分页备用
+// const handleSizeChange = (newSize: any) => {
+//   pageSize.value = newSize;
+//   const start = (currentPage.value - 1) * pageSize.value;
+//   const end = start + pageSize.value;
+//   paginatedData.value = tableData.value.slice(start, end);
+// };
 
 /** 查询设备详细信息 */
 const getList = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
   const res = await deviceDetail(eid.value);
-  // console.log('tableData.value', JSON.parse(JSON.stringify(res.data.profileList)))
   detailData.value = res.data;
   tableData.value = res.data.profileList;
   totalItems.value = res.data.profileList.length;
-  // detailData.value = JSON.parse(JSON.stringify(res.data));
-  // tableData.value = JSON.parse(JSON.stringify(res.data.profileList));
-  // totalItems.value = JSON.parse(JSON.stringify(res.data.profileList.length));
   tableData.value.forEach((item:any) => {
     item.state = item.state.toString()
   })
@@ -180,7 +170,6 @@ const handleEnable = async (row: any) => {
     proxy?.$modal.msgSuccess("操作成功");
     return true
   } else {
-    // row.state = row.state === "0" ? "1" : "0";
     switchLoading.value = false
     proxy?.$modal.msgError("操作失败");
     return false
@@ -197,14 +186,9 @@ const handleDisable = async (row: any) => {
     return true
   } else {
     switchLoading.value = false
-    // row.state = row.state === "0" ? "1" : "0";
     proxy?.$modal.msgError("操作失败");
     return false
   }
-}
-
-const handleStatusChange = () => {
-
 }
 
 /** 删除  */
