@@ -75,7 +75,7 @@
       <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="180px">
         <el-form-item label="原EIMId" prop="eimIdOriginal">
           <el-select v-model="form.eimIdOriginal" clearable placeholder="请选择原EIMId" style="width: 100%">
-            <el-option v-for="item in eimIdList" :key="item.eimFqdn" :label="item.eimFqdn" :value="item.eimFqdn"
+            <el-option v-for="item in eimIdList" :key="item.eid" :label="item.eid" :value="item.eid"
               @change="optionChange"></el-option>
           </el-select>
         </el-form-item>
@@ -155,7 +155,7 @@
 
 <script setup name="In" lang="ts">
 import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
-import { deviceList, eimChange } from '@/api/system/device/index';
+import { deviceList, eimChange, eimList } from '@/api/system/device/index';
 import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
 import { globalHeaders } from "@/utils/request";
 import { cloneDeep } from "lodash";
@@ -283,14 +283,17 @@ const handleView = (row?: any) => {
 const handleSelectionChange = (selection: DeviceVO[]) => {
   ids.value = []
   selection.forEach((item) => {
-    ids.value.push({ eimFqdn: item.eimFqdn, eid: item.eid })
+    ids.value.push({ eid: item.eid })
   })
   single.value = selection.length != 1;
   multiple.value = !selection.length;
   eimIdList.value = []
   if (ids.value.length > 0) {
-    ids.value.forEach((item: any) => {
-      eimIdList.value.push({ eimFqdn: item.eimFqdn, eid: item.eid })
+    ids.value.forEach(async (item: any) => {
+      const res = await eimList(item.eid);
+      res.rows.forEach((val: any) => {
+        eimIdList.value.push({ eid: val.eimId })
+      })
     })
   }
 }
