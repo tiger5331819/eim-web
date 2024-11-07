@@ -19,8 +19,8 @@
             <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="EIMid" prop="eimid">
-          <el-input v-model="queryParams.eimid" placeholder="请输入EIMid" clearable style="width: 240px"
+        <el-form-item label="预制EIMid" prop="eimid">
+          <el-input v-model="queryParams.eimid" placeholder="请输入预制EIMid" clearable style="width: 240px"
             @keyup.enter="handleQuery" />
         </el-form-item>
         <el-form-item>
@@ -46,7 +46,7 @@
             <dict-tag :options="sys_device_status" :value="scope.row.online" />
           </template>
         </el-table-column>
-        <el-table-column label="EIMid" align="center" prop="eimFqdn" />
+        <el-table-column label="预制EIMid" align="center" prop="eimFqdn" />
         <el-table-column label="创建时间" sortable align="center" prop="creationTime">
           <!-- <template #default="scope">
             <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
