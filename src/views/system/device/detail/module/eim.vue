@@ -13,9 +13,9 @@
       </el-row>
     </template>
     <el-table :data="tableData" stripe style="width: 100%; max-height: 65vh">
-      <el-table-column label="EIMId" align="center" prop="eimId" />
-      <el-table-column label="EIMIdType" align="center" prop="eimIdType" />
-      <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width">
+      <el-table-column label="EIMId" align="center" prop="eimId" v-if="columns[0].visible" />
+      <el-table-column label="EIMIdType" align="center" prop="eimIdType" v-if="columns[1].visible" />
+      <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" v-if="columns[2].visible">
         <template #default="scope">
           <el-tooltip content="更新" placement="top">
             <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
@@ -211,11 +211,8 @@ const showSearch = ref(true)
 // 列显隐信息
 const columns = ref<FieldOption[]>([
   { key: 0, label: `EIMId`, visible: true, children: [] },
-  { key: 1, label: `EIM地址`, visible: true, children: [] },
-  { key: 2, label: `EIMIdType`, visible: true, children: [] },
-  { key: 3, label: `eimSP`, visible: true, children: [] },
-  { key: 4, label: `euiccCiPKId`, visible: true, children: [] },
-  { key: 5, label: `操作`, visible: true, children: [] },
+  { key: 1, label: `EIMIdType`, visible: true, children: [] },
+  { key: 2, label: `操作`, visible: true, children: [] },
 ])
 
 const initFormData: DeviceForm = {
