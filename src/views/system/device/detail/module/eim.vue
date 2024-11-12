@@ -33,11 +33,13 @@
     @close="closeDialog">
     <el-form :model="form" :rules="rules" ref="eimFormRef" label-width="180px">
       <el-form-item label="EIMId" prop="eimId">
-        <el-input v-model="form.eimId" placeholder="请输入EIMId" :disabled="isEdit" onkeyup="value=value.replace(/[^\d|^\.]/g,'')" />
+        <!-- <el-input v-model="form.eimId" placeholder="请输入EIMId" :disabled="isEdit" onkeyup="value=value.replace(/[^\d|^\.]/g,'')" /> -->
+        <el-input v-model="form.eimId" placeholder="请输入EIMId" :disabled="isEdit" />
       </el-form-item>
 
       <el-form-item label="EIM地址" prop="eimFqdn">
-        <el-input v-model="form.eimFqdn" placeholder="请输入EIM地址" onkeyup="value=value.replace(/[^\d|^\.|^\:]/g,'')" />
+        <!-- <el-input v-model="form.eimFqdn" placeholder="请输入EIM地址" onkeyup="value=value.replace(/[^\d|^\.|^\:]/g,'')" /> -->
+        <el-input v-model="form.eimFqdn" placeholder="请输入EIM地址" />
       </el-form-item>
 
       <el-form-item label="EIMIdType" prop="eimIdType">
@@ -47,7 +49,8 @@
       </el-form-item>
 
       <el-form-item label="counterValue" prop="counterValue">
-        <el-input v-model="form.counterValue" placeholder="请输入counterValue" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" />
+        <!-- <el-input v-model="form.counterValue" placeholder="请输入counterValue" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" /> -->
+        <el-input v-model="form.counterValue" placeholder="请输入counterValue" maxlength="64" />
       </el-form-item>
 
       <el-form-item label="associationToken" prop="associationToken">
@@ -62,7 +65,8 @@
       </el-form-item>
 
       <el-form-item v-if="form.authenticationMethod == '0'" label="eimPublicKey" prop="eimPublicKey">
-        <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" />
+        <!-- <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" /> -->
+        <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" />
       </el-form-item>
 
       <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
@@ -79,7 +83,8 @@
       </el-form-item>
 
       <el-form-item label="trustedPublicKeyDataTls" prop="trustedEimPkTls">
-        <el-input v-model="form.trustedEimPkTls" placeholder="请输入trustedPublicKeyDataTls" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" />
+        <!-- <el-input v-model="form.trustedEimPkTls" placeholder="请输入trustedPublicKeyDataTls" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" /> -->
+        <el-input v-model="form.trustedEimPkTls" placeholder="请输入trustedPublicKeyDataTls" maxlength="64" />
       </el-form-item>
 
       <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
@@ -90,7 +95,8 @@
       </el-form-item>
 
       <el-form-item label="euiccCiPKld" prop="euiccCipkId">
-        <el-input v-model="form.euiccCipkId" placeholder="请输入euiccCiPKld" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" />
+        <!-- <el-input v-model="form.euiccCipkId" placeholder="请输入euiccCiPKld" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" /> -->
+        <el-input v-model="form.euiccCipkId" placeholder="请输入euiccCiPKld" maxlength="64" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -244,7 +250,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
   },
   rules: {
     eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" },
-    // { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]{9,}$/, message: '字母大小写+数字+特殊字符组合，密码位数为9位以上', trigger: 'blur' }
+    // { pattern: /\d+\.\d+\.\d+\.\d+/, message: '输入不合法', trigger: 'blur' }
     ],
     eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" }],
     eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
