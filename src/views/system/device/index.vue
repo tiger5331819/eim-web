@@ -81,11 +81,11 @@
         </el-form-item>
 
         <el-form-item label="EIMId" prop="eimId">
-          <el-input v-model="form.eimId" placeholder="请输入EIMId" />
+          <el-input v-model="form.eimId" placeholder="请输入EIMId" onkeyup="value=value.replace(/[^\d|^\.]/g,'')" />
         </el-form-item>
 
         <el-form-item label="EIM地址" prop="eimFqdn">
-          <el-input v-model="form.eimFqdn" placeholder="请输入EIM地址" />
+          <el-input v-model="form.eimFqdn" placeholder="请输入EIM地址" onkeyup="value=value.replace(/[^\d|^\.|^\:]/g,'')" />
         </el-form-item>
 
         <el-form-item label="EIMIdType" prop="eimIdType">
@@ -95,11 +95,11 @@
         </el-form-item>
 
         <el-form-item label="counterValue" prop="counterValue">
-          <el-input v-model="form.counterValue" placeholder="请输入counterValue" />
+          <el-input v-model="form.counterValue" placeholder="请输入counterValue" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" />
         </el-form-item>
 
         <el-form-item label="associationToken" prop="associationToken">
-          <el-input v-model="form.associationToken" placeholder="请输入associationToken" />
+          <el-input v-model="form.associationToken" placeholder="请输入associationToken" disabled />
         </el-form-item>
 
         <el-form-item label="authenticationMethod" prop="authenticationMethod">
@@ -110,7 +110,7 @@
         </el-form-item>
 
         <el-form-item v-if="form.authenticationMethod == '0'" label="eimPublicKey" prop="eimPublicKey">
-          <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" />
+          <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" maxlength="1640" />
         </el-form-item>
 
         <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
@@ -127,7 +127,7 @@
         </el-form-item>
 
         <el-form-item label="trustedPublicKeyDataTls" prop="trustedEimPkTls">
-          <el-input v-model="form.trustedEimPkTls" placeholder="请输入trustedPublicKeyDataTls" />
+          <el-input v-model="form.trustedEimPkTls" placeholder="请输入trustedPublicKeyDataTls" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" />
         </el-form-item>
 
         <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
@@ -138,7 +138,7 @@
         </el-form-item>
 
         <el-form-item label="euiccCiPKld" prop="euiccCipkId">
-          <el-input v-model="form.euiccCipkId" placeholder="请输入euiccCiPKld" />
+          <el-input v-model="form.euiccCipkId" placeholder="请输入euiccCiPKld" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" />
         </el-form-item>
 
       </el-form>
