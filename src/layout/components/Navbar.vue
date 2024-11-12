@@ -12,10 +12,11 @@
           filterable
           reserve-keyword
           :placeholder="$t('navbar.selectTenant')"
-          v-if="userId === 1 && tenantEnabled"
+          v-if="userId === 1"
           @change="dynamicTenantEvent"
           @clear="dynamicClearEvent"
         >
+        <!-- v-if="userId === 1 && tenantEnabled" -->
           <el-option v-for="item in tenantList" :key="item.tenantId" :label="item.companyName" :value="item.tenantId"> </el-option>
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
         </el-select>
@@ -92,7 +93,7 @@ import SearchMenu from './TopBar/search.vue';
 import useAppStore from '@/store/modules/app';
 import useUserStore from '@/store/modules/user';
 import useSettingsStore from '@/store/modules/settings';
-import { getTenantList } from "@/api/login";
+// import { getTenantList } from "@/api/login";
 import { dynamicClear, dynamicTenant } from "@/api/system/tenant";
 import { ComponentInternalInstance } from "vue";
 import { TenantVO } from "@/api/types";
@@ -113,7 +114,7 @@ const tenantList = ref<TenantVO[]>([]);
 // 是否切换了租户
 const dynamic = ref(false);
 // 租户开关
-const tenantEnabled = ref(true);
+// const tenantEnabled = ref(true);
 // 搜索菜单
 const searchMenuRef = ref<InstanceType<typeof SearchMenu>>();
 
@@ -138,17 +139,17 @@ const dynamicClearEvent = async () => {
   proxy?.$router.push('/');
 }
 
-/** 租户列表 */
-const initTenantList = async () => {
-  const { data } = await getTenantList();
-  tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
-  if (tenantEnabled.value) {
-    tenantList.value = data.voList;
-  }
-}
+// /** 租户列表 */
+// const initTenantList = async () => {
+//   const { data } = await getTenantList();
+//   tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
+//   if (tenantEnabled.value) {
+//     tenantList.value = data.voList;
+//   }
+// }
 
 defineExpose({
-  initTenantList,
+  // initTenantList,
 })
 
 const toggleSideBar = () => {
