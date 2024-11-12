@@ -110,7 +110,7 @@
         </el-form-item>
 
         <el-form-item v-if="form.authenticationMethod == '0'" label="eimPublicKey" prop="eimPublicKey">
-          <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" maxlength="1640" />
+          <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" />
         </el-form-item>
 
         <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
