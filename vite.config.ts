@@ -26,7 +26,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       open: true,
       proxy: {
         [env.VITE_APP_BASE_API]: {
-          // target: 'http://120.233.203.102:34253',
+          // target: 'https://120.233.203.102:34253',
           target: 'https://eim-web.kube.yunbaitech.cn/prod-api',
           changeOrigin: true,
           ws: true,
