@@ -174,7 +174,7 @@ export function download(url: string, params: any, fileName: string) {
           return tansParams(params);
         }
       ],
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', isEncrypt: true },
       responseType: 'blob'
     }).then(async (resp: any) => {
       const isLogin = blobValidate(resp);
