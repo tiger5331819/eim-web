@@ -76,10 +76,10 @@
         <el-form-item label="原EIMId" prop="eimIdOriginal">
           <el-select v-model="form.eimIdOriginal" clearable placeholder="请选择原EIMId" style="width: 100%">
             <el-option v-for="item in eimIdList" :key="item.eid" :label="item.eid" :value="item.eid"
-              @change="optionChange"></el-option>
+              ></el-option>
           </el-select>
         </el-form-item>
-
+        <!-- @change="optionChange" -->
         <el-form-item label="EIMId" prop="eimId">
           <!-- <el-input v-model="form.eimId" placeholder="请输入EIMId" onkeyup="value=value.replace(/[^\d|^\.]/g,'')" /> -->
           <el-input v-model="form.eimId" placeholder="请输入EIMId" />
@@ -355,14 +355,14 @@ function changeFile(file: any) {
   form.value.eimCertificate = file.name
 }
 
-// 替换EIM下拉列表
-function optionChange() {
-  eimIdList.value.forEach((item: any) => {
-    if (item.eimId == form.value.eimIdOriginal) {
-      form.value.eid = item.eid
-    }
-  })
-}
+// // 替换EIM下拉列表
+// function optionChange() {
+//   eimIdList.value.forEach((item: any) => {
+//     if (item.eimId == form.value.eimIdOriginal) {
+//       form.value.eid = item.eid
+//     }
+//   })
+// }
 
 // 认证方式
 function radioChange() {
@@ -390,19 +390,21 @@ const submitForm = () => {
         param.append('eimCertificate', fileData.value?.raw)
       }
       param.append('req', req)
-
-      try {
-        const res = await eimChange(form.value.eid, form.value.eimIdOriginal, param)
-        if (res.code == 200) {
-          proxy?.$modal.msgSuccess("操作成功");
-          dialog.visible = false;
-          await getList();
-        } else {
+      ids.value.forEach(async (item: any) => {
+        form.value.eid = item.eid
+        try {
+          const res = await eimChange(form.value.eid, form.value.eimIdOriginal, param)
+          if (res.code == 200) {
+            proxy?.$modal.msgSuccess("操作成功");
+            dialog.visible = false;
+            await getList();
+          } else {
+            proxy?.$modal.msgError("操作失败");
+          }
+        } catch (err) {
           proxy?.$modal.msgError("操作失败");
         }
-      } catch (err) {
-        proxy?.$modal.msgError("操作失败");
-      }
+      })
     }
   })
 }
