@@ -241,13 +241,23 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
   },
   rules: {
     eimIdOriginal: [{ required: true, message: "原EIMId不能为空", trigger: "blur" }],
-    eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" }],
-    eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" }],
+    eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" },
+    { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
+    ],
+    eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" },
+    { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
+    ],
+    counterValue: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
+    ],
     eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
     authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
-    eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" }],
+    eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" },
+    { pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
+    ],
     eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
+    trustedEimPkTls: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
     eimSupportedProtocol: [{ required: true, message: "eimSupportedProtocol不能为空", trigger: "blur" }],
+    euiccCipkId: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
   }
 })
 
@@ -381,16 +391,19 @@ const submitForm = () => {
       }
       param.append('req', req)
 
-      const res = await eimChange(form.value.eid, form.value.eimIdOriginal, param)
-      if (res.code == 200) {
-        proxy?.$modal.msgSuccess("操作成功");
-        dialog.visible = false;
-        await getList();
-      } else {
+      try {
+        const res = await eimChange(form.value.eid, form.value.eimIdOriginal, param)
+        if (res.code == 200) {
+          proxy?.$modal.msgSuccess("操作成功");
+          dialog.visible = false;
+          await getList();
+        } else {
+          proxy?.$modal.msgError("操作失败");
+        }
+      } catch (err) {
         proxy?.$modal.msgError("操作失败");
       }
     }
-
   })
 }
 

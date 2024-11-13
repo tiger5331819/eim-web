@@ -15,7 +15,8 @@
     <el-table :data="tableData" stripe style="width: 100%; max-height: 65vh">
       <el-table-column label="EIMId" align="center" prop="eimId" v-if="columns[0].visible" />
       <el-table-column label="EIMIdType" align="center" prop="eimIdType" v-if="columns[1].visible" />
-      <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" v-if="columns[2].visible">
+      <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width"
+        v-if="columns[2].visible">
         <template #default="scope">
           <el-tooltip content="更新" placement="top">
             <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
@@ -250,15 +251,24 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
   },
   rules: {
     eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" },
-    // { pattern: /\d+\.\d+\.\d+\.\d+/, message: '输入不合法', trigger: 'blur' }
+    { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
     ],
-    eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" }],
-    eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
-    counterValue: [{ required: true, message: "counterValue不能为空", trigger: "blur" }],
+    eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" },
+    { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
+    ],
+    eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" },
+    ],
+    counterValue: [{ required: true, message: "counterValue不能为空", trigger: "blur" },
+    { pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
+    ],
     authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
-    eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" }],
+    eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" },
+    { pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
+    ],
     eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
+    trustedEimPkTls: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
     eimSupportedProtocol: [{ required: true, message: "eimSupportedProtocol不能为空", trigger: "blur" }],
+    euiccCipkId: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
   }
 })
 
@@ -382,25 +392,29 @@ const submitForm = () => {
         param.append('eimCertificate', '')
       }
       param.append('req', req)
-
-      if (!isEdit.value) {
-        const res = await eimAdd(eid.value, param)
-        if (res.code == 200) {
-          proxy?.$modal.msgSuccess("操作成功");
-          dialog.visible = false;
-          await getList();
+      try {
+        if (!isEdit.value) {
+          const res = await eimAdd(eid.value, param)
+          if (res.code == 200) {
+            proxy?.$modal.msgSuccess("操作成功");
+            dialog.visible = false;
+            await getList();
+          } else {
+            proxy?.$modal.msgError("操作失败");
+          }
         } else {
-          proxy?.$modal.msgError("操作失败");
+          const res = await eimEdit(eid.value, eimId.value, param)
+          if (res.code == 200) {
+            proxy?.$modal.msgSuccess("操作成功");
+            dialog.visible = false;
+            await getList();
+          } else {
+            proxy?.$modal.msgError("操作失败");
+          }
         }
-      } else {
-        const res = await eimEdit(eid.value, eimId.value, param)
-        if (res.code == 200) {
-          proxy?.$modal.msgSuccess("操作成功");
-          dialog.visible = false;
-          await getList();
-        } else {
-          proxy?.$modal.msgError("操作失败");
-        }
+      }
+      catch (err) {
+        proxy?.$modal.msgError("操作失败");
       }
     }
   })
