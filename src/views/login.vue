@@ -70,7 +70,7 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const loginForm = ref<LoginData>({
-  tenantId: '000000',
+  // tenantId: '000000',
   username: 'admin',
   password: 'admin123',
   rememberMe: false,
@@ -79,7 +79,7 @@ const loginForm = ref<LoginData>({
 } as LoginData);
 
 const loginRules: ElFormRules = {
-  tenantId: [{ required: true, trigger: "blur", message: "请输入您的租户编号" }],
+  // tenantId: [{ required: true, trigger: "blur", message: "请输入您的租户编号" }],
   username: [{ required: true, trigger: 'blur', message: '请输入您的账号' }],
   password: [{ required: true, trigger: 'blur', message: '请输入您的密码' }],
   code: [{ required: true, trigger: 'change', message: '请输入验证码' }]
@@ -110,13 +110,13 @@ const handleLogin = () => {
       loading.value = true;
       // 勾选了需要记住密码设置在 localStorage 中设置记住用户名和密码
       if (loginForm.value.rememberMe) {
-        localStorage.setItem("tenantId", String(loginForm.value.tenantId));
+        // localStorage.setItem("tenantId", String(loginForm.value.tenantId));
         localStorage.setItem('username', String(loginForm.value.username));
         localStorage.setItem('password', String(loginForm.value.password));
         localStorage.setItem('rememberMe', String(loginForm.value.rememberMe));
       } else {
         // 否则移除
-        localStorage.removeItem("tenantId");
+        // localStorage.removeItem("tenantId");
         localStorage.removeItem('username');
         localStorage.removeItem('password');
         localStorage.removeItem('rememberMe');
@@ -153,12 +153,12 @@ const getCode = async () => {
 };
 
 const getLoginData = () => {
-  const tenantId = localStorage.getItem("tenantId");
+  // const tenantId = localStorage.getItem("tenantId");
   const username = localStorage.getItem('username');
   const password = localStorage.getItem('password');
   const rememberMe = localStorage.getItem('rememberMe');
   loginForm.value = {
-    tenantId: tenantId === null ? String(loginForm.value.tenantId) : tenantId,
+    // tenantId: tenantId === null ? String(loginForm.value.tenantId) : tenantId,
     username: username === null ? String(loginForm.value.username) : username,
     password: password === null ? String(loginForm.value.password) : String(password),
     rememberMe: rememberMe === null ? false : Boolean(rememberMe)
@@ -181,9 +181,9 @@ const getLoginData = () => {
 // }
 
 //检测租户选择框的变化
-watch(() => loginForm.value.tenantId, () => {
-  localStorage.setItem("tenantId", String(loginForm.value.tenantId))
-});
+// watch(() => loginForm.value.tenantId, () => {
+//   localStorage.setItem("tenantId", String(loginForm.value.tenantId))
+// });
 
 // /**
 //  * 第三方登录
