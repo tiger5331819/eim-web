@@ -9,6 +9,7 @@ export interface DeviceQuery extends PageQuery {
   companyName?: string;
   online?: string;
   eimid?: string;
+  eimFqdn?: string;
   isAsc?: string;
   params: {
   },

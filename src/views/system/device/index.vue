@@ -19,8 +19,8 @@
             <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="预制EIMid" prop="eimid">
-          <el-input v-model="queryParams.eimid" placeholder="请输入预制EIMid" clearable style="width: 240px"
+        <el-form-item label="预制EIMid" prop="eimFqdn">
+          <el-input v-model="queryParams.eimFqdn" placeholder="请输入预制EIMid" clearable style="width: 240px"
             @keyup.enter="handleQuery" />
         </el-form-item>
         <el-form-item>
@@ -234,6 +234,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     companyName: undefined,
     online: undefined,
     eimid: undefined,
+    eimFqdn: undefined,
     isAsc: undefined,
     params: {
     },
