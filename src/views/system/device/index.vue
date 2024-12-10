@@ -75,8 +75,7 @@
       <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="180px">
         <el-form-item label="原EIMId" prop="eimIdOriginal">
           <el-select v-model="form.eimIdOriginal" clearable placeholder="请选择原EIMId" style="width: 100%">
-            <el-option v-for="item in eimIdList" :key="item.eid" :label="item.eid" :value="item.eid"
-              ></el-option>
+            <el-option v-for="item in eimIdList" :key="item.eid" :label="item.eid" :value="item.eid"></el-option>
           </el-select>
         </el-form-item>
         <!-- @change="optionChange" -->
@@ -245,14 +244,14 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" },
-    { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
+    // { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
     ],
     counterValue: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
     authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
     eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" },
-    { pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
+    // { pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
     trustedEimPkTls: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
@@ -383,9 +382,7 @@ const submitForm = () => {
       const json = JSON.stringify(data);
       // param.append('req', json);
       // 将 json 字符串转化为 Blob 对象
-      const req = new Blob([json], {
-        type: 'application/json',
-      });
+      const req = new Blob([json], { type: 'application/json' });
       if (fileData.value) {
         param.append('eimCertificate', fileData.value?.raw)
       }

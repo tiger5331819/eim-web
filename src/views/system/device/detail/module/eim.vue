@@ -138,8 +138,6 @@ import { ref } from "vue"
 import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
 import { eimList, eimDetail, eimAdd, eimDelete, eimEdit, updateEim } from '@/api/system/device/index';
 import { globalHeaders } from "@/utils/request";
-import { to } from "await-to-js";
-import axios from "axios";
 import { cloneDeep } from "lodash";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -186,12 +184,12 @@ const upload = reactive({
   // 上传的地址
   url: import.meta.env.VITE_APP_BASE_API + "/resource/oss/upload"
 })
-const props = defineProps({
-  id: {
-    type: Number,
-    required: true
-  }
-})
+// const props = defineProps({
+//   id: {
+//     type: Number,
+//     required: true
+//   }
+// })
 
 const tableData = ref<any>([])
 
@@ -254,7 +252,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" },
-    { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
+    // { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" },
     ],
@@ -263,7 +261,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     ],
     authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
     eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" },
-    { pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
+    // { pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
     trustedEimPkTls: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],

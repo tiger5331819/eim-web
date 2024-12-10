@@ -139,8 +139,8 @@ function changeFile(file: any) {
     return false
   }
 
-  console.log('file1', file)
-  console.log('file.raw1', file.raw)
+  // console.log('file1', file)
+  // console.log('file.raw1', file.raw)
   dialogImageUrl.value = window.URL.createObjectURL(file.raw)
 
   getQrUrl(file.raw).then((res: any) => {
@@ -224,7 +224,7 @@ const downloadProgress = async () => {
 
 // 二维码转字符串
 const getQrUrl = (file: any) => {
-  console.log('file', file)
+  // console.log('file', file)
   //使用这个方法或者下面被注释的方法设置浏览器读取文件方式
   const URi = window.webkitURL.createObjectURL(file) || window.URL.createObjectURL(file)
   // let uri:any = ''
