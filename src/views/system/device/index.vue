@@ -244,7 +244,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" },
-    // { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
+    { pattern: /\d+(\.{1}\d+)+(\:{1}\d+){1}$/, message: '输入不合法', trigger: 'blur' },
     ],
     counterValue: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
     ],
