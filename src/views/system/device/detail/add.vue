@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div class="p-5">
 
     <el-card shadow="hover">
       <template #header>
@@ -10,7 +10,7 @@
 
       <span class="m-2" style="font-size: 24px;">下载业务号</span>
 
-      <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="100px" style="margin-top: 20px;">
+      <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="120px" style="margin-top: 20px;">
 
         <el-form-item label="请求方式：" prop="method">
           <el-radio-group v-model="form.method">
@@ -20,7 +20,7 @@
         </el-form-item>
 
         <el-form-item v-if="form.method == '1'" label="输入QRcode：" prop="code">
-          <el-input type="textarea" v-model="form.code" placeholder="请输入QRcode" style="max-width: 500px;" />
+          <el-input type="textarea" v-model="form.code" placeholder="请输入QRcode" style="max-width: 470px;" />
         </el-form-item>
 
         <el-form-item v-if="form.method == '2'" label="上传QRcode：" prop="code">
@@ -38,8 +38,15 @@
           </el-upload>
         </el-form-item>
 
+        <el-form-item v-if="form.method == '3'" label="资源运营商：" prop="issue">
+          <el-select v-model="form.issue" placeholder="请选择资源运营商" clearable style="width: 470px">
+            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="">
-          <el-button v-if="form.method == '0'" type="primary" @click="profileDownload">获取并下载资源</el-button>
+          <el-button v-if="form.method == '0' || form.method == '3'" type="primary"
+            @click="profileDownload">获取并下载资源</el-button>
           <el-button v-else type="primary" @click="profileDownload">识别并下载资源</el-button>
         </el-form-item>
 
@@ -53,7 +60,7 @@
           <span v-if="errorCode && errorCode != '200'" style="font-size: 16px;">code图片识别失败，请重新上传！</span>
         </el-form-item>
 
-        <el-form-item label="下载进度：">
+        <el-form-item label="下载进度：" v-if="progress > '0'">
           <div>
             <el-progress :percentage="progress" :status="success" style="width: 500px;"></el-progress>
           </div>
@@ -98,7 +105,8 @@ const errorCode = ref<any>('')
 const deviceFormRef = ref<ElFormInstance>();
 const form = ref({
   method: '0',
-  code: undefined
+  code: undefined,
+  issue: undefined,
 })
 const downloadData = ref<any>({
   iccid: undefined,
@@ -107,7 +115,8 @@ const downloadData = ref<any>({
 })
 const rules = ref({
   method: [{ required: true, message: "请求方式不能为空", trigger: "blur" }],
-  code: [{ required: true, message: "code不能为空", trigger: "blur" }]
+  code: [{ required: true, message: "code不能为空", trigger: "blur" }],
+  issue: [{ required: true, message: "运营商不能为空", trigger: "blur" }]
 })
 
 
@@ -168,7 +177,7 @@ const backTo = () => {
 // 开始下载
 const profileDownload = async () => {
   progress.value = '0'
-  if (form.value.method == '0') {
+  if (form.value.method == '0' || form.value.method == '3') {
     const res = await dpDownload(eid.value)
     if (res.code == 200) {
       errorCode.value = res.code
@@ -214,11 +223,13 @@ const profileDownload = async () => {
 // 执行下载
 const downloadProgress = async () => {
   const val = await eimDownload(eid.value)
-  progress.value = val.data
-  if (val.data < 100) {
-    setTimeout(downloadProgress, 500)
-  } else {
-    downloadResult()
+  if (val.code == 200) {
+    progress.value = val.data
+    if (val.data < 100) {
+      setTimeout(downloadProgress, 500)
+    } else {
+      downloadResult()
+    }
   }
 }
 
@@ -252,6 +263,7 @@ const downloadResult = async () => {
 onMounted(() => {
   eid.value = localStorage.getItem('eid')
   errorCode.value = ''
+  // downloadProgress()
   downloadData.value = {
     iccid: undefined,
     issue: undefined,

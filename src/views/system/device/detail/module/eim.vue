@@ -67,7 +67,17 @@
 
       <el-form-item v-if="form.authenticationMethod == '0'" label="eimPublicKey" prop="eimPublicKey">
         <!-- <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" /> -->
-        <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" />
+        <!-- <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" /> -->
+        <el-upload ref="uploadRef" style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
+          :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
+          :data="uploadData" :on-exceed="handleExceed">
+          <el-button type="default" icon="Upload">上传文件</el-button>
+          <template #tip>
+            <div class="text-center">
+              <span>支持扩展名：.der .pem</span>
+            </div>
+          </template>
+        </el-upload>
       </el-form-item>
 
       <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
@@ -303,6 +313,9 @@ const handleUpdate = async (e: any) => {
     }]
   } else {
     form.value.authenticationMethod = '0'
+    fileList.value = [{
+      name: '证书',
+    }]
   }
 }
 
@@ -384,8 +397,12 @@ const submitForm = () => {
       const req = new Blob([json], {
         type: 'application/json',
       });
-      if (fileData.value) {
+      if (fileData.value && form.value.authenticationMethod == '1') {
         param.append('eimCertificate', fileData.value?.raw)
+      } else if (fileData.value && form.value.authenticationMethod == '0') {
+        param.append('eimPublicKey', fileData.value?.raw)
+      } else if (!fileData.value && form.value.authenticationMethod == '0') {
+        param.append('eimPublicKey', '')
       } else {
         param.append('eimCertificate', '')
       }
@@ -427,7 +444,11 @@ function changeFile(file: any) {
   }
 
   fileData.value = file
-  form.value.eimCertificate = file.name
+  if (form.value.authenticationMethod == '1') {
+    form.value.eimCertificate = file.name
+  } else {
+    form.value.eimPublicKey = file.name
+  }
 }
 
 // 认证方式
@@ -437,6 +458,7 @@ function radioChange() {
     fileData.value = undefined
   } else {
     form.value.eimPublicKey = undefined
+    fileData.value = undefined
   }
 }
 
@@ -444,6 +466,7 @@ function radioChange() {
 function handleRemove(file: any, fileList: any) {
   fileList.value = []
   form.value.eimCertificate = undefined
+  form.value.eimPublicKey = undefined
 };
 
 // 限制上传一个文件，重新选择文件替换原来的文件
