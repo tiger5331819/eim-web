@@ -261,7 +261,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
     authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
     eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" },
-    { pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]+$/, message: '输入不合法', trigger: 'blur' },
+    // { pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
     trustedEimPkTls: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
