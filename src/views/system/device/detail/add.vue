@@ -40,7 +40,7 @@
 
         <el-form-item v-if="form.method == '3'" label="资源运营商：" prop="issue">
           <el-select v-model="form.issue" placeholder="请选择资源运营商" clearable style="width: 470px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+            <!-- <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" /> -->
           </el-select>
         </el-form-item>
 
