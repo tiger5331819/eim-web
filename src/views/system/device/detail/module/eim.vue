@@ -217,7 +217,10 @@ const handleSynchronize = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
   const res = await updateEim(eid.value);
-  tableData.value = res.rows;
+  if(res.code == 200){
+    tableData.value = res.rows;
+    ElMessage.success('正在同步数据，请稍等...');
+  }
   loading.value = false;
 }
 
