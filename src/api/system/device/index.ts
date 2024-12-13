@@ -271,6 +271,19 @@ export const toDownload = (eid:any, data:any) => {
 };
 
 /**
+ * 使用运营商资源下载业务号
+ * @param data
+ * @returns {*}
+ */
+
+export const idDownload = (eid:any, id:any) => {
+  return request({
+    url: `/eimProfile/${eid}/use/${id}`,
+    method: 'get',
+  });
+};
+
+/**
  * 业务号下载结果
  * @param data
  * @returns {*}
@@ -295,4 +308,16 @@ export const updateEim = (eid?:any) => {
     method: 'post',
   });
 };
- 
+
+/**
+ * 获取运营商列表
+ * @param eid
+ * @returns {*}
+ */
+
+export const eimProfile = (eid?:any) => {
+  return request({
+    url: `/eimProfile`,
+    method: 'get',
+  });
+};

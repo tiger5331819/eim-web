@@ -38,9 +38,9 @@
           </el-upload>
         </el-form-item>
 
-        <el-form-item v-if="form.method == '3'" label="资源运营商：" prop="issue">
-          <el-select v-model="form.issue" placeholder="请选择资源运营商" clearable style="width: 470px">
-            <!-- <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" /> -->
+        <el-form-item v-if="form.method == '3'" label="资源运营商：" prop="issuer">
+          <el-select v-model="form.issuer" placeholder="请选择资源运营商" clearable style="width: 470px">
+            <el-option v-for="item in issuerList" :key="item.id" :label="item.issuer" :value="item.id" />
           </el-select>
         </el-form-item>
 
@@ -60,9 +60,14 @@
           <span v-if="errorCode && errorCode != '200'" style="font-size: 16px;">code图片识别失败，请重新上传！</span>
         </el-form-item>
 
-        <el-form-item label="下载进度：" v-if="progress > '0'">
+        <el-form-item label="下载进度：" v-if="errorCode && errorCode == '200'">
           <div>
             <el-progress :percentage="progress" :status="success" style="width: 500px;"></el-progress>
+          </div>
+        </el-form-item>
+        <el-form-item label="下载进度：" v-if="errorCode && errorCode != '200'">
+          <div>
+            <span style="color:red">下载失败，请重新扫码或联系客服人员</span>
           </div>
         </el-form-item>
         <el-form-item v-if="progress == '100'" label="">
@@ -90,7 +95,7 @@
 
 <script setup name="In" lang="ts">
 import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
-import { eimDownload, dpDownload, toDownload, toResult } from '@/api/system/device/index';
+import { eimDownload, dpDownload, idDownload, toDownload, toResult, eimProfile } from '@/api/system/device/index';
 import { globalHeaders } from "@/utils/request";
 import QrCode from 'qrcode-decoder'
 
@@ -106,19 +111,25 @@ const deviceFormRef = ref<ElFormInstance>();
 const form = ref({
   method: '0',
   code: undefined,
-  issue: undefined,
+  issuer: undefined,
 })
 const downloadData = ref<any>({
   iccid: undefined,
-  issue: undefined,
+  issuer: undefined,
   country: undefined,
 })
 const rules = ref({
   method: [{ required: true, message: "请求方式不能为空", trigger: "blur" }],
   code: [{ required: true, message: "code不能为空", trigger: "blur" }],
-  issue: [{ required: true, message: "运营商不能为空", trigger: "blur" }]
+  issuer: [{ required: true, message: "运营商不能为空", trigger: "blur" }]
 })
 
+const issuerList = ref<any>([])
+
+const getList = async () => {
+  const res = await eimProfile()
+  issuerList.value = res.data
+}
 
 const uploadData = ref({})
 /*** 上传文件参数 */
@@ -177,10 +188,24 @@ const backTo = () => {
 // 开始下载
 const profileDownload = async () => {
   progress.value = '0'
-  if (form.value.method == '0' || form.value.method == '3') {
+  if (form.value.method == '0') {
     const res = await dpDownload(eid.value)
     if (res.code == 200) {
       errorCode.value = res.code
+      ElMessage.success('开始下载资源，请稍等...');
+      const val = await eimDownload(eid.value)
+      progress.value = val.data
+      if (val.data < 100) {
+        setTimeout(downloadProgress, 500)
+      }
+    } else {
+      errorCode.value = '500'
+    }
+  } else if (form.value.method == '3') {
+    const res = await idDownload(eid.value, form.value.issuer)
+    if (res.code == 200) {
+      errorCode.value = res.code
+      ElMessage.success('开始下载资源，请稍等...');
       const val = await eimDownload(eid.value)
       progress.value = val.data
       if (val.data < 100) {
@@ -194,6 +219,7 @@ const profileDownload = async () => {
       const res = await toDownload(eid.value, { trigger: form.value.code })
       if (res.code == 200) {
         errorCode.value = res.code
+        ElMessage.success('开始下载资源，请稍等...');
         const val = await eimDownload(eid.value)
         progress.value = val.data
         if (val.data < 100) {
@@ -206,6 +232,7 @@ const profileDownload = async () => {
       const res = await toDownload(eid.value, { trigger: trigger.value })
       if (res.code == 200) {
         errorCode.value = res.code
+        ElMessage.success('开始下载资源，请稍等...');
         const val = await eimDownload(eid.value)
         progress.value = val.data
         if (val.data < 100) {
@@ -262,6 +289,7 @@ const downloadResult = async () => {
 
 onMounted(() => {
   eid.value = localStorage.getItem('eid')
+  getList()
   errorCode.value = ''
   // downloadProgress()
   downloadData.value = {
