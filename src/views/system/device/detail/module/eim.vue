@@ -12,7 +12,7 @@
           :search="false"></right-toolbar>
       </el-row>
     </template>
-    <el-table :data="tableData" stripe style="width: 100%; max-height: 65vh">
+    <el-table :data="tableData" v-loading="loading" stripe style="width: 100%; max-height: 65vh">
       <el-table-column label="EIMId" align="center" prop="eimId" v-if="columns[0].visible" />
       <el-table-column label="EIMIdType" align="center" prop="eimIdType" v-if="columns[1].visible" />
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width"

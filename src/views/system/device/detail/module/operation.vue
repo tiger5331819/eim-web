@@ -1,6 +1,13 @@
 <template>
   <el-card shadow="hover">
-    <el-table :data="tableData" stripe style="width: 100%; height: 640px" :row-style="{ height: '60px' }">
+    <template #header>
+      <el-row :gutter="10" class="mb8">
+        <el-col :span="1.5">
+          <el-button type="primary" icon="Refresh" @click="getList" class="mr-4">同步数据</el-button>
+        </el-col>
+      </el-row>
+    </template>
+    <el-table :data="tableData" v-loading="loading" stripe style="width: 100%; height: 640px" :row-style="{ height: '60px' }">
       <el-table-column label="创建时间" align="center" prop="creationTime" width="300px" show-overflow-tooltip/>
       <el-table-column label="动作" align="center" prop="name" width="200px" max-height="250" show-overflow-tooltip/>
       <el-table-column label="描述" align="center" prop="message" show-overflow-tooltip/>
