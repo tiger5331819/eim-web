@@ -113,8 +113,8 @@
 
         <el-form-item v-if="form.authenticationMethod == '0'" label="eimPublicKey" prop="eimPublicKey">
           <!-- <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" /> -->
-          <!-- <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" /> -->
-          <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
+          <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" />
+          <!-- <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
             :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
             :data="uploadData">
             <el-button type="default" icon="Upload">上传文件</el-button>
@@ -123,7 +123,7 @@
                 <span>支持扩展名：.der .pem</span>
               </div>
             </template>
-          </el-upload>
+          </el-upload> -->
         </el-form-item>
 
         <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
@@ -261,7 +261,7 @@ const data = reactive<PageData<DeviceForm, DeviceQuery>>({
     eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
     authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
     eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" },
-    // { pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]+$/, message: '输入不合法', trigger: 'blur' },
+    { pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]+$/, message: '输入不合法', trigger: 'blur' },
     ],
     eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
     trustedEimPkTls: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
@@ -327,7 +327,7 @@ const handleSelectionChange = (selection: DeviceVO[]) => {
 function handleRemove(file: any, fileList: any) {
   fileList.value = []
   form.value.eimCertificate = undefined
-  form.value.eimPublicKey = undefined
+  // form.value.eimPublicKey = undefined
 };
 
 
@@ -363,7 +363,7 @@ function changeFile(file: any) {
 
   fileData.value = file
   if (form.value.authenticationMethod == '0') {
-    form.value.eimPublicKey = file.name
+    // form.value.eimPublicKey = file.name
   } else {
     form.value.eimCertificate = file.name
   }
@@ -383,7 +383,7 @@ function radioChange() {
   if (form.value.authenticationMethod == '0') {
     form.value.eimCertificate = undefined
   } else {
-    form.value.eimPublicKey = undefined
+    // form.value.eimPublicKey = undefined
   }
   fileData.value = undefined
 }
@@ -398,13 +398,16 @@ const submitForm = () => {
       // param.append('req', json);
       // 将 json 字符串转化为 Blob 对象
       const req = new Blob([json], { type: 'application/json' });
-      if (fileData.value && form.value.authenticationMethod == '0') {
-        param.append('eimPublicKey', fileData.value?.raw)
-      } else if (fileData.value && form.value.authenticationMethod == '1') {
+      // if (fileData.value && form.value.authenticationMethod == '0') {
+      //   param.append('eimPublicKey', fileData.value?.raw)
+      // } else 
+      if (fileData.value && form.value.authenticationMethod == '1') {
         param.append('eimCertificate', fileData.value?.raw)
-      } else if (!fileData.value && form.value.authenticationMethod == '0') {
-        param.append('eimPublicKey', '')
-      } else {
+      } 
+      // else if (!fileData.value && form.value.authenticationMethod == '0') {
+      //   param.append('eimPublicKey', '')
+      // } 
+      else {
         param.append('eimCertificate', '')
       }
       param.append('req', req)
