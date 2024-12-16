@@ -89,8 +89,6 @@
 <script setup name="In" lang="ts">
 import { ref } from "vue"
 import { deviceDetail, deviceName, companyName, toEnable, toDisable, toDelete, updateDetail } from "@/api/system/device/index";
-import { ta } from "element-plus/es/locale";
-import tab from "@/plugins/tab";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_profile_status, sys_device_status } = toRefs<any>(proxy?.useDict('sys_profile_status', 'sys_device_status'));
