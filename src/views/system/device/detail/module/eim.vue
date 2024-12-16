@@ -292,6 +292,7 @@ const handleAdd = (e: any) => {
   reset()
   dialog.visible = true;
   dialog.title = '新增EIM'
+  fileList.value = []
 }
 
 /**
@@ -311,6 +312,7 @@ const handleUpdate = async (e: any) => {
   }
   if (!form.value.eimPublicKey) {
     form.value.authenticationMethod = '1'
+    form.value.eimCertificate = '证书'
     fileList.value = [{
       name: '证书',
     }]
@@ -448,11 +450,12 @@ function changeFile(file: any) {
   }
 
   fileData.value = file
-  if (form.value.authenticationMethod == '1') {
-    form.value.eimCertificate = file.name
-  } else {
-    // form.value.eimPublicKey = file.name
-  }
+  form.value.eimCertificate = file.name
+  // if (form.value.authenticationMethod == '1') {
+  //   form.value.eimCertificate = file.name
+  // } else {
+  //   form.value.eimPublicKey = file.name
+  // }
 }
 
 // 认证方式

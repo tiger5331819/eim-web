@@ -362,11 +362,12 @@ function changeFile(file: any) {
   }
 
   fileData.value = file
-  if (form.value.authenticationMethod == '0') {
-    // form.value.eimPublicKey = file.name
-  } else {
-    form.value.eimCertificate = file.name
-  }
+  form.value.eimCertificate = file.name
+  // if (form.value.authenticationMethod == '0') {
+  //   form.value.eimPublicKey = file.name
+  // } else {
+  //   form.value.eimCertificate = file.name
+  // }
 }
 
 // // 替换EIM下拉列表
