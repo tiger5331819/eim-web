@@ -32,7 +32,7 @@
           v-else>修改</el-button>
       </el-form-item>
       <el-form-item label="在线状态:">
-        <template #default="">
+        <template #default="scope">
           <dict-tag :options="sys_device_status" :value="detailData.online" />
         </template>
       </el-form-item>

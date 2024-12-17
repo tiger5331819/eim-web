@@ -317,9 +317,9 @@ const handleView = (row?: any) => {
 }
 //复选框禁用
 const selectable = (row: any) => {
-  if (selectType.value == 2) {
+  if (selectType.value == 1) {
     return true;  //不禁用
-  } else if (selectType.value == 1 && selectProject.value) {
+  } else if (selectType.value == 2 && selectProject.value) {
     if (row.eid == selectProject.value) {
       console.log(row.profileCount)
       return true;  //不禁用
