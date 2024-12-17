@@ -7,10 +7,11 @@
         </el-col>
       </el-row>
     </template>
-    <el-table :data="tableData" v-loading="loading" stripe style="width: 100%; height: 640px" :row-style="{ height: '60px' }">
-      <el-table-column label="创建时间" align="center" prop="creationTime" width="300px" show-overflow-tooltip/>
-      <el-table-column label="动作" align="center" prop="name" width="200px" max-height="250" show-overflow-tooltip/>
-      <el-table-column label="描述" align="center" prop="message" show-overflow-tooltip/>
+    <el-table :data="tableData" v-loading="loading" stripe style="width: 100%; max-height: 70vh"
+      :row-style="{ height: '55px' }">
+      <el-table-column label="创建时间" align="center" prop="creationTime" width="300px" show-overflow-tooltip />
+      <el-table-column label="动作" align="center" prop="name" width="200px" max-height="250" show-overflow-tooltip />
+      <el-table-column label="描述" align="center" prop="message" show-overflow-tooltip />
     </el-table>
     <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
       v-model:limit="queryParams.pageSize" @pagination="getList" />

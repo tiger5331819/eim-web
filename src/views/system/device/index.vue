@@ -32,27 +32,35 @@
 
     <el-card shadow="hover">
       <template #header>
-        <el-button type="primary" @click="handleUpdate">替换EIM</el-button>
+        <el-button type="primary" @click="handleUpdate" :disabled="multiple">替换EIM</el-button>
+        <!-- <el-button type="primary" @click="toSelecting(1)" v-if="!showSelect">替换EIM</el-button>
+        <el-button type="primary" @click="toSelecting(2)" v-if="!showSelect">批量下载资源</el-button>
+        <el-button type="primary" v-if="!showSelect">导入分配资源</el-button>
+        <el-button type="primary" @click="handleUpdate" :disabled="multiple" v-if="showSelect">确认</el-button>
+        <el-button type="primary" @click="cancelSelecting" v-if="showSelect">取消</el-button> -->
       </template>
       <el-table v-loading="loading" :data="deviceData" @selection-change="handleSelectionChange">
+        <!-- <el-table-column type="selection" width="50" align="center" v-if="showSelect" :selectable="selectable" /> -->
         <el-table-column type="selection" width="50" align="center" />
-        <el-table-column label="EID" align="center" prop="eid" />
-        <el-table-column label="预制种子号" align="center" prop="iccid" />
-        <el-table-column label="企业名称" align="center" prop="companyName" />
-        <el-table-column label="设备名称" align="center" prop="name" />
-        <el-table-column label="业务号数量" align="center" prop="profileCount" />
-        <el-table-column label="在线状态" align="center" prop="online">
+        <el-table-column label="EID" width="150" align="center" prop="eid" />
+        <!-- <el-table-column label="EID" width="150" align="center" prop="eid" v-if="showSelect" />
+        <el-table-column label="EID" width="200" align="center" prop="eid" v-if="!showSelect" /> -->
+        <el-table-column label="预制种子号" width="200" align="center" prop="iccid" />
+        <el-table-column label="企业名称" width="200" align="center" prop="companyName" />
+        <el-table-column label="设备名称" width="200" align="center" prop="name" />
+        <el-table-column label="业务号数量" width="120" align="center" prop="profileCount" />
+        <el-table-column label="在线状态" width="80" align="center" prop="online">
           <template #default="scope">
             <dict-tag :options="sys_device_status" :value="scope.row.online" />
           </template>
         </el-table-column>
-        <el-table-column label="预制EIMid" align="center" prop="eimFqdn" />
-        <el-table-column label="创建时间" sortable align="center" prop="creationTime">
+        <el-table-column label="预制EIMid" width="180" align="center" prop="eimFqdn" />
+        <el-table-column label="创建时间" width="180" sortable align="center" prop="creationTime">
           <!-- <template #default="scope">
             <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
           </template> -->
         </el-table-column>
-        <el-table-column label="激活时间" sortable align="center" prop="activationTime">
+        <el-table-column label="激活时间" width="180" sortable align="center" prop="activationTime">
           <!-- <template #default="scope">
             <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
           </template> -->
@@ -203,6 +211,9 @@ const upload = reactive({
   url: import.meta.env.VITE_APP_BASE_API + "/resource/oss/upload"
 })
 
+const showSelect = ref(false)
+const selectType = ref(0)
+const selectProject = ref<any>('')
 
 const deviceData = ref<any>([]);
 const buttonLoading = ref(false);
@@ -304,10 +315,26 @@ const handleView = (row?: any) => {
     },
   });
 }
+//复选框禁用
+const selectable = (row: any) => {
+  if (selectType.value == 2) {
+    return true;  //不禁用
+  } else if (selectType.value == 1 && selectProject.value) {
+    if (row.eid == selectProject.value) {
+      console.log(row.profileCount)
+      return true;  //不禁用
+    } else {
+      return false;  //禁用
+    }
+  } else {
+    return true;  //禁用
+  }
+}
 
 /** 选择条数  */
 const handleSelectionChange = (selection: DeviceVO[]) => {
   ids.value = []
+  selectProject.value = selection[0]?.eid ? selection[0].eid : ''
   selection.forEach((item) => {
     ids.value.push({ eid: item.eid })
   })
@@ -330,7 +357,17 @@ function handleRemove(file: any, fileList: any) {
   // form.value.eimPublicKey = undefined
 };
 
+const toSelecting = (e: any) => {
+  selectType.value = e
+  showSelect.value = true
+}
 
+const cancelSelecting = () => {
+  selectType.value = 0
+  showSelect.value = false
+  selectProject.value = ''
+  ids.value = []
+}
 
 const handleUpdate = () => {
   dialog.visible = true;
@@ -404,7 +441,7 @@ const submitForm = () => {
       // } else 
       if (fileData.value && form.value.authenticationMethod == '1') {
         param.append('eimCertificate', fileData.value?.raw)
-      } 
+      }
       // else if (!fileData.value && form.value.authenticationMethod == '0') {
       //   param.append('eimPublicKey', '')
       // } 

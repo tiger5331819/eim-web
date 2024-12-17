@@ -30,7 +30,7 @@ const props = defineProps({
     limit: propTypes.number.def(20),
     pageSizes: {
       type: Array as PropType<number[]>,
-      default: () => [10, 20, 30, 50]
+      default: () => [10, 20, 30, 50, 1]
     },
     // 移动端页码按钮的数量端默认值5
     pagerCount: propTypes.number.def(document.body.clientWidth < 992 ? 5 : 7),

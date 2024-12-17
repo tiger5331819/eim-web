@@ -1,6 +1,6 @@
 <template>
   <div class="p-5">
-    <el-tabs v-model="activeLabel" type="border-card" style="width: 100%; height: 85vh; position: relative;">
+    <el-tabs v-model="activeLabel" type="border-card" style="width: 100%; height: auto; position: relative;">
       <el-tab-pane label="基本信息" name="first">
         <Basic />
       </el-tab-pane>
