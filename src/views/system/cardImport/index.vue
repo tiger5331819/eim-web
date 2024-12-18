@@ -25,6 +25,9 @@
       <template #header>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
+            <el-button type="primary" @click="handleCard">卡数分配</el-button>
+          </el-col>
+          <el-col :span="1.5">
             <el-button type="primary" @click="handleUpdate">批量导入</el-button>
           </el-col>
           <el-col :span="1.5">
@@ -44,6 +47,9 @@
         <el-table-column label="预制EIM" align="center" prop="eimFqdn" />
         <el-table-column label="制卡商" align="center" prop="cardProviderName" />
         <el-table-column label="运营商" align="center" prop="providerName" />
+        <el-table-column label="批次" align="center" prop="providerName" />
+        <el-table-column label="归属企业" align="center" prop="providerName" />
+        <el-table-column label="归属项目" align="center" prop="providerName" />
         <el-table-column label="操作时间" sortable align="center" prop="creationTime">
           <!-- <template #default="scope">
             <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
@@ -90,10 +96,13 @@
       <el-card class=" mt-8">
         <el-table :data="paginatedData">
           <el-table-column label="EID" align="center" prop="eid" />
-          <el-table-column label="预制种子号ICCID" align="center" prop="iccid" />
+          <el-table-column label="预制种子号ICCID" width="200" align="center" prop="iccid" />
           <el-table-column label="预制EIM" align="center" prop="eimFqdn" />
           <el-table-column label="制卡商" align="center" prop="cardProviderName" />
           <el-table-column label="运营商" align="center" prop="providerName" />
+          <el-table-column label="批次" align="center" prop="providerName" />
+          <el-table-column label="归属企业" align="center" prop="providerName" />
+          <el-table-column label="归属项目" align="center" prop="providerName" />
           <el-table-column label="数据校验" align="center" prop="result" />
         </el-table>
         <el-pagination class="mt-6" v-show="totalItems" layout="total, sizes, prev, pager, next, jumper"
@@ -107,6 +116,41 @@
         <div class="dialog-footer">
           <el-button @click="cancel">取消</el-button>
           <el-button :loading="buttonLoading" type="primary" @click="finish" :disable="isDisabled">确定导入</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 卡数分配 -->
+    <el-dialog ref="cardDialogRef" :title="dialogCard.title" v-model="dialogCard.visible" width="600px" append-to-body
+      @close="cancel">
+      <el-form :model="form" :rules="rules" ref="cardFormRef" label-width="100px">
+        <el-form-item label="批次" prop="a">
+          <el-select v-model="form.a" placeholder="请选择批次" clearable style="width:100%">
+            <el-option v-for="item in cardData" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="允许分配数量" prop="b">
+          <el-input v-model="form.b" placeholder="" clearable style="width:100%" disabled />
+        </el-form-item>
+        <el-form-item label="归属企业" prop="c">
+          <el-select v-model="form.c" placeholder="请选择归属企业" clearable style="width:100%">
+            <el-option v-for="item in cardData" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="项目名称" prop="d">
+          <el-select v-model="form.d" placeholder="请选择项目名称" clearable style="width:100%">
+            <el-option v-for="item in cardData" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数量" prop="e">
+          <el-input-number v-model="form.e" placeholder="请输入数量" clearable style="width:100%"
+            controls-position="right" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="cancel">取 消</el-button>
+          <el-button type="primary" @click="cancel">确 定</el-button>
         </div>
       </template>
     </el-dialog>
@@ -126,6 +170,11 @@ const dialog = ref({
   title: "批量导入"
 })
 
+const dialogCard = ref({
+  visible: false,
+  title: "卡数分配"
+})
+
 const uploadData = ref({})
 /*** 上传文件参数 */
 const upload = reactive({
@@ -136,7 +185,7 @@ const upload = reactive({
 })
 
 
-const cardData = ref([]);
+const cardData = ref<any>([]);
 const buttonLoading = ref(false);
 const loading = ref(true);
 const isDisabled = ref(true);
@@ -144,7 +193,6 @@ const showSearch = ref(true);
 const total = ref(0);
 
 const queryFormRef = ref<ElFormInstance>();
-
 const data = reactive({
   queryParams: {
     pageNum: 1,
@@ -159,11 +207,19 @@ const data = reactive({
     params: {
     },
   },
-
 });
-
 const { queryParams } = toRefs(data);
 
+const form = reactive({
+  a: undefined,
+  b: undefined,
+  c: undefined,
+  d: undefined,
+  e: undefined,
+})
+const rules = reactive({
+  eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" },],
+})
 /** 查询卡信息列表 */
 const getList = async () => {
   loading.value = true;
@@ -245,6 +301,10 @@ const handleUpdate = () => {
   dialog.value.visible = true
 }
 
+const handleCard = () => {
+  dialogCard.value.visible = true
+}
+
 /** 导出按钮操作 */
 const handleDownload = () => {
   proxy?.download('manager/seed/importTemplate', {
@@ -257,7 +317,7 @@ onMounted(() => {
 
 /**完成批量导入 */
 const finish = async () => {
-  let newData = tableData.value.map((obj:any) => {
+  let newData = tableData.value.map((obj: any) => {
     return {
       eid: obj.eid,
       iccid: obj.iccid,
@@ -281,6 +341,7 @@ const cancel = () => {
   paginatedData.value = [];
   fileList.value = [];
   dialog.value.visible = false
+  dialogCard.value.visible = false
   getList();
 }
 </script>

@@ -19,14 +19,17 @@ import { ref } from "vue"
 import Basic from "./module/basic.vue"
 import Operation from "./module/operation.vue"
 import Eim from "./module/eim.vue"
+import useTagsViewStore from "@/store/modules/tagsView"
 
 const activeLabel = ref('first')
 const router = useRouter();
+const store = useTagsViewStore()
 
 const backTo = () => {
   // router.push({
   //   path: "/device",
   // });
+  store.delVisitedView(router.currentRoute.value)
   router.go(-1)
 }
 

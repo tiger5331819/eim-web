@@ -23,6 +23,16 @@
           <el-input v-model="queryParams.eimFqdn" placeholder="请输入预制EIMid" clearable style="width: 240px"
             @keyup.enter="handleQuery" />
         </el-form-item>
+        <el-form-item label="归属企业" prop="online">
+          <el-select v-model="queryParams.online" placeholder="请选择归属企业" clearable style="width: 240px">
+            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="归属项目" prop="online">
+          <el-select v-model="queryParams.online" placeholder="请选择归属项目" clearable style="width: 240px">
+            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -32,19 +42,21 @@
 
     <el-card shadow="hover">
       <template #header>
-        <el-button type="primary" @click="handleUpdate" :disabled="multiple">替换EIM</el-button>
-        <!-- <el-button type="primary" @click="toSelecting(1)" v-if="!showSelect">替换EIM</el-button>
-        <el-button type="primary" @click="toSelecting(2)" v-if="!showSelect">批量下载资源</el-button>
+        <!-- <el-button type="primary" @click="handleUpdate" :disabled="multiple">替换EIM</el-button> -->
+        <el-button type="primary" @click="toSelecting('block')" v-if="!showSelect">替换EIM</el-button>
+        <el-button type="primary" @click="toSelecting('none')" v-if="!showSelect">批量下载资源</el-button>
         <el-button type="primary" v-if="!showSelect">导入分配资源</el-button>
         <el-button type="primary" @click="handleUpdate" :disabled="multiple" v-if="showSelect">确认</el-button>
-        <el-button type="primary" @click="cancelSelecting" v-if="showSelect">取消</el-button> -->
+        <el-button type="primary" @click="cancelSelecting" v-if="showSelect">取消</el-button>
       </template>
-      <el-table v-loading="loading" :data="deviceData" @selection-change="handleSelectionChange">
-        <!-- <el-table-column type="selection" width="50" align="center" v-if="showSelect" :selectable="selectable" /> -->
-        <el-table-column type="selection" width="50" align="center" />
+      <el-table ref="deviceTable" v-loading="loading" :data="deviceData" @selection-change="handleSelectionChange"
+        :style="{ '--type': selectType }" :header-row-style="{ textAlign: 'center', height: '50px' }"
+        :row-key="getRowKey">
+        <!-- <el-table-column type="selection" width="50" align="center" /> -->
+        <el-table-column type="selection" width="50" align="center" v-if="showSelect" :selectable="selectable"
+          :reserve-selection="true" />
+        <el-table-column label="" width="50" align="center" v-if="!showSelect" />
         <el-table-column label="EID" width="150" align="center" prop="eid" />
-        <!-- <el-table-column label="EID" width="150" align="center" prop="eid" v-if="showSelect" />
-        <el-table-column label="EID" width="200" align="center" prop="eid" v-if="!showSelect" /> -->
         <el-table-column label="预制种子号" width="200" align="center" prop="iccid" />
         <el-table-column label="企业名称" width="200" align="center" prop="companyName" />
         <el-table-column label="设备名称" width="200" align="center" prop="name" />
@@ -212,9 +224,9 @@ const upload = reactive({
 })
 
 const showSelect = ref(false)
-const selectType = ref(0)
+const selectType = ref<any>('')
 const selectProject = ref<any>('')
-
+const deviceTable = ref<any>();
 const deviceData = ref<any>([]);
 const buttonLoading = ref(false);
 const loading = ref(true);
@@ -317,9 +329,9 @@ const handleView = (row?: any) => {
 }
 //复选框禁用
 const selectable = (row: any) => {
-  if (selectType.value == 1) {
+  if (selectType.value == 'block') {
     return true;  //不禁用
-  } else if (selectType.value == 2 && selectProject.value) {
+  } else if (selectType.value == 'none' && selectProject.value) {
     if (row.eid == selectProject.value) {
       console.log(row.profileCount)
       return true;  //不禁用
@@ -351,6 +363,11 @@ const handleSelectionChange = (selection: DeviceVO[]) => {
   }
 }
 
+function getRowKey(row: any) {
+  console.log(row)
+  return row.id;
+}
+
 function handleRemove(file: any, fileList: any) {
   fileList.value = []
   form.value.eimCertificate = undefined
@@ -363,15 +380,21 @@ const toSelecting = (e: any) => {
 }
 
 const cancelSelecting = () => {
-  selectType.value = 0
+  selectType.value = ''
   showSelect.value = false
   selectProject.value = ''
-  ids.value = []
+  deviceTable.value.clearSelection()
 }
 
 const handleUpdate = () => {
-  dialog.visible = true;
-  dialog.title = '替换EIM'
+  if (selectType.value == 'none') {
+    router.push({
+      path: "/download",
+    });
+  } else {
+    dialog.visible = true;
+    dialog.title = '替换EIM'
+  }
 }
 
 onMounted(() => {
@@ -486,3 +509,9 @@ const resetForm = () => {
   form.value.authenticationMethod = '0';
 }
 </script>
+
+<style scoped>
+:deep() .el-table__header-wrapper .el-checkbox {
+  display: var(--type)
+}
+</style>

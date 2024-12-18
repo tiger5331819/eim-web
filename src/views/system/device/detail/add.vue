@@ -98,6 +98,7 @@ import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance
 import { eimDownload, dpDownload, idDownload, toDownload, toResult, eimProfile } from '@/api/system/device/index';
 import { globalHeaders } from "@/utils/request";
 import QrCode from 'qrcode-decoder'
+import useTagsViewStore from "@/store/modules/tagsView";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_code_method } = toRefs<any>(proxy?.useDict('sys_code_method'));
@@ -178,10 +179,13 @@ function handleRemove(file: any, fileList: any) {
   dialogImageUrl.value = ''
 };
 
+const store = useTagsViewStore()
+
 const backTo = () => {
   // router.push({
   //   path: "/device",
   // });
+  store.delVisitedView(router.currentRoute.value)
   router.go(-1)
 }
 
