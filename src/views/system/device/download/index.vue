@@ -39,8 +39,7 @@
 
       <el-card shadow="hover">
         <template #header>
-          <el-button type="primary">资源分配</el-button>
-          <el-button type="primary">执行资源下载工作</el-button>
+          <el-button type="primary">资源分配并执行下载工作</el-button>
         </template>
         <el-table ref="deviceTable" v-loading="loading" :data="deviceData">
           <el-table-column label="EID" align="center" prop="eid" />

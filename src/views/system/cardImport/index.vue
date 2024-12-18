@@ -14,6 +14,16 @@
           <el-input v-model="queryParams.providerName" placeholder="请输入运营商" clearable style="width: 240px"
             @keyup.enter="handleQuery" />
         </el-form-item>
+        <el-form-item label="归属企业" prop="providerName">
+          <el-select v-model="queryParams.providerName" placeholder="请选择归属企业" clearable style="width: 240px">
+            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="归属项目" prop="providerName">
+          <el-select v-model="queryParams.providerName" placeholder="请选择归属项目" clearable style="width: 240px">
+            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
           <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -114,8 +124,9 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="cancel">取消</el-button>
-          <el-button :loading="buttonLoading" type="primary" @click="finish" :disable="isDisabled">确定导入</el-button>
+          <!-- <el-button @click="cancel">取消</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="finish" :disable="isDisabled">确定导入</el-button> -->
+          <el-button :loading="buttonLoading" type="primary" @click="cancel">导出失败记录</el-button>
         </div>
       </template>
     </el-dialog>
@@ -163,6 +174,8 @@ import { cardList, cardImport } from '@/api/system/cardImport';
 import { globalHeaders } from "@/utils/request";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { sys_device_status, sye_eim_method, sys_eim_id, sys_eim_sp } = toRefs<any>(proxy?.useDict('sys_device_status', 'sye_eim_method', 'sys_eim_id', 'sys_eim_sp'));
+
 const fileList = ref([])
 
 const dialog = ref({
