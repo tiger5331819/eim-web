@@ -53,7 +53,6 @@
 </template>
 
 <script setup name="company" lang="ts">
-import { ref } from 'vue';
 // import { CompanyVO } from './types';后续得到真实接口重新写type与column属性
 import { DeptVO } from "@/api/system/dept/types";
 import { listDept } from '@/api/system/dept';

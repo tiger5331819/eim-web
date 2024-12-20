@@ -27,8 +27,9 @@
 </template>
 
 <script setup name="addSupplier" lang="ts">
-import { ref } from 'vue';
 import { SupplierForm } from '../types';
+
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const props = defineProps({
     dialog: {

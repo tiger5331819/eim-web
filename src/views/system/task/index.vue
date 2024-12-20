@@ -54,9 +54,7 @@
 </template>
 
 <script setup name="task" lang="ts">
-import { ref, reactive, toRefs } from 'vue';
 import { deviceList } from '@/api/system/device/index';
-
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 

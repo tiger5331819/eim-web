@@ -35,7 +35,6 @@
 </template>
 
 <script setup name="supplier" lang="ts">
-import { ref, reactive } from 'vue';
 import { cardList } from '@/api/system/cardImport';
 import { supplierVO } from './types';
 import AddSupplier from './comp/AddSupplier.vue';
