@@ -1,6 +1,5 @@
 <template>
   <div class="p-5">
-
     <el-card shadow="hover">
       <template #header>
         <div>
@@ -10,9 +9,7 @@
 
       <span class="m-2" style="font-size: 24px;">下载业务号</span>
 
-      <el-form :model="form" :rules="rules" :inline="true" ref="deviceFormRef" label-width="180px"
-        style="margin-top: 20px;">
-
+      <el-form :model="form" :rules="rules" :inline="true" ref="deviceFormRef" label-width="180px" style="margin-top: 20px;">
         <el-form-item label="单个设备分配资源数：" prop="method">
           <el-input v-model="form.method" placeholder="0" />
         </el-form-item>
@@ -24,7 +21,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="" >
+        <el-form-item label="">
           <el-button type="primary">分配适用</el-button>
         </el-form-item>
 
@@ -34,7 +31,6 @@
               dict.label }}</el-radio>
           </el-radio-group>
         </el-form-item>
-
       </el-form>
 
       <el-card shadow="hover">
@@ -59,10 +55,21 @@
           </el-table-column>
           <el-table-column label="ICCID" align="center" prop="creationTime" />
         </el-table>
-        <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-          v-model:limit="queryParams.pageSize" @pagination="getList" />
+        <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
       </el-card>
 
+      <el-card shadow="hover">
+        <el-button type="primary" style="margin-bottom: 20px;">一键重新下载</el-button>
+        <el-row style="margin-bottom: 10px;" v-for="item in mockResult" :key="item.number" :gutter="10" type="flex" align="middle">
+          <el-col :span="3">{{ item.number }}</el-col>
+          <el-col :span="2" style="text-align: right;">下载进度： </el-col>
+          <el-col :span="3" v-if="item.status !== 'fail'">
+            <el-progress :percentage="item.percentage" :status="item.status"></el-progress>
+          </el-col>
+          <el-col v-else :span="3" style="color: red;">下载失败</el-col>
+          <el-col v-if="item.status == 'fail'" :span="3"><el-button type="primary">重新下载</el-button></el-col>
+        </el-row>
+      </el-card>
     </el-card>
   </div>
 </template>
@@ -71,6 +78,7 @@
 import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
 import { eimDownload, dpDownload, idDownload, toDownload, toResult, eimProfile } from '@/api/system/device/index';
 import useTagsViewStore from "@/store/modules/tagsView";
+import { spawn } from "child_process";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_code_method } = toRefs<any>(proxy?.useDict('sys_code_method'));
@@ -123,6 +131,30 @@ const getList = async () => {
 const router = useRouter();
 const store = useTagsViewStore()
 
+const mockResult = reactive<any>([]);
+
+for(let i = 0; i < 7; i++) {
+  let _info = { number: `test-number${i}`, percentage: 50, status: '' }
+  switch (i){
+    case 1:
+      _info.percentage = 100;
+      _info.status = 'success';
+      mockResult.push(_info);
+      break;
+    case 2:
+      _info.status = 'fail';
+      mockResult.push(_info);
+      break;
+    case 4:
+      _info.status = 'fail';
+      mockResult.push(_info);
+      break;
+    default:
+      mockResult.push(_info);
+      break;
+  }
+}
+
 const backTo = () => {
   // router.push({
   //   path: "/device",
@@ -163,12 +195,11 @@ onMounted(() => {
   }
 })
 
-/** 
+/**
  *  <el-table-column label="EID" width="150" align="center" prop="eid">
           <template #default="{ scope, $index }">
             <el-input v-model="deviceData[$index].profileCount" placeholder="请输入手机号" />
           </template>
         </el-table-column>
  */
-
 </script>

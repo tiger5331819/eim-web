@@ -45,7 +45,7 @@
         <!-- <el-button type="primary" @click="handleUpdate" :disabled="multiple">替换EIM</el-button> -->
         <el-button type="primary" @click="toSelecting('block')" v-if="!showSelect">替换EIM</el-button>
         <el-button type="primary" @click="toSelecting('none')" v-if="!showSelect">批量下载资源</el-button>
-        <el-button type="primary" v-if="!showSelect">导入分配资源</el-button>
+        <el-button type="primary" @click="toImport" v-if="!showSelect">导入分配资源</el-button>
         <el-button type="primary" @click="handleUpdate" :disabled="multiple" v-if="showSelect">确认</el-button>
         <el-button type="primary" @click="cancelSelecting" v-if="showSelect">取消</el-button>
       </template>
@@ -185,6 +185,8 @@
       </template>
     </el-dialog>
 
+    <!-- 导入配置资源 -->
+    <importDialog :dialog="importOption" @cancel="cancelImport" />
   </div>
 </template>
 
@@ -194,6 +196,7 @@ import { deviceList, eimChange, eimList } from '@/api/system/device/index';
 import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
 import { globalHeaders } from "@/utils/request";
 import { cloneDeep } from "lodash";
+import importDialog from './comp/import.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_device_status, sye_eim_method, sys_eim_id, sys_eim_sp } = toRefs<any>(proxy?.useDict('sys_device_status', 'sye_eim_method', 'sys_eim_id', 'sys_eim_sp'));
@@ -507,6 +510,21 @@ const resetForm = () => {
   deviceFormRef.value?.clearValidate();
 
   form.value.authenticationMethod = '0';
+}
+
+/** 批量导入 */
+const importOption = reactive<DialogOption>({
+  title: '批量导入',
+  visible: false
+})
+
+const toImport = () => {
+  importOption.visible = true;
+}
+
+const cancelImport = () => {
+  importOption.visible = false;
+  resetForm();
 }
 </script>
 

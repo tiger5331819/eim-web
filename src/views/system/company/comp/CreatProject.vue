@@ -31,7 +31,7 @@
 </template>
 
 <script setup name="CreatProject" lang="ts">
-import { ref, defineEmits, defineProps, computed, toRefs, watch } from 'vue';
+import { ref, computed, toRefs, watch } from 'vue';
 import { ProjectForm } from '../types';
 
 const props = defineProps({

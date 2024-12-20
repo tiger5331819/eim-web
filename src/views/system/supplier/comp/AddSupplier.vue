@@ -27,7 +27,7 @@
 </template>
 
 <script setup name="addSupplier" lang="ts">
-import { ref, defineEmits, defineProps } from 'vue';
+import { ref } from 'vue';
 import { SupplierForm } from '../types';
 
 const props = defineProps({
