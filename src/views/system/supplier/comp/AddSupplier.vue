@@ -29,8 +29,6 @@
 <script setup name="addSupplier" lang="ts">
 import { SupplierForm } from '../types';
 
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-
 const props = defineProps({
     dialog: {
         type: Object,

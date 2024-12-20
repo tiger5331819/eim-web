@@ -191,7 +191,7 @@
 </template>
 
 <script setup name="In" lang="ts">
-import { ref, defineProps, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
+import { ref, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
 import { deviceList, eimChange, eimList } from '@/api/system/device/index';
 import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
 import { globalHeaders } from "@/utils/request";

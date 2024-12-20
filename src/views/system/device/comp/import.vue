@@ -78,7 +78,6 @@
 </template>
 
 <script setup name="ImportDialog" lang="ts">
-import { defineProps, defineEmits, ref, computed, toRefs } from 'vue';
 import { globalHeaders } from "@/utils/request";
 
 const props = defineProps({
