@@ -1,12 +1,11 @@
 import request from '@/utils/request';
+import { QueryFrom, AllocationForm } from './types';
 
 /**
- * 卡信息记录查询
- * @param query
- * @returns {*}
+ * @method:获取卡信息记录列表
+ * @param:query
  */
-
-export const cardList = (query?:any) => {
+export const cardImportList = (query: QueryFrom) => {
   return request({
     url: '/manager/seed/list',
     method: 'get',
@@ -15,15 +14,88 @@ export const cardList = (query?:any) => {
 };
 
 /**
- * 批量导入
- * @param seedList
- * @returns {*}
+ * @method:获取运营商列表
  */
-
-export const cardImport = (seedList:any) => {
+export const providerList = () => {
   return request({
-    url: '/manager/seed/import',
+    url: '/manager/provider/list',
+    method: 'get'
+  });
+};
+
+/**
+ * @method:获取归属企业列表
+ */
+export const companyList = () => {
+  return request({
+    url: '/manager/company/all',
+    method: 'get'
+  });
+};
+
+/**
+ * @method:获取归属项目列表（归属企业为前置条件）
+ * @param:companyId
+ */
+export const projectList = (companyId: string) => {
+  return request({
+    url: `/manager/company/${companyId}/project/all`,
+    method: 'get'
+  });
+};
+
+/**
+ * @method:查看当前批次允许分配数量
+ * @param:productionBatch
+ */
+export const batchAllowableNumber = (productionBatch: string) => {
+  return request({
+    url: `/manager/seed/batch/${productionBatch}/inventory`,
+    method: 'get'
+  });
+};
+
+/**
+ * @method:卡数分配
+ * @param:productionBatch,form
+ */
+export const handleAllocation = (productionBatch: string, form: AllocationForm) => {
+  return request({
+    url: `/manager/seed/batch/${productionBatch}`,
     method: 'post',
-    data: seedList
+    data: form
+  });
+};
+
+/**
+ * @method:下载导入模板
+ */
+export const importTemplate = () => {
+  return request({
+    url: '/manager/seed/importTemplate',
+    method: 'post'
+  });
+};
+
+/**
+ * @method:批量导入
+ * @param:data
+ */
+export const batchImport = (data: FormData) => {
+  return request({
+    url: '/manager/seed/importWithOptions',
+    method: 'post',
+    data: data
+  });
+};
+
+/**
+ * @method:下载导出失败记录
+ * @param:errorToken
+ */
+export const downloadFailRecord = (errorToken: string) => {
+  return request({
+    url: `/manager/seed/importError/${errorToken}`,
+    method: 'post'
   });
 };
