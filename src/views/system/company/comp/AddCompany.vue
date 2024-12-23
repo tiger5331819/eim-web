@@ -1,8 +1,8 @@
 <template>
   <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px">
     <el-form ref="addCompanyRef" :model="form" :rules="rules" label-width="100px">
-      <el-form-item v-if="isEdit" label="企业编号" prop="number">
-        <el-input v-model="form.number" disabled />
+      <el-form-item v-if="isEdit" label="企业编号" prop="companyCode">
+        <el-input v-model="form.companyCode" disabled />
       </el-form-item>
       <el-form-item label="企业名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入部门名称" />
@@ -21,8 +21,8 @@
 </template>
 
 <script setup name="addCompany" lang="ts">
-import { ref, computed, toRefs, watch } from 'vue';
-import { CompanyForm } from '../types';
+import { getCompanyDetail, addCompany, updateCompany } from '@/api/system/company';
+import { CompanyForm } from "@/api/system/company/types";
 
 const props = defineProps({
     dialog: {
@@ -48,14 +48,14 @@ const visible = computed({
 });
 
 //  表单数据
-const initFormData: CompanyForm = {
+const initCompanyForm: CompanyForm = {
     id: undefined,
-    number: undefined,
+    companyCode: undefined,
     name: undefined,
     remark: undefined
 };
 const data = reactive({
-    form: { ...initFormData },
+    form: { ...initCompanyForm },
     rules: {
         name: [
             { required: true, message: "企业名称不能为空", trigger: "blur" }
@@ -72,8 +72,9 @@ const addCompanyRef = ref<ElFormInstance>();
 const submitForm = () => {
     addCompanyRef.value?.validate(async (valid: boolean) => {
         if (valid) {
-            // form.value.id ? await update(form.value) : await add(form.value);
-            // proxy?.$modal.msgSuccess("新增成功");
+            form.value.id ? await updateCompany(form.value.id, form.value) : await addCompany(form.value);
+            let _message = form.value.id ? '编辑成功' : "新增成功";
+            proxy?.$modal.msgSuccess(_message);
             emits('submit');
         }
     });
@@ -86,19 +87,16 @@ const cancel = () => {
 /** 重置 */
 const reset = () => {
     isEdit.value = false;
-    form.value = { ...initFormData };
+    form.value = { ...initCompanyForm };
     addCompanyRef.value?.resetFields();
 }
 
 /** 监听是否为编辑 */
-watch(() => props.dialog, v => {
+watch(() => props.dialog, async (v) => {
   if (v.title == '编辑') {
     isEdit.value = true;
-    //  以下都应该有后台返回
-    form.value.number = props.detail.orderNum;
-    form.value.id = props.detail.deptName;
-    form.value.name = props.detail.deptName;
-    form.value.remark = props.detail.deptName;
+    const res = await getCompanyDetail(props.detail.id);
+    form.value = res.data;
   } else {
     reset();
   }

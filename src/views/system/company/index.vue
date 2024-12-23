@@ -13,22 +13,23 @@
         ref="tableRef"
         v-loading="loading"
         :data="companyData"
-        row-key="deptId"
-        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
+        row-key="id"
+        :tree-props="{ children: 'projcetList', hasChildren: 'hasChildren' }"
         :default-expand-all="isExpandAll"
       >
-        <el-table-column prop="deptName" label="企业管理"></el-table-column>
-        <el-table-column prop="createTime" label="有效时间">
+        <el-table-column prop="name" label="企业管理"></el-table-column>
+        <el-table-column label="有效时间">
           <template #default="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span v-if="scope.row.startTime && scope.row.endTime">{{ parseTime(scope.row.startTime) + ' ~ ' + parseTime(scope.row.endTime) }}</span>
+            <span></span>
           </template>
         </el-table-column>
-        <el-table-column prop="orderNum" label="资源数量"></el-table-column>
-        <el-table-column prop="orderNum" label="设备数量"></el-table-column>
-        <el-table-column prop="deptName" label="备注"></el-table-column>
-        <el-table-column prop="createTime" label="创建时间">
+        <el-table-column prop="profileCount" label="资源数量"></el-table-column>
+        <el-table-column prop="deviceCount" label="设备数量"></el-table-column>
+        <el-table-column prop="remark" label="备注"></el-table-column>
+        <el-table-column prop="creationTime" label="创建时间">
           <template #default="scope">
-            <span>{{ parseTime(scope.row.createTime) }}</span>
+            <span>{{ parseTime(scope.row.creationTime) }}</span>
           </template>
         </el-table-column>
         <el-table-column fixed="right" align="center" label="操作">
@@ -36,10 +37,10 @@
             <el-tooltip content="编辑" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:dept:edit']" />
             </el-tooltip>
-            <el-tooltip v-if="scope.row.children" content="创建项目" placement="top">
+            <el-tooltip v-if="scope.row.projcetList" content="创建项目" placement="top">
               <el-button link type="primary" icon="Plus" @click="handleCreat('创建项目', scope.row)" v-hasPermi="['system:dept:add']" />
             </el-tooltip>
-            <el-tooltip v-if="scope.row.children && scope.row.children.length == 0" content="删除" placement="top">
+            <el-tooltip v-if="scope.row.profileCount == 0 && scope.row.profileCount == 0" content="删除" placement="top">
               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:dept:remove']" />
             </el-tooltip>
           </template>
@@ -53,9 +54,8 @@
 </template>
 
 <script setup name="company" lang="ts">
-// import { CompanyVO } from './types';后续得到真实接口重新写type与column属性
-import { DeptVO } from "@/api/system/dept/types";
-import { listDept } from '@/api/system/dept';
+import { CompanyTable } from "@/api/system/company/types";
+import { companyList, handledeleteCompany, handledeleteProject } from '@/api/system/company';
 import AddCompany from './comp/AddCompany.vue';
 import CreatProject from './comp/CreatProject.vue';
 
@@ -63,7 +63,7 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
 const tableRef = ref();// 表格
 const loading = ref(true);//  加载状态
-const companyData = ref<DeptVO[]>([]);//  表格数据
+const companyData = ref<CompanyTable[]>([]);//  表格数据
 const isExpandAll = ref(true);//  是否全部展开
 const addCompany = reactive<DialogOption>({
   title: '新增',
@@ -73,21 +73,26 @@ const creatProject = reactive<DialogOption>({
   title: '创建项目',
   visible: false
 });// 新增项目弹窗
-const detailRow = ref<DeptVO>();//  当前企业信息
-const parentRow = ref<DeptVO>();//  传递父级信息
+const detailRow = ref<CompanyTable>();//  当前企业信息
+const parentRow = ref<CompanyTable>();//  传递父级信息
 
 /** 获取列表 */
 const getList = async() => {
   loading.value = true;
-  const res = await listDept();
-  const data = proxy?.handleTree<DeptVO>(res.data, "deptId")
-  if (data) {
-    companyData.value = data
-  }
+  const res = await companyList();
+  companyData.value = res.data.map((item: CompanyTable) => {
+    if (item.projcetList && item.projcetList.length > 0) {
+      item.projcetList = item.projcetList.map((child: CompanyTable) => {
+        delete child.projcetList;
+        return child
+      });
+    }
+    return item;
+  });
   loading.value = false
 };
 /** 新增企业 */
-const handleAdd = (title?: string, row?: DeptVO) => {
+const handleAdd = (title?: string, row?: CompanyTable) => {
   addCompany.title = title;
   addCompany.visible = true;
   if (row) {
@@ -102,8 +107,8 @@ const closeAddCompany = (type: string) => {
   }
 };
 /** 更新企业/项目 */
-const handleUpdate = (row: DeptVO) => {
-    if (row.children) {
+const handleUpdate = (row: CompanyTable) => {
+    if (row.projcetList) {
       //  存在子级，编辑企业
       handleAdd('编辑', row);
     } else {
@@ -112,7 +117,7 @@ const handleUpdate = (row: DeptVO) => {
     }
 };
 /** 新增项目 */
-const handleCreat = (title?: string, row?: DeptVO) => {
+const handleCreat = (title?: string, row?: CompanyTable) => {
     parentRow.value = row;
     creatProject.title = title;
     creatProject.visible = true;
@@ -125,9 +130,14 @@ const closeCreat = (type: string) => {
   }
 }
 /** 删除企业/项目 */
-const handleDelete = async(row: DeptVO) => {
-  await proxy?.$modal.confirm('是否确认删除名称为"' + row.deptName + '"的数据项?');
-  // await delDept(row.deptId);删除方法
+const handleDelete = async(row: CompanyTable) => {
+  if (row.companyId == undefined) {
+    await proxy?.$modal.confirm('是否确认删除名称为"' + row.name + '"的企业?');
+    await handledeleteCompany(row.id);
+  } else {
+    await proxy?.$modal.confirm('是否确认删除名称为"' + row.name + '"的项目?');
+    await handledeleteProject(row.companyId, row.id);
+  }
   await getList();
   proxy?.$modal.msgSuccess("删除成功");
 };

@@ -6,7 +6,7 @@ import { CompanyForm, ProjectForm } from './types';
  */
 export const companyList = () => {
   return request({
-    url: '',
+    url: '/manager/company/list',
     method: 'get'
   });
 };
@@ -17,7 +17,7 @@ export const companyList = () => {
  */
 export const addCompany = (form: CompanyForm) => {
   return request({
-    url: '',
+    url: '/manager/company',
     method: 'post',
     data: form
   });
@@ -25,13 +25,13 @@ export const addCompany = (form: CompanyForm) => {
 
 /**
  * @method:获取企业详情
- * @param:id
+ * @param:companyId
  */
-export const getCompanyDetail = (id: string | number) => {
+export const getCompanyDetail = (companyId: string) => {
   return request({
-    url: '',
-    method: 'post',
-    data: id
+    url: `/manager/company/${companyId}`,
+    method: 'get',
+    params: { companyId: companyId }
   });
 };
 
@@ -39,21 +39,21 @@ export const getCompanyDetail = (id: string | number) => {
  * @method:编辑企业
  * @param:form
  */
-export const updateCompany = (form: CompanyForm) => {
+export const updateCompany = (companyId: string, form: CompanyForm) => {
   return request({
-    url: '',
-    method: 'post',
+    url: `/manager/company/${companyId}`,
+    method: 'put',
     data: form
   });
 };
 
 /**
  * @method:新增项目
- * @param:form
+ * @param:id, form
  */
-export const addProject = (form: ProjectForm) => {
+export const addProject = (id: string, form: ProjectForm) => {
   return request({
-    url: '',
+    url: `/manager/company/${id}/project`,
     method: 'post',
     data: form
   });
@@ -63,11 +63,10 @@ export const addProject = (form: ProjectForm) => {
  * @method:获取项目详情
  * @param:id
  */
-export const getProjectDetail = (id: string | number) => {
+export const getProjectDetail = (companyId: string, projectId: string) => {
   return request({
-    url: '',
-    method: 'post',
-    data: id
+    url: `/manager/company/${companyId}/project/${projectId}`,
+    method: 'get'
   });
 };
 
@@ -75,22 +74,32 @@ export const getProjectDetail = (id: string | number) => {
  * @method:编辑项目
  * @param:form
  */
-export const updateProject = (form: ProjectForm) => {
+export const updateProject = (companyId: string, projectId: string, form: ProjectForm) => {
   return request({
-    url: '',
-    method: 'post',
+    url: `/manager/company/${companyId}/project/${projectId}`,
+    method: 'put',
     data: form
   });
 };
 
 /**
- * @method:删除企业/项目
- * @param:id
+ * @method:删除企业
+ * @param:ids
  */
-export const handledelete = (id: string | number) => {
+export const handledeleteCompany = (ids: string) => {
   return request({
-    url: '',
-    // url: `/manager/device/${id}/profile/${iccid}`,
+    url: `/manager/company/${ids}`,
+    method: 'delete'
+  });
+};
+
+/**
+ * @method:删除项目
+ * @param:ids
+ */
+export const handledeleteProject = (companyId: string, ids: string) => {
+  return request({
+    url: `/manager/company/${companyId}/project/${ids}`,
     method: 'delete'
   });
 };
