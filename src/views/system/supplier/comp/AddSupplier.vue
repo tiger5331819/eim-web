@@ -1,20 +1,20 @@
 <template>
   <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px">
     <el-form ref="addSupplierFormRef" :model="form" :rules="rules" label-width="100px">
-      <el-form-item label="DP+来源" prop="dp">
-        <el-input v-model="form.dp" placeholder="请输入" />
+      <el-form-item label="DP+来源" prop="dpSource">
+        <el-input v-model="form.dpSource" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="接口地址" prop="api">
-        <el-input v-model="form.api" placeholder="请输入" />
+      <el-form-item label="接口地址" prop="apiUrl">
+        <el-input v-model="form.apiUrl" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="token地址" prop="token">
-        <el-input v-model="form.token" placeholder="请输入" />
+      <el-form-item label="token地址" prop="tokenUrl">
+        <el-input v-model="form.tokenUrl" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="ID" prop="id">
-        <el-input v-model="form.id" placeholder="请输入" />
+      <el-form-item label="ID" prop="accountId">
+        <el-input v-model="form.accountId" placeholder="请输入" />
       </el-form-item>
-      <el-form-item label="password" prop="password">
-        <el-input v-model="form.password" placeholder="请输入" />
+      <el-form-item label="password" prop="accountPassword">
+        <el-input v-model="form.accountPassword" placeholder="请输入" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -27,7 +27,8 @@
 </template>
 
 <script setup name="addSupplier" lang="ts">
-import { SupplierForm } from '../types';
+import { getSupplierDetail, addSupplier, updateSupplier } from '@/api/system/supplier';
+import { SupplierForm } from '@/api/system/supplier/types';
 
 const props = defineProps({
     dialog: {
@@ -41,6 +42,7 @@ const props = defineProps({
 });
 
 const emits = defineEmits(['submit', 'close']);
+const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
 // 弹窗控制
 const visible = computed({
@@ -54,19 +56,19 @@ const visible = computed({
 
 //  表单数据
 const initFormData: SupplierForm = {
-    supplierId: undefined,
-    dp: undefined,
-    api: undefined,
-    token: undefined,
     id: undefined,
-    password: undefined,
+    dpSource: undefined,
+    apiUrl: undefined,
+    tokenUrl: undefined,
+    accountId: undefined,
+    accountPassword: undefined,
 };
 const data = reactive({
     form: { ...initFormData },
     rules: {
-        dp: [
-            { required: true, message: "DP+来源不能为空", trigger: "blur" }
-        ]
+      dpSource: [
+        { required: true, message: "DP+来源不能为空", trigger: "blur" }
+      ]
     }
 });
 const { form, rules } = toRefs(data);
@@ -78,8 +80,9 @@ const addSupplierFormRef = ref<ElFormInstance>();
 const submitForm = () => {
     addSupplierFormRef.value?.validate(async (valid: boolean) => {
         if (valid) {
-            // form.value.id ? await update(form.value) : await add(form.value);
-            // proxy?.$modal.msgSuccess("新增成功");
+            form.value.id ? await updateSupplier(form.value) : await addSupplier(form.value);
+            let _message = form.value.id ? '编辑成功' : "新增成功";
+            proxy?.$modal.msgSuccess(_message);
             emits('submit');
         }
     });
@@ -96,14 +99,10 @@ const reset = () => {
 }
 
 /** 监听是否为编辑 */
-watch(() => props.dialog, v => {
+watch(() => props.dialog, async(v) => {
   if (v.title == '编辑') {
-    //  以下都应该有后台返回
-    form.value.dp = props.detail.eid;
-    form.value.api = props.detail.eid;
-    form.value.token = props.detail.eid;
-    form.value.id = props.detail.eid;
-    form.value.password = props.detail.eid;
+    const res = await getSupplierDetail(props.detail.id);
+    form.value = res.data;
   } else {
     reset();
   }

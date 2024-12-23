@@ -10,17 +10,21 @@
       </template>
 
       <el-table v-loading="loading" :data="supplierData">
-        <el-table-column label="DP+来源" align="center" prop="eid" />
-        <el-table-column label="ID" align="center" prop="iccid" />
-        <el-table-column label="password" align="center" prop="eimFqdn" />
-        <el-table-column label="资源数量" align="center" prop="cardProviderName" />
-        <el-table-column label="创建时间" sortable align="center" prop="creationTime" />
+        <el-table-column label="DP+来源" align="center" prop="dpSource" />
+        <el-table-column label="ID" align="center" prop="accountId" />
+        <el-table-column label="password" align="center" prop="accountPassword" />
+        <el-table-column label="资源数量" align="center" prop="profileCount" />
+        <el-table-column label="创建时间" sortable align="center" prop="createTime">
+          <template #default="scope">
+            {{ parseTime(scope.row.createTime) }}
+          </template>
+        </el-table-column>
         <el-table-column fixed="right" align="center" label="操作">
           <template #default="scope">
             <el-tooltip content="编辑" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleAdd('编辑', scope.row)" v-hasPermi="['system:dept:edit']" />
             </el-tooltip>
-            <el-tooltip v-if="scope.row.children && scope.row.children.length == 0" content="删除" placement="top">
+            <el-tooltip content="删除" placement="top">
               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:dept:remove']" />
             </el-tooltip>
           </template>
@@ -35,8 +39,8 @@
 </template>
 
 <script setup name="supplier" lang="ts">
-import { cardList } from '@/api/system/cardImport';
-import { supplierVO } from './types';
+import { supplierList, handledelete } from '@/api/system/supplier';
+import { SupplierTable } from '@/api/system/supplier/types';
 import AddSupplier from './comp/AddSupplier.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
@@ -52,18 +56,18 @@ const addSupplier = reactive<DialogOption>({
   title: '新增',
   visible: false
 });// 弹窗控制
-const detail = ref<supplierVO>();// 编辑用详情
+const detail = ref<SupplierTable>();// 编辑用详情
 
 const getList = async () => {
   loading.value = true;
-  const res = await cardList(queryParams.value);
+  const res = await supplierList(queryParams.value);
   supplierData.value = res.rows;
   total.value = res.total;
   loading.value = false;
 }
 
 /** 新增/编辑 */
-const handleAdd = (title: string, row: any) => {
+const handleAdd = (title: string, row?: SupplierTable) => {
   addSupplier.title = title;
   addSupplier.visible = true;
   if (row) {
@@ -72,9 +76,9 @@ const handleAdd = (title: string, row: any) => {
 };
 
 /** 删除 */
-const handleDelete = async(row: supplierVO) => {
-  await proxy?.$modal.confirm('是否确认删除名称为"' + row.deptName + '"的数据项?');
-  // await delDept(row.deptId);删除方法
+const handleDelete = async(row: SupplierTable) => {
+  await proxy?.$modal.confirm('是否确认删除?');
+  await handledelete(row.id);
   await getList();
   proxy?.$modal.msgSuccess("删除成功");
 };

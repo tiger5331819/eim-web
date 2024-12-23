@@ -1,13 +1,15 @@
 import request from '@/utils/request';
 import { SupplierForm } from './types';
+import { Pagination } from '@/api/types';
 
 /**
  * @method:获取供应商列表
  */
-export const supplierList = () => {
+export const supplierList = (query: Pagination) => {
   return request({
-    url: '',
-    method: 'get'
+    url: '/manager/provider/list',
+    method: 'get',
+    params: query
   });
 };
 
@@ -17,7 +19,7 @@ export const supplierList = () => {
  */
 export const addSupplier = (form: SupplierForm) => {
   return request({
-    url: '',
+    url: '/manager/provider',
     method: 'post',
     data: form
   });
@@ -27,11 +29,10 @@ export const addSupplier = (form: SupplierForm) => {
  * @method:获取供应商详情
  * @param:id
  */
-export const getSupplierDetail = (id: string | number) => {
+export const getSupplierDetail = (id: string) => {
   return request({
-    url: '',
-    method: 'post',
-    data: id
+    url: `/manager/provider/${id}`,
+    method: 'get'
   });
 };
 
@@ -41,20 +42,19 @@ export const getSupplierDetail = (id: string | number) => {
  */
 export const updateSupplier = (form: SupplierForm) => {
   return request({
-    url: '',
-    method: 'post',
+    url: '/manager/provider',
+    method: 'put',
     data: form
   });
 };
 
 /**
  * @method:删除供应商
- * @param:id
+ * @param:ids
  */
-export const handledelete = (id: string | number) => {
+export const handledelete = (ids: string) => {
   return request({
-    url: '',
-    // url: `/manager/device/${id}/profile/${iccid}`,
+    url: `/manager/provider/${ids}`,
     method: 'delete'
   });
 };

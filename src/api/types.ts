@@ -57,3 +57,12 @@ export interface TenantInfo {
   tenantEnabled: boolean;
   voList: TenantVO[];
 }
+
+/**
+ * 分页
+ */
+
+export interface Pagination {
+  pageNum?: number;
+  pageSize?: number;
+}
