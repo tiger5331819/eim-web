@@ -48,8 +48,8 @@
       </el-table>
     </el-card>
 
-    <AddCompany :dialog="addCompany" :detail="detailRow" @close="closeAddCompany" @submit="closeAddCompany('update')" />
-    <CreatProject :dialog="creatProject" :parent="parentRow" @close="closeCreat" @submit="closeCreat('update')" />
+    <AddCompany :dialog="addCompany" :detail="detailRow" @close="close('add')" @submit="close('add', true)" />
+    <CreatProject :dialog="creatProject" :parent="parentRow" @close="close('creat')" @submit="close('creat', true)" />
   </div>
 </template>
 
@@ -61,18 +61,21 @@ import CreatProject from './comp/CreatProject.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-const tableRef = ref();// 表格
-const loading = ref(true);//  加载状态
-const companyData = ref<CompanyTable[]>([]);//  表格数据
-const isExpandAll = ref(true);//  是否全部展开
+//  表格
+const tableRef = ref();
+const loading = ref(true);
+const companyData = ref<CompanyTable[]>([]);
+const isExpandAll = ref(true);
+
+//  弹窗
 const addCompany = reactive<DialogOption>({
   title: '新增',
   visible: false
-});// 新增企业弹窗
+});
 const creatProject = reactive<DialogOption>({
   title: '创建项目',
   visible: false
-});// 新增项目弹窗
+});
 const detailRow = ref<CompanyTable>();//  当前企业信息
 const parentRow = ref<CompanyTable>();//  传递父级信息
 
@@ -91,6 +94,7 @@ const getList = async() => {
   });
   loading.value = false
 };
+
 /** 新增企业 */
 const handleAdd = (title?: string, row?: CompanyTable) => {
   addCompany.title = title;
@@ -99,13 +103,7 @@ const handleAdd = (title?: string, row?: CompanyTable) => {
     detailRow.value = row;
   }
 };
-/** 新增企业弹窗关闭 */
-const closeAddCompany = (type: string) => {
-  addCompany.visible = false;
-  if (type) {
-    getList();
-  }
-};
+
 /** 更新企业/项目 */
 const handleUpdate = (row: CompanyTable) => {
     if (row.projcetList) {
@@ -116,19 +114,21 @@ const handleUpdate = (row: CompanyTable) => {
       handleCreat('编辑项目', row);
     }
 };
+
 /** 新增项目 */
 const handleCreat = (title?: string, row?: CompanyTable) => {
     parentRow.value = row;
     creatProject.title = title;
     creatProject.visible = true;
 };
-/** 新增项目弹窗关闭 */
-const closeCreat = (type: string) => {
-  creatProject.visible = false;
-  if (type) {
-    getList();
-  }
-}
+
+/** 弹窗关闭 */
+const close = (type: string, edit?: boolean) => {
+  if (type == 'add') { addCompany.visible = false; }
+  if (type == 'creat') { creatProject.visible = false; }
+  if (edit) { getList(); }
+};
+
 /** 删除企业/项目 */
 const handleDelete = async(row: CompanyTable) => {
   if (row.companyId == undefined) {
