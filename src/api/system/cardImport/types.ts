@@ -3,7 +3,7 @@ import { Pagination } from '@/api/types';
 export interface AllocationForm {
   productionBatch?: string; //   批次
   count?: number; // 数量
-  projectId: string; //  项目id
+  projectId?: string; //  项目id
 }
 
 export interface CardImportTable {

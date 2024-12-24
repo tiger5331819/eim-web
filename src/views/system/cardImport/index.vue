@@ -1,27 +1,18 @@
 <template>
   <div class="p-2">
-    <div class="search" v-show="showSearch">
+    <div class="search">
       <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
-        <el-form-item label="EID" prop="eid">
-          <el-input v-model="queryParams.eid" placeholder="请输入EID" clearable style="width: 240px"
-            @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="ICCID" prop="iccid">
-          <el-input v-model="queryParams.iccid" placeholder="请输入ICCID" clearable style="width: 240px"
-            @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="运营商" prop="providerName">
-          <el-input v-model="queryParams.providerName" placeholder="请输入运营商" clearable style="width: 240px"
-            @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="归属企业" prop="providerName">
-          <el-select v-model="queryParams.providerName" placeholder="请选择归属企业" clearable style="width: 240px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="归属项目" prop="providerName">
-          <el-select v-model="queryParams.providerName" placeholder="请选择归属项目" clearable style="width: 240px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+        <el-form-item v-for="(item, index) in queryFormItem" :key="index" :label="item.label" :prop="item.prop">
+          <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
+          <el-select
+            v-if="item.type == 'select'"
+            v-model="queryParams[item.prop]"
+            :placeholder="item.placeholder"
+            clearable
+            :disabled="item.prop == 'projectName' && !queryParams.companyName"
+            @change="selectChange(item.prop)"
+          >
+            <el-option v-for="dict in item.dict" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -35,7 +26,7 @@
       <template #header>
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
-            <el-button type="primary" @click="handleCard">卡数分配</el-button>
+            <el-button type="primary" @click="handleAllocation">卡数分配</el-button>
           </el-col>
           <el-col :span="1.5">
             <el-button type="primary" @click="handleUpdate">批量导入</el-button>
@@ -47,314 +38,147 @@
       </template>
 
       <el-table v-loading="loading" :data="cardData">
-        <el-table-column label="序号" align="center" :show-overflow-tooltip="true">
-          <template #default="scope">
-            <span>{{ (queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1 }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="EID" align="center" prop="eid" />
-        <el-table-column label="预制种子号ICCID" align="center" prop="iccid" />
-        <el-table-column label="预制EIM" align="center" prop="eimFqdn" />
-        <el-table-column label="制卡商" align="center" prop="cardProviderName" />
-        <el-table-column label="运营商" align="center" prop="providerName" />
-        <el-table-column label="批次" align="center" prop="providerName" />
-        <el-table-column label="归属企业" align="center" prop="providerName" />
-        <el-table-column label="归属项目" align="center" prop="providerName" />
-        <el-table-column label="操作时间" sortable align="center" prop="creationTime">
-          <!-- <template #default="scope">
-            <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
-          </template> -->
+        <el-table-column
+          v-for="(item, index) in tableColumn"
+          :key="index"
+          :label="item.label"
+          :width="item.width"
+          :align="item.align"
+          :prop="item.prop"
+        >
+          <!-- 插槽预留 -->
         </el-table-column>
       </el-table>
 
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
 
-    <!-- 导入卡明细对话框 -->
-    <el-dialog :title="dialog.title" v-model="dialog.visible" width="1200px" append-to-body @close="cancel">
-      <div class="mt-4" style="position: relative;">
-        <el-upload style="width: auto;" accept=".xlsx" :headers="upload.headers" :action="upload.url"
-          :on-remove="handleRemove" :limit="1" :file-list="fileList" :before-upload="beforeUpload" :data="uploadData"
-          :on-success="uploadFileSuccess">
-          <el-button type="default" icon="Upload">上传文件</el-button>
-          <template #tip>
-            <div class="mt-4"
-              style="border: 1px solid #91d5ff; background-color: #e6f7ff; border-radius: 4px; box-sizing: border-box; line-height: 28px;">
-              <el-row :gutter="10">
-                <el-col :span="1.5">
-                  <el-icon class="mt-2 ml-2" :size="30" color="#1890FF">
-                    <Warning />
-                  </el-icon>
-                </el-col>
-                <el-col :span="1.5">
-                  <div class="el-upload__tip m-2" style="font-size: 16px">
-                    温馨提示：
-                  </div>
-                  <div class="el-upload__tip m-2" style="font-size: 16px">
-                    1、请按照模板格式输入信息，数据量不要超过10000条；
-                  </div>
-                  <div class="el-upload__tip m-2" style="font-size: 16px">
-                    2、只支持xlsx格式文件，其中EID、制卡商、运营商信息为必填内容；预制种子号ICCID、预制EIM为非必填信息；
-                  </div>
-                </el-col>
-              </el-row>
-            </div>
-          </template>
-        </el-upload>
-      </div>
-      <el-card class=" mt-8">
-        <el-table :data="paginatedData">
-          <el-table-column label="EID" align="center" prop="eid" />
-          <el-table-column label="预制种子号ICCID" width="200" align="center" prop="iccid" />
-          <el-table-column label="预制EIM" align="center" prop="eimFqdn" />
-          <el-table-column label="制卡商" align="center" prop="cardProviderName" />
-          <el-table-column label="运营商" align="center" prop="providerName" />
-          <el-table-column label="批次" align="center" prop="providerName" />
-          <el-table-column label="归属企业" align="center" prop="providerName" />
-          <el-table-column label="归属项目" align="center" prop="providerName" />
-          <el-table-column label="数据校验" align="center" prop="result" />
-        </el-table>
-        <el-pagination class="mt-6" v-show="totalItems" layout="total, sizes, prev, pager, next, jumper"
-          v-model:page="currentPage" v-model:limit="pageSize" @size-change="handleSizeChange"
-          @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 30, 50]"
-          :page-size="pageSize" :total="totalItems">
-        </el-pagination>
-      </el-card>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <!-- <el-button @click="cancel">取消</el-button>
-          <el-button :loading="buttonLoading" type="primary" @click="finish" :disable="isDisabled">确定导入</el-button> -->
-          <el-button :loading="buttonLoading" type="primary" @click="cancel">导出失败记录</el-button>
-        </div>
-      </template>
-    </el-dialog>
-
     <!-- 卡数分配 -->
-    <el-dialog ref="cardDialogRef" :title="dialogCard.title" v-model="dialogCard.visible" width="600px" append-to-body
-      @close="cancel">
-      <el-form :model="form" :rules="rules" ref="cardFormRef" label-width="100px">
-        <el-form-item label="批次" prop="a">
-          <el-select v-model="form.a" placeholder="请选择批次" clearable style="width:100%">
-            <el-option v-for="item in cardData" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="允许分配数量" prop="b">
-          <el-input v-model="form.b" placeholder="" clearable style="width:100%" disabled />
-        </el-form-item>
-        <el-form-item label="归属企业" prop="c">
-          <el-select v-model="form.c" placeholder="请选择归属企业" clearable style="width:100%">
-            <el-option v-for="item in cardData" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="项目名称" prop="d">
-          <el-select v-model="form.d" placeholder="请选择项目名称" clearable style="width:100%">
-            <el-option v-for="item in cardData" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="数量" prop="e">
-          <el-input-number v-model="form.e" placeholder="请输入数量" clearable style="width:100%"
-            controls-position="right" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="cancel">取 消</el-button>
-          <el-button type="primary" @click="cancel">确 定</el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <AllocationCard :dialog="allocationDialog" @close="close('allocation')" @submit="close('allocation', true)" />
+    <!-- 批量导入 -->
+    <BatchImport :dialog="importDialog" @close="close('import')" @submit="close('import', true)" />
   </div>
 </template>
 
-<script setup name="In" lang="ts">
-import { ref, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick } from "vue"
-import { cardList, cardImport } from '@/api/system/cardImport';
-import { globalHeaders } from "@/utils/request";
+<script setup name="cardImport" lang="ts">
+import { cardImportList } from '@/api/system/cardImport';
+import { CardImportTable } from '@/api/system/cardImport/types';
+import { getProviderDict, getCompanyDict, getProjectDict } from './hooks/useGetDict';
+import AllocationCard from './comp/AllocationCard.vue';
+import BatchImport from './comp/BatchImport.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_status, sye_eim_method, sys_eim_id, sys_eim_sp } = toRefs<any>(proxy?.useDict('sys_device_status', 'sye_eim_method', 'sys_eim_id', 'sys_eim_sp'));
 
-const fileList = ref([])
+// 字典
+const batchDict = ref();
+const companyDict = ref();
+const projectDict = ref();
+const allocateDict = ref();
 
-const dialog = ref({
-  visible: false,
-  title: "批量导入"
-})
-
-const dialogCard = ref({
-  visible: false,
-  title: "卡数分配"
-})
-
-const uploadData = ref({})
-/*** 上传文件参数 */
-const upload = reactive({
-  // 设置上传的请求头部
-  headers: globalHeaders(),
-  // 上传的地址
-  url: import.meta.env.VITE_APP_BASE_API + "/manager/seed/importWithOptions"
-})
-
-
-const cardData = ref<any>([]);
-const buttonLoading = ref(false);
-const loading = ref(true);
-const isDisabled = ref(true);
-const showSearch = ref(true);
-const total = ref(0);
-
-const queryFormRef = ref<ElFormInstance>();
-const data = reactive({
-  queryParams: {
-    pageNum: 1,
-    pageSize: 10,
-    eid: undefined,
-    iccid: undefined,
-    eimFqdn: undefined,
-    providerName: undefined,
-    cardProviderName: undefined,
-    createTime: undefined,
-    isAsc: <any>undefined,
-    params: {
-    },
-  },
+// 搜索
+const queryParams = reactive<{ [key: string]: any }>({
+  pageNum: 1,
+  pageSize: 10,
+  eid: undefined,
+  iccid: undefined,
+  providerName: undefined,
+  companyName: undefined,
+  projectName: undefined,
+  allocate: undefined
 });
-const { queryParams } = toRefs(data);
+const queryFormRef = ref();
+const queryFormItem = reactive<any>([
+  { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
+  { label: 'ICCID', placeholder: '请输入', prop: 'iccid', type: 'input' },
+  { label: '运营商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: batchDict },
+  { label: '归属企业', placeholder: '请选择', prop: 'companyName', type: 'select', dict: companyDict },
+  { label: '归属项目', placeholder: '请选择', prop: 'projectName', type: 'select', dict: projectDict },
+  { label: '分配状态', placeholder: '请选择', prop: 'allocate', type: 'select', dict: allocateDict },
+]);
 
-const form = reactive({
-  a: undefined,
-  b: undefined,
-  c: undefined,
-  d: undefined,
-  e: undefined,
-})
-const rules = reactive({
-  eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" },],
-})
+// 表格
+const loading = ref(true);
+const total = ref(0);
+const cardData = ref<CardImportTable[]>([]);
+const tableColumn = reactive([
+  { label: 'EID', width: '', align: 'center', prop: 'eid' },
+  { label: '预制种子号ICCID', width: '', align: 'center', prop: 'iccid' },
+  { label: '预制EIM', width: '', align: 'center', prop: 'eimFqdn' },
+  { label: '制卡商', width: '', align: 'center', prop: 'cardProviderName' },
+  { label: '运营商', width: '', align: 'center', prop: 'providerName' },
+  { label: '批次', width: '', align: 'center', prop: 'productionBatch' },
+  { label: '归属企业', width: '', align: 'center', prop: 'companyName' },
+  { label: '归属项目', width: '', align: 'center', prop: 'projectName' },
+]);
+
+// 弹窗
+const allocationDialog = reactive<DialogOption>({
+  title: '卡数分配',
+  visible: false
+});
+const importDialog = reactive<DialogOption>({
+  title: '批量导入',
+  visible: false
+});
+
+
+/** 更新字典 */
+const updateDict = async () => {
+  batchDict.value = await getProviderDict();
+    companyDict.value = await getCompanyDict();
+};
+
+/** 归属企业变化影响归属项目 */
+const selectChange = async (type: string) => {
+  if (type == 'companyName' && queryParams.companyName) {
+    projectDict.value = await getProjectDict(queryParams.companyName);
+  }
+}
+
 /** 查询卡信息列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await cardList(queryParams.value);
+  const res = await cardImportList(queryParams);
   cardData.value = res.rows;
-  total.value = res.total;
   loading.value = false;
-}
+};
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
-  queryParams.value.pageNum = 1;
+  queryParams.pageNum = 1;
   getList();
-}
+};
 
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryFormRef.value?.resetFields();
   handleQuery();
-}
-
-function handleRemove() {
-  paginatedData.value = [];
-  totalItems.value = 0;
 };
 
-function beforeUpload(file: any) {
-  let type = file.name.substr((file.name.lastIndexOf(".")))
-  if (type != '.xlsx') {
-    proxy?.$modal.msgError("文件格式错误");
-    return false
-  }
-  let promise = new Promise((resolve) => {
-    nextTick(function () {
-      resolve(true);
-    });
-  });
-  return promise;
-}
-
-// 实现分页
-const currentPage = ref(1);
-const pageSize = ref(10);
-const totalItems = ref(0);
-const paginatedData = ref([]);
-const tableData = ref([])
-const handleCurrentChange = (newPage: any) => {
-  currentPage.value = newPage;
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  paginatedData.value = tableData.value.slice(start, end);
+/** 卡数分配 */
+const handleAllocation = () => {
+  allocationDialog.visible = true;
 };
 
-
-const handleSizeChange = (newSize: any) => {
-  pageSize.value = newSize;
-  const start = (currentPage.value - 1) * pageSize.value;
-  const end = start + pageSize.value;
-  paginatedData.value = tableData.value.slice(start, end);
-};
-
-//上传成功
-function uploadFileSuccess(res: any) {
-  if (res.code == 200) {
-    proxy?.$modal.msgSuccess("文件上传成功");
-    isDisabled.value = false
-    tableData.value = res.data || [];
-    totalItems.value = tableData.value.length;
-    const start = (currentPage.value - 1) * pageSize.value;
-    const end = start + pageSize.value;
-    paginatedData.value = tableData.value.slice(start, end);
-  } else {
-    proxy?.$modal.msgError("文件上传失败");
-    isDisabled.value = true
-  }
-}
-
+/** 批量导入 */
 const handleUpdate = () => {
-  dialog.value.visible = true
-}
+  importDialog.visible = true;
+};
 
-const handleCard = () => {
-  dialogCard.value.visible = true
-}
+/** 下载模板 */
+const handleDownload = async () => {
+  proxy?.download('/manager/seed/importTemplate', {}, `批量导入模板.xlsx`);
+};
 
-/** 导出按钮操作 */
-const handleDownload = () => {
-  proxy?.download('manager/seed/importTemplate', {
-  }, `卡信息记录_批量模板.xlsx`)
-}
+/** 弹窗关闭 */
+const close = (type: string, edit?: boolean) => {
+  if (type == 'allocation') { allocationDialog.visible = false; }
+  if (type == 'import') { importDialog.visible = false; }
+  if (edit) { getList(); }
+};
 
 onMounted(() => {
+  updateDict();
   getList();
-})
-
-/**完成批量导入 */
-const finish = async () => {
-  let newData = tableData.value.map((obj: any) => {
-    return {
-      eid: obj.eid,
-      iccid: obj.iccid,
-      eimFqdn: obj.eimFqdn,
-      providerName: obj.providerName,
-      cardProviderName: obj.cardProviderName,
-    }
-  })
-  let res = await cardImport({ seedList: newData });
-  if (res.code === 200) {
-    dialog.value.visible = false;
-    proxy?.$modal.msgSuccess("操作成功");
-    getList();
-  }
-}
-
-const cancel = () => {
-  currentPage.value = 1;
-  totalItems.value = 0;
-  tableData.value = [];
-  paginatedData.value = [];
-  fileList.value = [];
-  dialog.value.visible = false
-  dialogCard.value.visible = false
-  getList();
-}
+});
 </script>

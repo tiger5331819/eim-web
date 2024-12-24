@@ -68,28 +68,6 @@ export const handleAllocation = (productionBatch: string, form: AllocationForm) 
 };
 
 /**
- * @method:下载导入模板
- */
-export const importTemplate = () => {
-  return request({
-    url: '/manager/seed/importTemplate',
-    method: 'post'
-  });
-};
-
-/**
- * @method:批量导入
- * @param:data
- */
-export const batchImport = (data: FormData) => {
-  return request({
-    url: '/manager/seed/importWithOptions',
-    method: 'post',
-    data: data
-  });
-};
-
-/**
  * @method:下载导出失败记录
  * @param:errorToken
  */
