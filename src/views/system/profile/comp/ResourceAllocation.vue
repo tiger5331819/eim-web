@@ -1,26 +1,26 @@
 <template>
   <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px">
-    <el-form ref="addSupplierFormRef" :model="form" :rules="rules" label-width="100px">
-      <el-form-item label="批次" prop="batch">
-        <el-select v-model="form.batch" placeholder="请选择" clearable style="width: 300px;" @change="batchChange">
-          <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+    <el-form ref="allocationFormRef" :model="form" :rules="rules" label-width="100px">
+      <el-form-item label="批次" prop="productionBatch">
+        <el-select v-model="form.productionBatch" placeholder="请选择" clearable style="width: 300px;" @change="batchChange">
+          <el-option v-for="dict in batchDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="允许分配数量">
-        <el-input style="width: 300px;" v-model="form.allowNum" placeholder="上述条件全部输入完成后，进行统计" disabled />
+        <el-input style="width: 300px;" v-model="allowNum" placeholder="上述条件全部输入完成后，进行统计" disabled />
       </el-form-item>
       <el-form-item label="归属企业" prop="company">
-        <el-select v-model="form.company" placeholder="请选择" clearable style="width: 300px;">
-          <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+        <el-select v-model="company" placeholder="请选择" clearable style="width: 300px;" @change="companyChange">
+          <el-option v-for="dict in companyDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="项目名称" prop="project">
-        <el-select v-model="form.project" placeholder="请选择" clearable style="width: 300px;">
-          <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+      <el-form-item label="归属项目" prop="projectId">
+        <el-select v-model="form.projectId" placeholder="请先选择归属企业" clearable :disabled="!company" style="width: 300px;">
+          <el-option v-for="dict in projectDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
-      <el-form-item v-if="form.batch" label="数量" prop="count">
-        <el-input-number v-model="form.count" controls-position="right" :min="1" :max="maxNum"></el-input-number>
+      <el-form-item v-if="form.productionBatch" label="数量" prop="size">
+        <el-input-number v-model="form.size" controls-position="right" :min="1" :max="allowNum" :disabled="!allowNum"></el-input-number>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -33,8 +33,10 @@
 </template>
 
 <script setup name="resourceAllocation" lang="ts">
+import { allBatchList, batchAllowableNumber, handleAllocation } from '@/api/system/profile';
+import { getCompanyDict, getProjectDict } from '../../cardImport/hooks/useGetDict';
+
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_status } = toRefs<any>(proxy?.useDict('sys_device_status'));
 
 const props = defineProps({
     dialog: {
@@ -42,7 +44,6 @@ const props = defineProps({
         default: null
     },
 });
-
 const emits = defineEmits(['submit', 'close']);
 
 // 弹窗控制
@@ -57,25 +58,20 @@ const visible = computed({
 
 //  表单数据
 const initFormData: any = {
-    batch: undefined,
-    company: undefined,
-    project: undefined,
-    count: undefined,
-    allowNum: undefined
+  productionBatch: undefined,
+  projectId: undefined,
+  size: undefined,
 };
 const data = reactive({
     form: { ...initFormData },
     rules: {
-        batch: [
+        productionBatch: [
             { required: true, message: "请选择批次", trigger: "blur" }
         ],
-        company: [
-            { required: true, message: "请选择归属企业", trigger: "blur" }
-        ],
-        project: [
+        projectId: [
             { required: true, message: "请选择项目", trigger: "blur" }
         ],
-        count: [
+        size: [
             { required: true, message: "请输入数量", trigger: "blur" }
         ],
     }
@@ -84,21 +80,52 @@ const { form, rules } = toRefs(data);
 
 //  表单
 const allocationFormRef = ref<ElFormInstance>();
-//  可输入最大值
-const maxNum = ref(0);
-/** 批次发生变更 */
-const batchChange = () => {
-    form.value.allowNum = 886;
-    form.value.count = 886;
-    maxNum.value = 886;
+const allowNum = ref();
+const company = ref();
+
+//  字典
+const batchDict = ref();
+const companyDict = ref();
+const projectDict = ref();
+
+/** 更新字典 */
+const updateDict = async () => {
+  const res = await allBatchList();
+  batchDict.value = res.data.map((item: any) => {
+    const _item = {
+      label: item,
+      value: item
+    };
+    return _item;
+  });
+  companyDict.value = await getCompanyDict();
 };
+
+/** 批次发生变更 */
+const batchChange = async () => {
+  if (form.value.productionBatch) {
+        const res = await batchAllowableNumber(form.value.productionBatch);
+        allowNum.value = res.data;
+    } else {
+        allowNum.value = 0;
+    }
+};
+
+/** 企业发生变更 */
+const companyChange = async () => {
+    if (company.value) {
+        projectDict.value = await getProjectDict(company.value);
+    }
+}
+
 
 /** 确定 */
 const submitForm = () => {
     allocationFormRef.value?.validate(async (valid: boolean) => {
+      console.log(valid);
         if (valid) {
-            // form.value.id ? await update(form.value) : await add(form.value);
-            // proxy?.$modal.msgSuccess("新增成功");
+            await handleAllocation(form.value);
+            proxy?.$modal.msgSuccess('分配成功');
             emits('submit');
         }
     });
@@ -109,4 +136,21 @@ const cancel = () => {
     allocationFormRef.value?.resetFields();
     emits('close');
 };
+
+/** 重置 */
+const reset = () => {
+    allowNum.value = 0;
+    company.value = '';
+    form.value = { ...initFormData };
+    allocationFormRef.value?.resetFields();
+}
+
+/** 监听是否为编辑 */
+watch(() => props.dialog, async (v) => {
+  if (v.visible) {
+    updateDict();
+  } else {
+    reset();
+  }
+}, { deep: true, immediate: true });
 </script>

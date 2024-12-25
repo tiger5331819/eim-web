@@ -29,9 +29,7 @@
               <el-col :span="1.5">
                 <div class="el-upload__tip m-2" style="font-size: 16px">温馨提示：</div>
                 <div class="el-upload__tip m-2" style="font-size: 16px">1、请按照模板格式输入信息，数据量不要超过10000条；</div>
-                <div class="el-upload__tip m-2" style="font-size: 16px">
-                  2、只支持xlsx格式文件，其中EID、制卡商、运营商、批次信息为必填内容；预制种子号ICCID、预制EIM、归属企业、归属项目为非必填信息；
-                </div>
+                <div class="el-upload__tip m-2" style="font-size: 16px">2、只支持xlsx格式文件，其中ICCID、运营商、批次、DP+来源信息为必填内容；</div>
               </el-col>
             </el-row>
           </div>
@@ -40,10 +38,11 @@
     </div>
     <el-card class=" mt-8">
       <el-table :data="paginatedData">
-        <el-table-column label="EID" align="center" prop="eid" />
-        <el-table-column label="批次" align="center" prop="providerName" />
-        <el-table-column label="资源码号" align="center" prop="providerName" />
-        <el-table-column label="数据校验" align="center" prop="providerName" />
+        <el-table-column label="ICCID" align="center" prop="iccid" />
+        <el-table-column label="运营商" align="center" prop="carrierName" />
+        <el-table-column label="批次" align="center" prop="productionBatch" />
+        <el-table-column label="DP+来源" align="center" prop="dpSource" />
+        <el-table-column label="数据校验" align="center" prop="result" />
       </el-table>
       <el-pagination
         class="mt-6"
@@ -63,7 +62,7 @@
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button :loading="buttonLoading" type="primary" @click="cancel">导出失败记录</el-button>
+        <el-button :loading="buttonLoading" type="primary" @click="downloadFailRecord">导出失败记录</el-button>
       </div>
     </template>
   </el-dialog>
@@ -72,14 +71,16 @@
 <script setup name="batchImport" lang="ts">
 import { globalHeaders } from "@/utils/request";
 
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const props = defineProps({
     dialog: {
         type: Object,
         default: null
     }
 });
-
 const emits = defineEmits(['cancel']);
+
+//  弹窗
 const visible = computed({
   get() {
     return props.dialog.visible
@@ -88,23 +89,25 @@ const visible = computed({
     return newVal
   }
 })
+
+//  上传
 const upload = reactive({
   // 设置上传的请求头部
   headers: globalHeaders(),
   // 上传的地址
-  url: import.meta.env.VITE_APP_BASE_API + "/manager/seed/importWithOptions"
+  url: import.meta.env.VITE_APP_BASE_API + "/manager/profile/import"
 })
-const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-
 const fileList = ref([])
 const paginatedData = ref([]);
 const totalItems = ref(0);
-const tableData = ref([])
 const uploadData = ref({})
-const isDisabled = ref(true);
+
+//  表格
+const tableData = ref([])
 const currentPage = ref(1);
 const pageSize = ref(10);
 const buttonLoading = ref(false);
+const errorToken = ref();
 
 function handleRemove() {
   paginatedData.value = [];
@@ -128,15 +131,14 @@ function beforeUpload(file: any) {
 function uploadFileSuccess(res: any) {
   if (res.code == 200) {
     proxy?.$modal.msgSuccess("文件上传成功");
-    isDisabled.value = false
-    tableData.value = res.data || [];
+    tableData.value = res.data.importResultList || [];
+    errorToken.value = res.data.errorToken;
     totalItems.value = tableData.value.length;
     const start = (currentPage.value - 1) * pageSize.value;
     const end = start + pageSize.value;
     paginatedData.value = tableData.value.slice(start, end);
   } else {
     proxy?.$modal.msgError("文件上传失败");
-    isDisabled.value = true
   }
 }
 
@@ -145,9 +147,13 @@ const cancel = () => {
   paginatedData.value = [];
   fileList.value = [];
   tableData.value = [];
-  visible.value = false;
   emits('cancel');
 }
+
+const downloadFailRecord = () => {
+    proxy?.download(`/manager/profile/importError/${errorToken.value}`, {}, `失败记录.xlsx`);
+    cancel();
+};
 
 const handleCurrentChange = (newPage: any) => {
   currentPage.value = newPage;

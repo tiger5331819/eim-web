@@ -7,7 +7,7 @@ import { query, AllocationForm } from './types';
  */
 export const profileList = (query: query) => {
   return request({
-    url: '',
+    url: '/manager/profile/list',
     method: 'get',
     params: query
   });
@@ -18,7 +18,28 @@ export const profileList = (query: query) => {
  */
 export const handleSync = () => {
   return request({
-    url: '',
+    url: '/manager/profile/sync',
+    method: 'post'
+  });
+};
+
+/**
+ * @method:查询所有批次
+ */
+export const allBatchList = () => {
+  return request({
+    url: '/manager/profile/productionBatch',
+    method: 'get'
+  });
+};
+
+/**
+ * @method:查看当前批次允许分配数量
+ * @param:productionBatch
+ */
+export const batchAllowableNumber = (productionBatch: string) => {
+  return request({
+    url: `/manager/profile/canBeAssignCount/${productionBatch}`,
     method: 'get'
   });
 };
@@ -29,30 +50,8 @@ export const handleSync = () => {
  */
 export const handleAllocation = (form: AllocationForm) => {
   return request({
-    url: '',
+    url: '/manager/profile/assign',
     method: 'post',
     data: form
-  });
-};
-
-/**
- * @method:批量导入上传
- * @param:data
- */
-export const handleUpload = (data: FormData) => {
-  return request({
-    url: '',
-    method: 'post',
-    data: data
-  });
-};
-
-/**
- * @method:导出失败记录
- */
-export const handleDownload = () => {
-  return request({
-    url: '',
-    method: 'get'
   });
 };
