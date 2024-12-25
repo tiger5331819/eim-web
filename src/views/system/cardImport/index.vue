@@ -63,14 +63,14 @@
 <script setup name="cardImport" lang="ts">
 import { cardImportList } from '@/api/system/cardImport';
 import { CardImportTable } from '@/api/system/cardImport/types';
-import { getBatchDict, getCompanyDict, getProjectDict } from './hooks/useGetDict';
+import { getproviderDict, getCompanyDict, getProjectDict } from './hooks/useGetDict';
 import AllocationCard from './comp/AllocationCard.vue';
 import BatchImport from './comp/BatchImport.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 // 字典
-const batchDict = ref();
+const providerDict = ref();
 const companyDict = ref();
 const projectDict = ref();
 const allocateDict = ref();
@@ -90,7 +90,7 @@ const queryFormRef = ref();
 const queryFormItem = reactive<any>([
   { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
   { label: 'ICCID', placeholder: '请输入', prop: 'iccid', type: 'input' },
-  { label: '运营商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: batchDict },
+  { label: '运营商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: providerDict },
   { label: '归属企业', placeholder: '请选择', prop: 'companyName', type: 'select', dict: companyDict },
   { label: '归属项目', placeholder: '请选择', prop: 'projectName', type: 'select', dict: projectDict },
   { label: '分配状态', placeholder: '请选择', prop: 'allocate', type: 'select', dict: allocateDict },
@@ -124,8 +124,8 @@ const importDialog = reactive<DialogOption>({
 
 /** 更新字典 */
 const updateDict = async () => {
-  batchDict.value = await getBatchDict();
-    companyDict.value = await getCompanyDict();
+  providerDict.value = await getproviderDict();
+  companyDict.value = await getCompanyDict();
 };
 
 /** 归属企业变化影响归属项目 */
