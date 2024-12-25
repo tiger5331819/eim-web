@@ -73,7 +73,7 @@ import BatchImport from './comp/BatchImport.vue';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 //  字典
-const { sys_device_status } = toRefs<any>(proxy?.useDict('sys_device_status'));
+const { sys_allocate_status, sys_profile_state, sys_installed_status } = toRefs<any>(proxy?.useDict('sys_allocate_status', 'sys_profile_state', 'sys_installed_status'));
 const companyDict = ref();
 const projectDict = ref();
 
@@ -83,11 +83,11 @@ const queryFormItem = reactive([
   { label: 'DP+来源', placeholder: '请输入', prop: 'dpSource', type: 'input' },
   { label: 'ICCID', placeholder: '请输入', prop: 'iccid', type: 'input' },
   { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
-  { label: 'state', placeholder: '请输入', prop: 'state', type: 'select', dict: sys_device_status },
+  { label: 'state', placeholder: '请输入', prop: 'state', type: 'select', dict: sys_profile_state },
   { label: '归属企业', placeholder: '请输入', prop: 'companyId', type: 'select', dict: companyDict },
   { label: '归属项目', placeholder: '请输入', prop: 'projectId', type: 'select', dict: projectDict },
-  { label: '分配状态', placeholder: '请输入', prop: 'assigned', type: 'select', dict: sys_device_status },
-  { label: '下号状态', placeholder: '请输入', prop: 'installed', type: 'select',  dict: sys_device_status },
+  { label: '分配状态', placeholder: '请输入', prop: 'assigned', type: 'select', dict: sys_allocate_status },
+  { label: '下号状态', placeholder: '请输入', prop: 'installed', type: 'select',  dict: sys_installed_status },
 ]);
 const queryParams = reactive<{ [key: string]: any }>({
   pageNum: 1,

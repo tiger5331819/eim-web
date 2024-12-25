@@ -4,7 +4,7 @@
       <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
         <el-form-item label="任务类型" prop="taskType">
           <el-select v-model="queryParams.taskType" placeholder="请选择" clearable style="width: 240px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+            <el-option v-for="dict in sys_task_status" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="操作人" prop="handlePeople">
@@ -19,11 +19,6 @@
             end-placeholder="结束日期"
           >
           </el-date-picker>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 240px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -59,7 +54,7 @@ import { deviceList } from '@/api/system/device/index';
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
 const queryFormRef = ref();
-const { sys_device_status } = toRefs<any>(proxy?.useDict('sys_device_status'));
+const { sys_task_status } = toRefs<any>(proxy?.useDict('sys_task_status'));
 
 const data = reactive({
     queryParams: {

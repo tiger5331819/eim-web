@@ -68,6 +68,7 @@ import AllocationCard from './comp/AllocationCard.vue';
 import BatchImport from './comp/BatchImport.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+const { sys_allocate_status } = toRefs<any>(proxy?.useDict('sys_allocate_status'));
 
 // 字典
 const providerDict = ref();
@@ -93,7 +94,7 @@ const queryFormItem = reactive<any>([
   { label: '运营商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: providerDict },
   { label: '归属企业', placeholder: '请选择', prop: 'companyName', type: 'select', dict: companyDict },
   { label: '归属项目', placeholder: '请选择', prop: 'projectName', type: 'select', dict: projectDict },
-  { label: '分配状态', placeholder: '请选择', prop: 'allocate', type: 'select', dict: allocateDict },
+  { label: '分配状态', placeholder: '请选择', prop: 'allocate', type: 'select', dict: sys_allocate_status },
 ]);
 
 // 表格
