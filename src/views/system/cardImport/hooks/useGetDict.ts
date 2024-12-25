@@ -1,12 +1,12 @@
-import { providerList, companyList, projectList } from '@/api/system/cardImport';
+import { allBatchList, companyList, projectList } from '@/api/system/cardImport';
 
 /** 获取下拉框数据：运营商 */
-export async function getProviderDict() {
-  const res = await providerList();
-  const target = res.rows.map((item: any) => {
+export async function getBatchDict() {
+  const res = await allBatchList();
+  const target = res.data.map((item: any) => {
     const _item = {
-      label: item.dpSource,
-      value: item.id
+      label: item,
+      value: item
     };
     return _item;
   });
@@ -18,7 +18,7 @@ export async function getCompanyDict() {
   const res = await companyList();
   const target = res.data.map((item: any) => {
     const _item = {
-      label: item.dpSource,
+      label: item.name,
       value: item.id
     };
     return _item;

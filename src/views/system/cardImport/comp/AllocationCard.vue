@@ -1,7 +1,7 @@
 <template>
   <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px">
     <el-form ref="AllocationCardRef" :model="form" :rules="rules" label-width="100px">
-      <el-form-item label="批次" prop="batch">
+      <el-form-item label="批次" prop="productionBatch">
         <el-select v-model="form.productionBatch" placeholder="请选择" clearable style="width: 300px;" @change="batchChange">
           <el-option v-for="dict in batchDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
@@ -10,8 +10,8 @@
         <el-input style="width: 300px;" v-model="allowNum" placeholder="上述条件全部输入完成后，进行统计" disabled />
       </el-form-item>
       <el-form-item label="归属企业" prop="company">
-        <el-select v-model="company" placeholder="请选择" clearable style="width: 300px;">
-          <el-option v-for="dict in companyDict" :key="dict.value" :label="dict.label" :value="dict.value" @change="companyChange" />
+        <el-select v-model="company" placeholder="请选择" clearable style="width: 300px;" @change="companyChange">
+          <el-option v-for="dict in companyDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
       <el-form-item label="归属项目" prop="projectId">
@@ -35,7 +35,7 @@
 <script setup name="AllocationCard" lang="ts">
 import { batchAllowableNumber, handleAllocation } from '@/api/system/cardImport';
 import { AllocationForm } from "@/api/system/cardImport/types";
-import { getProviderDict, getCompanyDict, getProjectDict } from '../hooks/useGetDict';
+import { getBatchDict, getCompanyDict, getProjectDict } from '../hooks/useGetDict';
 
 const props = defineProps({
     dialog: {
@@ -65,7 +65,7 @@ const initAllocationForm: AllocationForm = {
 const data = reactive({
     form: { ...initAllocationForm },
     rules: {
-        batch: [
+      productionBatch: [
             { required: true, message: "请选择批次", trigger: "blur" }
         ],
         projectId: [
@@ -88,7 +88,7 @@ const projectDict = ref();
 
 /** 更新字典 */
 const updateDict = async () => {
-    batchDict.value = await getProviderDict();
+    batchDict.value = await getBatchDict();
     companyDict.value = await getCompanyDict();
 };
 

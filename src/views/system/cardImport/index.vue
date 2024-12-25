@@ -63,7 +63,7 @@
 <script setup name="cardImport" lang="ts">
 import { cardImportList } from '@/api/system/cardImport';
 import { CardImportTable } from '@/api/system/cardImport/types';
-import { getProviderDict, getCompanyDict, getProjectDict } from './hooks/useGetDict';
+import { getBatchDict, getCompanyDict, getProjectDict } from './hooks/useGetDict';
 import AllocationCard from './comp/AllocationCard.vue';
 import BatchImport from './comp/BatchImport.vue';
 
@@ -124,7 +124,7 @@ const importDialog = reactive<DialogOption>({
 
 /** 更新字典 */
 const updateDict = async () => {
-  batchDict.value = await getProviderDict();
+  batchDict.value = await getBatchDict();
     companyDict.value = await getCompanyDict();
 };
 

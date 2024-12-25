@@ -45,6 +45,16 @@ export const projectList = (companyId: string) => {
 };
 
 /**
+ * @method:查询所有批次
+ */
+export const allBatchList = () => {
+  return request({
+    url: '/manager/seed/batch/all',
+    method: 'get'
+  });
+};
+
+/**
  * @method:查看当前批次允许分配数量
  * @param:productionBatch
  */
