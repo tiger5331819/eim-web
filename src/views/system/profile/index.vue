@@ -66,6 +66,7 @@
 
 <script setup name="In" lang="ts">
 import { profileList, handleSync } from '@/api/system/profile';
+import { ProfileTable } from '@/api/system/profile/types';
 import { getCompanyDict, getProjectDict } from '../cardImport/hooks/useGetDict';
 import ResourceAllocation from './comp/ResourceAllocation.vue';
 import BatchImport from './comp/BatchImport.vue';
@@ -104,7 +105,7 @@ const queryParams = reactive<{ [key: string]: any }>({
 
 //  表格
 const loading = ref(true);
-const profileData = ref([]);
+const profileData = ref<ProfileTable>();
 const tableColumn = reactive([
   { label: 'DP+来源', width: '200', align:"center", prop:"dpSource" },
   { label: 'iccid', width: '200', align:"center", prop:"iccid" },

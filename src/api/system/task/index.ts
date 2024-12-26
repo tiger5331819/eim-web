@@ -1,26 +1,25 @@
 import request from '@/utils/request';
-import { query } from './types';
+import { QueryFrom } from './types';
 
 /**
  * @method:获取任务列表
  * @param:query
  */
-export const taskList = (query: query) => {
+export const taskList = (query: QueryFrom) => {
   return request({
-    url: '',
+    url: '/manager/device/task/list',
     method: 'get',
     params: query
   });
 };
 
 /**
- * @method:导入记录下载
- * @param:id
+ * @method:取消任务
+ * @param:ids
  */
-export const handleDownload = (id: string | number) => {
+export const cancelTask = (ids: Array<string>) => {
   return request({
-    url: '',
-    method: 'post',
-    data: id
+    url: `/manager/device/task/${ids}`,
+    method: 'delete'
   });
 };

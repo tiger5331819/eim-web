@@ -1,4 +1,4 @@
-import { Pagination } from "@/api/types";
+import { Pagination } from '@/api/types';
 
 export interface QueryFrom extends Pagination {
   dpSource?: string; // dp+来源
@@ -11,7 +11,7 @@ export interface QueryFrom extends Pagination {
   installed?: boolean; //   下号状态
 }
 
-export interface profileTable {
+export interface ProfileTable {
   dpSource: string;
   iccid: string;
   imsi: string;
