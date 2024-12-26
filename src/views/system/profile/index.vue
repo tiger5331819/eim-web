@@ -48,9 +48,13 @@
           :align="item.align"
           :prop="item.prop"
         >
-          <template v-if="item.slot" #[item.slot]="scope">
-            {{ scope[item.prop] }}
+          <!-- 插槽预留 -->
+          <!-- <template v-if="item.slot == 'assignedState'" #default="scope">
+            <dict-tag :options="sys_allocate_status" :value="scope.row.assignedState" />
           </template>
+          <template v-else-if="item.slot == 'installedState'" #default="scope">
+            <dict-tag :options="sys_installed_status" :value="scope.row.installedState" />
+          </template> -->
         </el-table-column>
       </el-table>
 
@@ -124,10 +128,10 @@ const tableColumn = reactive([
   { label: 'upDate', width: '200', align:"center", prop:"updateTime" },
   { label: '运营商', width: '200', align:"center", prop:"carrierName" },
   { label: '批次', width: '200', align:"center", prop:"productionBatch" },
-  { label: '分配状态', width: '200', align:"center", prop:"assignedState", slot: 'assignedState' },
+  { label: '分配状态', width: '200', align:"center", prop:"assignedState" },
   { label: '归属企业', width: '200', align:"center", prop:"companyName" },
   { label: '归属项目', width: '200', align:"center", prop:"projectName" },
-  { label: '下号状态', width: '200', align:"center", prop:"installedState", slot: 'installedState' },
+  { label: '下号状态', width: '200', align:"center", prop:"installedState" },
 ]);
 
 //  分页

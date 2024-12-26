@@ -12,24 +12,24 @@ export interface QueryFrom extends Pagination {
 }
 
 export interface ProfileTable {
-  dpSource: string;
-  iccid: string;
-  imsi: string;
-  isdpAid: string;
-  eid: string;
-  nick: string;
-  profileClass: string;
-  type: string;
-  providerName: string;
-  state: string;
-  createTime: string;
-  updateTime: string;
-  carrierName: string;
-  productionBatch: string;
-  assignedState: string;
-  companyName: string;
-  projectName: string;
-  installedState: string;
+  dpSource: string; // dp+来源
+  iccid: string; //  iccid
+  imsi: string; // imsi
+  isdpAid: string; //  isdp aid
+  eid: string; //  eid
+  nick: string; // nickName
+  profileClass: string; // profileClass
+  type: string; // profileType
+  providerName: string; // providerName
+  state: string; //  state
+  createTime: string; // creatDate
+  updateTime: string; // upDate
+  carrierName: string; //  运营商
+  productionBatch: string; //  批次
+  assignedState: string; //  分配状态
+  companyName: string; //  归属企业
+  projectName: string; //  归属项目
+  installedState: string; // 下号状态
 }
 
 export interface AllocationForm {

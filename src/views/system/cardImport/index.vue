@@ -74,7 +74,6 @@ const { sys_allocate_status } = toRefs<any>(proxy?.useDict('sys_allocate_status'
 const providerDict = ref();
 const companyDict = ref();
 const projectDict = ref();
-const allocateDict = ref();
 
 // 搜索
 const queryParams = reactive<{ [key: string]: any }>({
@@ -141,6 +140,7 @@ const getList = async () => {
   loading.value = true;
   const res = await cardImportList(queryParams);
   cardData.value = res.rows;
+  total.value = res.total;
   loading.value = false;
 };
 

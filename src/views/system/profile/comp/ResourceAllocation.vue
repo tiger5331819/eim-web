@@ -122,12 +122,11 @@ const companyChange = async () => {
 /** 确定 */
 const submitForm = () => {
     allocationFormRef.value?.validate(async (valid: boolean) => {
-      console.log(valid);
-        if (valid) {
-            await handleAllocation(form.value);
-            proxy?.$modal.msgSuccess('分配成功');
-            emits('submit');
-        }
+      if (valid) {
+          await handleAllocation(form.value);
+          proxy?.$modal.msgSuccess('分配成功');
+          emits('submit');
+      }
     });
 };
 /** 取消 */

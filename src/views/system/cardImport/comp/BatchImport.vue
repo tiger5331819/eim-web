@@ -85,7 +85,7 @@ const props = defineProps({
         default: null
     }
 });
-const emits = defineEmits(['cancel']);
+const emits = defineEmits(['close', 'submit']);
 
 //  弹窗
 const visible = computed({
@@ -130,6 +130,7 @@ const pageSize = ref(10);
 //  按钮控制
 const buttonLoading = ref(false);
 const errorToken = ref();
+const uploadSuccess = ref(false);
 
 function handleRemove() {
   paginatedData.value = [];
@@ -152,6 +153,7 @@ function beforeUpload(file: any) {
 
 function uploadFileSuccess(res: any) {
   if (res.code == 200) {
+    uploadSuccess.value = true;
     proxy?.$modal.msgSuccess("文件上传成功");
     tableData.value = res.data.importResultList || [];
     errorToken.value = res.data.errorToken;
@@ -161,20 +163,26 @@ function uploadFileSuccess(res: any) {
     paginatedData.value = tableData.value.slice(start, end);
   } else {
     proxy?.$modal.msgError("文件上传失败");
+    uploadSuccess.value = false;
   }
 }
 
-const cancel = () => {
+const init = () => {
   totalItems.value = 0;
   paginatedData.value = [];
   fileList.value = [];
   tableData.value = [];
-  emits('cancel');
+};
+
+const cancel = () => {
+  init();
+  uploadSuccess.value? emits('submit') : emits('close');
 };
 
 const downloadFailRecord = () => {
     proxy?.download(`/manager/seed/importError/${errorToken.value}`, {}, `失败记录.xlsx`);
-    cancel();
+    init();
+    emits('submit');
 };
 
 const handleCurrentChange = (newPage: any) => {

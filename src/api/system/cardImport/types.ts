@@ -19,10 +19,10 @@ export interface CardImportTable {
 }
 
 export interface QueryFrom extends Pagination {
-  eid?: string;
-  iccid?: string;
-  providerName?: string;
-  companyName?: string;
-  projectName?: string;
-  allocate?: string;
+  eid?: string; // eid
+  iccid?: string; // iccid
+  providerName?: string; //  运营商
+  companyName?: string; // 归属企业
+  projectName?: string; // 归属项目
+  allocate?: string; //  分配状态
 }
