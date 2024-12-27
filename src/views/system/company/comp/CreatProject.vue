@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px">
+  <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px" @close="cancel">
     <el-form ref="creatProjectRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="企业编号" prop="cNumber">
         <el-input v-model="cNumber" disabled />

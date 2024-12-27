@@ -6,7 +6,7 @@ import request from '@/utils/request';
  * @returns {*}
  */
 
-export const cardList = (query?:any) => {
+export const cardList = (query?: any) => {
   return request({
     url: '/manager/seed/list',
     method: 'get',
@@ -20,7 +20,7 @@ export const cardList = (query?:any) => {
  * @returns {*}
  */
 
-export const cardImport = (seedList:any) => {
+export const cardImport = (seedList: any) => {
   return request({
     url: '/manager/seed/import',
     method: 'post',
@@ -34,7 +34,7 @@ export const cardImport = (seedList:any) => {
  * @returns {*}
  */
 
-export const deviceList = (query?:any) => {
+export const deviceList = (query?: any) => {
   return request({
     url: '/manager/device/list',
     method: 'get',
@@ -48,10 +48,10 @@ export const deviceList = (query?:any) => {
  * @returns {*}
  */
 
-export const deviceDetail = (eid?:any) => {
+export const deviceDetail = (eid?: any) => {
   return request({
     url: `/manager/device/${eid}`,
-    method: 'get',
+    method: 'get'
   });
 };
 
@@ -61,10 +61,10 @@ export const deviceDetail = (eid?:any) => {
  * @returns {*}
  */
 
-export const updateDetail = (eid?:any) => {
+export const updateDetail = (eid?: any) => {
   return request({
     url: `/manager/device/${eid}/profile/list`,
-    method: 'post',
+    method: 'post'
   });
 };
 
@@ -74,7 +74,7 @@ export const updateDetail = (eid?:any) => {
  * @returns {*}
  */
 
-export const deviceName = (eid:any, name:any) => {
+export const deviceName = (eid: any, name: any) => {
   return request({
     url: `/manager/device/${eid}/name`,
     method: 'post',
@@ -88,7 +88,7 @@ export const deviceName = (eid:any, name:any) => {
  * @returns {*}
  */
 
-export const companyName = (eid:any, name:any) => {
+export const companyName = (eid: any, name: any) => {
   return request({
     url: `/manager/device/${eid}/companyName`,
     method: 'post',
@@ -102,10 +102,10 @@ export const companyName = (eid:any, name:any) => {
  * @returns {*}
  */
 
-export const toEnable = (eid:any, iccid:any) => {
+export const toEnable = (eid: any, iccid: any) => {
   return request({
     url: `/manager/device/${eid}/profile/${iccid}/enable`,
-    method: 'patch',
+    method: 'patch'
   });
 };
 
@@ -115,10 +115,10 @@ export const toEnable = (eid:any, iccid:any) => {
  * @returns {*}
  */
 
-export const toDisable = (eid:any, iccid:any) => {
+export const toDisable = (eid: any, iccid: any) => {
   return request({
     url: `/manager/device/${eid}/profile/${iccid}/disable`,
-    method: 'patch',
+    method: 'patch'
   });
 };
 
@@ -128,10 +128,10 @@ export const toDisable = (eid:any, iccid:any) => {
  * @returns {*}
  */
 
-export const toDelete = (eid:any, iccid:any) => {
+export const toDelete = (eid: any, iccid: any) => {
   return request({
     url: `/manager/device/${eid}/profile/${iccid}`,
-    method: 'delete',
+    method: 'delete'
   });
 };
 
@@ -141,7 +141,7 @@ export const toDelete = (eid:any, iccid:any) => {
  * @returns {*}
  */
 
-export const operationLog = (eid:any, query:any) => {
+export const operationLog = (eid: any, query: any) => {
   return request({
     url: `/manager/device/${eid}/log/list`,
     method: 'get',
@@ -155,10 +155,10 @@ export const operationLog = (eid:any, query:any) => {
  * @returns {*}
  */
 
-export const eimList = (eid?:any) => {
+export const eimList = (eid?: any) => {
   return request({
     url: `/manager/device/${eid}/eim/list`,
-    method: 'get',
+    method: 'get'
   });
 };
 
@@ -168,10 +168,10 @@ export const eimList = (eid?:any) => {
  * @returns {*}
  */
 
-export const eimDetail = (eid:any, eimId:any) => {
+export const eimDetail = (eid: any, eimId: any) => {
   return request({
     url: `/manager/device/${eid}/eim/${eimId}`,
-    method: 'get',
+    method: 'get'
   });
 };
 
@@ -181,7 +181,7 @@ export const eimDetail = (eid:any, eimId:any) => {
  * @returns {*}
  */
 
-export const eimAdd = (eid:any, data:any) => {
+export const eimAdd = (eid: any, data: any) => {
   return request({
     url: `/manager/device/${eid}/eim`,
     method: 'post',
@@ -195,7 +195,7 @@ export const eimAdd = (eid:any, data:any) => {
  * @returns {*}
  */
 
-export const eimEdit = (eid:any, eimId:any, data:any) => {
+export const eimEdit = (eid: any, eimId: any, data: any) => {
   return request({
     url: `/manager/device/${eid}/eim/${eimId}`,
     method: 'patch',
@@ -209,7 +209,7 @@ export const eimEdit = (eid:any, eimId:any, data:any) => {
  * @returns {*}
  */
 
-export const eimChange = (eid:any, eimId:any, data:any) => {
+export const eimChange = (eid: any, eimId: any, data: any) => {
   return request({
     url: `/manager/device/${eid}/eim/${eimId}/change`,
     method: 'post',
@@ -223,10 +223,10 @@ export const eimChange = (eid:any, eimId:any, data:any) => {
  * @returns {*}
  */
 
-export const eimDelete = (eid:any, eimId:any) => {
+export const eimDelete = (eid: any, eimId: any) => {
   return request({
     url: `/manager/device/${eid}/eim/${eimId}`,
-    method: 'delete',
+    method: 'delete'
   });
 };
 
@@ -236,10 +236,10 @@ export const eimDelete = (eid:any, eimId:any) => {
  * @returns {*}
  */
 
-export const eimDownload = (eid:any) => {
+export const eimDownload = (eid: any) => {
   return request({
     url: `/manager/device/${eid}/profileDownload`,
-    method: 'get',
+    method: 'get'
   });
 };
 
@@ -249,10 +249,10 @@ export const eimDownload = (eid:any) => {
  * @returns {*}
  */
 
-export const dpDownload = (eid:any) => {
+export const dpDownload = (eid: any) => {
   return request({
     url: `/manager/device/${eid}/dp/profileDownload`,
-    method: 'post',
+    method: 'post'
   });
 };
 
@@ -262,7 +262,7 @@ export const dpDownload = (eid:any) => {
  * @returns {*}
  */
 
-export const toDownload = (eid:any, data:any) => {
+export const toDownload = (eid: any, data: any) => {
   return request({
     url: `/manager/device/${eid}/profileDownload`,
     method: 'post',
@@ -276,10 +276,10 @@ export const toDownload = (eid:any, data:any) => {
  * @returns {*}
  */
 
-export const idDownload = (eid:any, id:any) => {
+export const idDownload = (eid: any, id: any) => {
   return request({
     url: `/eimProfile/${eid}/use/${id}`,
-    method: 'get',
+    method: 'get'
   });
 };
 
@@ -289,10 +289,10 @@ export const idDownload = (eid:any, id:any) => {
  * @returns {*}
  */
 
-export const toResult = (eid:any) => {
+export const toResult = (eid: any) => {
   return request({
     url: `/manager/device/${eid}/profileDownload/result`,
-    method: 'get',
+    method: 'get'
   });
 };
 
@@ -302,10 +302,10 @@ export const toResult = (eid:any) => {
  * @returns {*}
  */
 
-export const updateEim = (eid?:any) => {
+export const updateEim = (eid?: any) => {
   return request({
     url: `/manager/device/${eid}/eim/listEim`,
-    method: 'post',
+    method: 'post'
   });
 };
 
@@ -315,9 +315,9 @@ export const updateEim = (eid?:any) => {
  * @returns {*}
  */
 
-export const eimProfile = (eid?:any) => {
+export const eimProfile = (eid?: any) => {
   return request({
     url: `/eimProfile`,
-    method: 'get',
+    method: 'get'
   });
 };

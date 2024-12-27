@@ -1,36 +1,18 @@
 <template>
   <div class="p-2">
-    <div class="search" v-show="showSearch">
+    <div class="search">
       <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
-        <el-form-item label="EID" prop="eid">
-          <el-input v-model="queryParams.eid" placeholder="请输入EID" clearable style="width: 240px"
-            @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="预制种子号" prop="iccid">
-          <el-input v-model="queryParams.iccid" placeholder="请输入ICCID" clearable style="width: 240px"
-            @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="企业名称" prop="companyName">
-          <el-input v-model="queryParams.companyName" placeholder="请输入企业名称" clearable style="width: 240px"
-            @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="在线状态" prop="online">
-          <el-select v-model="queryParams.online" placeholder="请选择在线状态" clearable style="width: 240px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="预制EIMid" prop="eimFqdn">
-          <el-input v-model="queryParams.eimFqdn" placeholder="请输入预制EIMid" clearable style="width: 240px"
-            @keyup.enter="handleQuery" />
-        </el-form-item>
-        <el-form-item label="归属企业" prop="online">
-          <el-select v-model="queryParams.online" placeholder="请选择归属企业" clearable style="width: 240px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="归属项目" prop="online">
-          <el-select v-model="queryParams.online" placeholder="请选择归属项目" clearable style="width: 240px">
-            <el-option v-for="dict in sys_device_status" :key="dict.value" :label="dict.label" :value="dict.value" />
+        <el-form-item v-for="(item, index) in queryFormItem" :key="index" :label="item.label" :prop="item.prop">
+          <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
+          <el-select
+            v-if="item.type == 'select'"
+            v-model="queryParams[item.prop]"
+            :placeholder="item.placeholder"
+            clearable
+            :disabled="item.prop == 'projectId' && !queryParams.companyId"
+            @change="selectChange(item.prop)"
+          >
+            <el-option v-for="dict in item.dict" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -42,40 +24,38 @@
 
     <el-card shadow="hover">
       <template #header>
-        <!-- <el-button type="primary" @click="handleUpdate" :disabled="multiple">替换EIM</el-button> -->
-        <el-button type="primary" @click="toSelecting('block')" v-if="!showSelect">替换EIM</el-button>
-        <el-button type="primary" @click="toSelecting('none')" v-if="!showSelect">批量下载资源</el-button>
-        <el-button type="primary" @click="toImport" v-if="!showSelect">导入分配资源</el-button>
-        <el-button type="primary" @click="handleUpdate" :disabled="multiple" v-if="showSelect">确认</el-button>
-        <el-button type="primary" @click="cancelSelecting" v-if="showSelect">取消</el-button>
+        <span v-if="!showSelect">
+          <el-button type="primary" @click="handleSelect('eim')">替换EIM</el-button>
+          <el-button type="primary" @click="handleSelect('download')">批量下载资源</el-button>
+          <el-button type="primary" @click="open('import')">导入分配资源</el-button>
+          <el-button @click="handleDownload">下载批量导入模板</el-button>
+        </span>
+        <span v-else>
+          <el-button type="primary" @click="handleUpdate" :disabled="multiple">确认</el-button>
+          <el-button type="primary" @click="cancelSelect">取消</el-button>
+        </span>
       </template>
-      <el-table ref="deviceTable" v-loading="loading" :data="deviceData" @selection-change="handleSelectionChange"
-        :style="{ '--type': selectType }" :header-row-style="{ textAlign: 'center', height: '50px' }"
-        :row-key="getRowKey">
-        <!-- <el-table-column type="selection" width="50" align="center" /> -->
-        <el-table-column type="selection" width="50" align="center" v-if="showSelect" :selectable="selectable"
-          :reserve-selection="true" />
-        <el-table-column label="" width="50" align="center" v-if="!showSelect" />
-        <el-table-column label="EID" width="150" align="center" prop="eid" />
-        <el-table-column label="预制种子号" width="200" align="center" prop="iccid" />
-        <el-table-column label="企业名称" width="200" align="center" prop="companyName" />
-        <el-table-column label="设备名称" width="200" align="center" prop="name" />
-        <el-table-column label="业务号数量" width="120" align="center" prop="profileCount" />
-        <el-table-column label="在线状态" width="80" align="center" prop="online">
-          <template #default="scope">
+      <el-table
+        ref="deviceTable"
+        v-loading="loading"
+        :data="deviceData"
+        @selection-change="handleSelectionChange"
+        :style="{ '--type': selectType }"
+        :header-row-style="{ textAlign: 'center', height: '50px' }"
+        :row-key="getRowKey"
+      >
+        <el-table-column type="selection" width="50" align="center" v-if="showSelect" :selectable="selectAble" :reserve-selection="true" />
+        <el-table-column
+          v-for="(item, index) in tableColumn"
+          :key="index"
+          :label="item.label"
+          :width="item.width"
+          :align="item.align"
+          :prop="item.prop"
+        >
+          <template v-if="item.slot == 'online'" #default="scope">
             <dict-tag :options="sys_device_status" :value="scope.row.online" />
           </template>
-        </el-table-column>
-        <el-table-column label="预制EIMid" width="180" align="center" prop="eimFqdn" />
-        <el-table-column label="创建时间" width="180" sortable align="center" prop="creationTime">
-          <!-- <template #default="scope">
-            <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
-          </template> -->
-        </el-table-column>
-        <el-table-column label="激活时间" width="180" sortable align="center" prop="activationTime">
-          <!-- <template #default="scope">
-            <span>{{ parseTime(scope.row.enterTime, '{y}-{m}-{d}') }}</span>
-          </template> -->
         </el-table-column>
         <el-table-column label="操作" fixed="right" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
@@ -85,244 +65,182 @@
           </template>
         </el-table-column>
       </el-table>
-      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize" @pagination="getList" />
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
 
-    <!-- 替换EIM对话框 -->
-    <el-dialog ref="formDialogRef" :title="dialog.title" v-model="dialog.visible" width="1200px" append-to-body
-      @close="closeDialog">
-      <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="180px">
-        <el-form-item label="原EIMId" prop="eimIdOriginal">
-          <el-select v-model="form.eimIdOriginal" clearable placeholder="请选择原EIMId" style="width: 100%">
-            <el-option v-for="item in eimIdList" :key="item.eid" :label="item.eid" :value="item.eid"></el-option>
-          </el-select>
-        </el-form-item>
-        <!-- @change="optionChange" -->
-        <el-form-item label="EIMId" prop="eimId">
-          <!-- <el-input v-model="form.eimId" placeholder="请输入EIMId" onkeyup="value=value.replace(/[^\d|^\.]/g,'')" /> -->
-          <el-input v-model="form.eimId" placeholder="请输入EIMId" />
-        </el-form-item>
-
-        <el-form-item label="EIM地址" prop="eimFqdn">
-          <!-- <el-input v-model="form.eimFqdn" placeholder="请输入EIM地址" onkeyup="value=value.replace(/[^\d|^\.|^\:]/g,'')" /> -->
-          <el-input v-model="form.eimFqdn" placeholder="请输入EIM地址" />
-        </el-form-item>
-
-        <el-form-item label="EIMIdType" prop="eimIdType">
-          <el-select v-model="form.eimIdType" placeholder="请选择EIMIdType" clearable style="width:100%">
-            <el-option v-for="dict in sys_eim_id" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="counterValue" prop="counterValue">
-          <!-- <el-input v-model="form.counterValue" placeholder="请输入counterValue" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" /> -->
-          <el-input v-model="form.counterValue" placeholder="请输入counterValue" maxlength="64" />
-        </el-form-item>
-
-        <el-form-item label="associationToken" prop="associationToken">
-          <el-input v-model="form.associationToken" placeholder="请输入associationToken" disabled />
-        </el-form-item>
-
-        <el-form-item label="authenticationMethod" prop="authenticationMethod">
-          <el-radio-group v-model="form.authenticationMethod">
-            <el-radio v-for="dict in sye_eim_method" :key="dict.value" :label="dict.value" @change="radioChange">{{
-              dict.label }}</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <el-form-item v-if="form.authenticationMethod == '0'" label="eimPublicKey" prop="eimPublicKey">
-          <!-- <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" onkeyup="value=value.replace(/[\W]/g,'')" /> -->
-          <el-input v-model="form.eimPublicKey" placeholder="请输入eimPublicKey" />
-          <!-- <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
-            :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
-            :data="uploadData">
-            <el-button type="default" icon="Upload">上传文件</el-button>
-            <template #tip>
-              <div class="text-center">
-                <span>支持扩展名：.der .pem</span>
-              </div>
-            </template>
-          </el-upload> -->
-        </el-form-item>
-
-        <el-form-item v-if="form.authenticationMethod == '1'" label="eimCertificate" prop="eimCertificate">
-          <el-upload style="width: auto;" accept=".der, .pem" :headers="upload.headers" action="#"
-            :on-change="changeFile" :auto-upload="false" :on-remove="handleRemove" :limit="1" :file-list="fileList"
-            :data="uploadData">
-            <el-button type="default" icon="Upload">上传文件</el-button>
-            <template #tip>
-              <div class="text-center">
-                <span>支持扩展名：.der .pem</span>
-              </div>
-            </template>
-          </el-upload>
-        </el-form-item>
-
-        <el-form-item label="trustedPublicKeyDataTls" prop="trustedEimPkTls">
-          <!-- <el-input v-model="form.trustedEimPkTls" placeholder="请输入trustedPublicKeyDataTls" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" /> -->
-          <el-input v-model="form.trustedEimPkTls" placeholder="请输入trustedPublicKeyDataTls" maxlength="64" />
-        </el-form-item>
-
-        <el-form-item label="eimSupportedProtocol" prop="eimSupportedProtocol">
-          <el-select v-model="form.eimSupportedProtocol" placeholder="请选择eimSupportedProtocol" clearable
-            style="width:100%">
-            <el-option v-for="dict in sys_eim_sp" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="euiccCiPKld" prop="euiccCipkId">
-          <!-- <el-input v-model="form.euiccCipkId" placeholder="请输入euiccCiPKld" onkeyup="value=value.replace(/[^\w_]/g,'')" maxlength="64" /> -->
-          <el-input v-model="form.euiccCipkId" placeholder="请输入euiccCiPKld" maxlength="64" />
-        </el-form-item>
-
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel()">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
-
-    <!-- 导入配置资源 -->
-    <importDialog :dialog="importOption" @cancel="cancelImport" />
+    <!-- 导入分配资源 -->
+    <BatchImport :dialog="importDialog" @close="close('import')" @submit="close('import', true)" />
+    <!-- 替换eim -->
+    <ChangeEim :dialog="eimDialog" :eidList="eidList" @close="close('eim')" @submit="close('eim', true)" />
   </div>
 </template>
 
-<script setup name="In" lang="ts">
-import { ref, getCurrentInstance, toRefs, ComponentInternalInstance, reactive, nextTick, watch } from "vue"
-import { deviceList, eimChange, eimList } from '@/api/system/device/index';
-import { DeviceForm, DeviceQuery, DeviceVO } from '@/api/system/device/types';
-import { globalHeaders } from "@/utils/request";
-import { cloneDeep } from "lodash";
-import importDialog from './comp/import.vue';
+<script setup name="device" lang="ts">
+import { deviceList } from '@/api/system/device';
+import { DeviceTable } from '@/api/system/device/types';
+import BatchImport from './comp/BatchImport.vue';
+import ChangeEim from './comp/ChangeEim.vue';
+import router from '@/router';
+import { getCompanyDict, getProjectDict } from '../cardImport/hooks/useGetDict';
 
+//  字典
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
-const { sys_device_status, sye_eim_method, sys_eim_id, sys_eim_sp } = toRefs<any>(proxy?.useDict('sys_device_status', 'sye_eim_method', 'sys_eim_id', 'sys_eim_sp'));
-const fileList = ref([])
-const dateRange = ref<[DateModelType, DateModelType]>(['', '']);
-const deviceFormRef = ref<ElFormInstance>();
-const formDialogRef = ref<ElDialogInstance>();
+const { sys_device_status } = toRefs<any>(proxy?.useDict('sys_device_status'));
+const companyDict = ref();
+const projectDict = ref();
 
-const props = defineProps({
-  id: {
-    type: Number,
-    required: true
-  }
-})
-
-const dialog = reactive<DialogOption>({
-  visible: false,
-  title: '',
-});
-
-const uploadData = ref({})
-/*** 上传文件参数 */
-const upload = reactive({
-  // 设置上传的请求头部
-  headers: globalHeaders(),
-  // 上传的地址
-  url: import.meta.env.VITE_APP_BASE_API + "/resource/oss/upload"
-})
-
-const showSelect = ref(false)
-const selectType = ref<any>('')
-const selectProject = ref<any>('')
-const deviceTable = ref<any>();
-const deviceData = ref<any>([]);
-const buttonLoading = ref(false);
-const loading = ref(true);
-const isDisabled = ref(true);
-const showSearch = ref(true);
-const total = ref(0);
-const router = useRouter();
-const ids = ref<any>([]);
-const single = ref(true);
-const multiple = ref(true);
-const queryFormRef = ref<ElFormInstance>();
-const eimIdList = ref<any>([])
-const fileData = ref<any>()
-
-const initFormData: DeviceForm = {
+//  搜索
+const queryFormRef = ref();
+const queryParams = reactive<{ [key: string]: any }>({
+  pageNum: 1,
+  pageSize: 10,
   eid: undefined,
-  eimIdOriginal: undefined,
-  eimId: undefined,
+  iccid: undefined,
+  online: undefined,
   eimFqdn: undefined,
-  eimIdType: undefined,
-  counterValue: undefined,
-  associationToken: undefined,
-  authenticationMethod: '0',
-  eimPublicKey: undefined,
-  eimCertificate: undefined,
-  trustedEimPkTls: undefined,
-  eimSupportedProtocol: undefined,
-  euiccCipkId: undefined,
-}
-const data = reactive<PageData<DeviceForm, DeviceQuery>>({
-  form: { ...initFormData },
-  queryParams: {
-    pageNum: 1,
-    pageSize: 10,
-    eid: undefined,
-    iccid: undefined,
-    companyName: undefined,
-    online: undefined,
-    eimid: undefined,
-    eimFqdn: undefined,
-    isAsc: undefined,
-    params: {
-    },
-  },
-  rules: {
-    eimIdOriginal: [{ required: true, message: "原EIMId不能为空", trigger: "blur" }],
-    eimId: [{ required: true, message: "EIMId不能为空", trigger: "blur" },
-    { pattern: /\d+(\.{1}\d+)+$/, message: '输入不合法', trigger: 'blur' },
-    ],
-    eimFqdn: [{ required: true, message: "EIM地址不能为空", trigger: "blur" },
-    { pattern: /\d+(\.{1}\d+)+(\:{1}\d+){1}$/, message: '输入不合法', trigger: 'blur' },
-    ],
-    counterValue: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },
-    ],
-    eimIdType: [{ required: true, message: "EIMIdType不能为空", trigger: "blur" }],
-    authenticationMethod: [{ required: true, message: "authenticationMethod不能为空", trigger: "blur" }],
-    eimPublicKey: [{ required: true, message: "eimPublicKey不能为空", trigger: "blur" },
-    { pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]+$/, message: '输入不合法', trigger: 'blur' },
-    ],
-    eimCertificate: [{ required: true, message: "eimCertificate不能为空", trigger: "blur" }],
-    trustedEimPkTls: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
-    eimSupportedProtocol: [{ required: true, message: "eimSupportedProtocol不能为空", trigger: "blur" }],
-    euiccCipkId: [{ pattern: /^[A-Za-z0-9]+$/, message: '输入不合法', trigger: 'blur' },],
+  companyId: undefined,
+  projectId: undefined
+});
+const queryFormItem = reactive([
+  { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
+  { label: '预制种子号', placeholder: '请输入', prop: 'iccid', type: 'input' },
+  { label: '在线状态', placeholder: '请选择', prop: 'online', type: 'select', dict: sys_device_status },
+  { label: 'EIMId', placeholder: '请输入', prop: 'eimFqdn', type: 'input' },
+  { label: '归属企业', placeholder: '请选择', prop: 'companyId', type: 'select', dict: companyDict },
+  { label: '归属项目', placeholder: '请选择', prop: 'projectId', type: 'select', dict: projectDict },
+]);
+
+//  表格按钮组
+const showSelect = ref(false);
+const multiple = ref(true);
+const selectType = ref();
+const selectValue = ref();
+const selectArray = ref();
+
+//  表格数据
+const loading = ref(true);
+const total = ref(0);
+const deviceTable = ref();
+const deviceData = ref();
+const tableColumn = reactive([
+  { label: 'EID', width: '', align: 'center', prop: 'eid' },
+  { label: '预制种子号', width: '', align: 'center', prop: 'iccid' },
+  { label: '归属企业', width: '', align: 'center', prop: 'companyName' },
+  { label: '归属项目', width: '', align: 'center', prop: 'projectName' },
+  { label: '设备名称', width: '', align: 'center', prop: 'name' },
+  { label: '业务号', width: '', align: 'center', prop: 'profileCount' },
+  { label: '在线状态', width: '', align: 'center', prop: 'online', slot: 'online' },
+  { label: 'EIMId', width: '', align: 'center', prop: 'eimFqdn' },
+  { label: '创建时间', width: '', align: 'center', prop: 'creationTime' },
+]);
+
+//  弹窗
+const importDialog = reactive<DialogOption>({
+  title: '批量导入',
+  visible: false
+});
+const eimDialog = reactive<DialogOption>({
+  title: '替换EIM',
+  visible: false
+});
+const eidList = ref();
+
+/** 更新字典 */
+const updateDict = async () => {
+  companyDict.value = await getCompanyDict();
+};
+
+/** 归属企业变化影响归属项目 */
+const selectChange = async (type: string) => {
+  if (type == 'companyId' && queryParams.companyId) {
+    projectDict.value = await getProjectDict(queryParams.companyId);
   }
-})
-
-const { queryParams, form, rules } = toRefs<PageData<DeviceForm, DeviceQuery>>(data)
-
-/** 查询设备列表 */
-const getList = async () => {
-  loading.value = true;
-  const res = await deviceList(queryParams.value);
-  deviceData.value = res.rows;
-  total.value = res.total;
-  loading.value = false;
-}
+};
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
-  queryParams.value.pageNum = 1;
+  queryParams.pageNum = 1;
   getList();
-}
+};
 
 /** 重置按钮操作 */
 const resetQuery = () => {
   queryFormRef.value?.resetFields();
   handleQuery();
+};
+
+/** 多选：eim-替换EIM、download-批量下载资源 */
+const handleSelect = (type: string) => {
+  showSelect.value = true;
+  selectType.value = type;
+};
+
+/** 执行多选操作 */
+const handleUpdate = () => {
+  if (selectType.value == 'download') {
+    //  选中添加缓存
+    localStorage.removeItem('downloadList');
+    localStorage.setItem('downloadList', JSON.stringify(selectArray.value));
+    router.push({
+      path: '/download'
+    });
+  } else if (selectType.value == 'eim') {
+    eidList.value = selectArray.value.map((item: DeviceTable) => {
+      return item.eid
+    })
+    eimDialog.visible = true;
+  }
+};
+
+/** 取消多选 */
+const cancelSelect = () => {
+  selectType.value = ''
+  showSelect.value = false
+};
+
+/** 下载模板 */
+const handleDownload = () => {
+  proxy?.download('/manager/device/batch/profileDownload/importTemplate', {}, `批量导入模板.xlsx`);
+};
+
+/** 设置row-key */
+const getRowKey = (row: DeviceTable) => {
+  return row.id;
 }
 
-/** 详情按钮操作*/
+/** 选择条数时应限制同一企业及同一项目 */
+const handleSelectionChange = (row: DeviceTable[]) => {
+  selectValue.value = row[0];
+  selectArray.value = row;
+  multiple.value = !row.length;
+
+};
+
+/** 多选按钮控制 */
+const selectAble = (row: DeviceTable) => {
+  if (selectType.value == 'eim') {
+    return true;
+  } else if (selectType.value == 'download' && selectValue.value) {
+    if (row.companyName == selectValue.value.companyName && row.projectName == selectValue.value.projectName) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return true;
+  }
+};
+
+/** 查询卡信息列表 */
+const getList = async () => {
+  loading.value = true;
+  const res = await deviceList(queryParams);
+  deviceData.value = res.rows;
+  loading.value = false;
+};
+
+/** 查看详情 */
 const handleView = (row?: any) => {
-  // 添加缓存
-  localStorage.setItem('eid', row.eid)
   router.push({
     path: "/device_detail",
     query: {
@@ -330,206 +248,23 @@ const handleView = (row?: any) => {
     },
   });
 }
-//复选框禁用
-const selectable = (row: any) => {
-  if (selectType.value == 'block') {
-    return true;  //不禁用
-  } else if (selectType.value == 'none' && selectProject.value) {
-    if (row.eid == selectProject.value) {
-      console.log(row.profileCount)
-      return true;  //不禁用
-    } else {
-      return false;  //禁用
-    }
-  } else {
-    return true;  //禁用
-  }
-}
 
-/** 选择条数  */
-const handleSelectionChange = (selection: DeviceVO[]) => {
-  ids.value = []
-  selectProject.value = selection[0]?.eid ? selection[0].eid : ''
-  selection.forEach((item) => {
-    ids.value.push({ eid: item.eid })
-  })
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-  eimIdList.value = []
-  if (ids.value.length > 0) {
-    ids.value.forEach(async (item: any) => {
-      const res = await eimList(item.eid);
-      res.rows.forEach((val: any) => {
-        eimIdList.value.push({ eid: val.eimId })
-      })
-    })
-  }
-}
-
-function getRowKey(row: any) {
-  console.log(row)
-  return row.id;
-}
-
-function handleRemove(file: any, fileList: any) {
-  fileList.value = []
-  form.value.eimCertificate = undefined
-  // form.value.eimPublicKey = undefined
+/** 打开弹窗 */
+const open = (type: string) => {
+  if (type == 'import') { importDialog.visible = true };
 };
 
-const toSelecting = (e: any) => {
-  selectType.value = e
-  showSelect.value = true
-}
-
-const cancelSelecting = () => {
-  selectType.value = ''
-  showSelect.value = false
-  selectProject.value = ''
-  deviceTable.value.clearSelection()
-}
-
-const handleUpdate = () => {
-  if (selectType.value == 'none') {
-    router.push({
-      path: "/download",
-    });
-  } else {
-    dialog.visible = true;
-    dialog.title = '替换EIM'
+/** 关闭弹窗 */
+const close = (type: string, edit?: boolean) => {
+  if (type == 'import') { importDialog.visible = false };
+  if (type == 'eim') { eimDialog.visible = false };
+  if (edit) {
+    getList();
   }
-}
+};
 
 onMounted(() => {
+  updateDict();
   getList();
-})
-
-/** 重置操作表单 */
-const reset = () => {
-  form.value = { ...initFormData };
-  deviceFormRef.value?.resetFields();
-}
-
-/** 取消按钮 */
-const cancel = () => {
-  dialog.visible = false;
-  reset();
-}
-
-// 预上传
-function changeFile(file: any) {
-  let type = file.name.substr((file.name.lastIndexOf(".")))
-  if (type != '.der' && type != '.pem') {
-    proxy?.$modal.msgError("文件格式错误");
-    return false
-  }
-
-  fileData.value = file
-  form.value.eimCertificate = file.name
-  // if (form.value.authenticationMethod == '0') {
-  //   form.value.eimPublicKey = file.name
-  // } else {
-  //   form.value.eimCertificate = file.name
-  // }
-}
-
-// // 替换EIM下拉列表
-// function optionChange() {
-//   eimIdList.value.forEach((item: any) => {
-//     if (item.eimId == form.value.eimIdOriginal) {
-//       form.value.eid = item.eid
-//     }
-//   })
-// }
-
-// 认证方式
-function radioChange() {
-  if (form.value.authenticationMethod == '0') {
-    form.value.eimCertificate = undefined
-  } else {
-    // form.value.eimPublicKey = undefined
-  }
-  fileData.value = undefined
-}
-
-/** 提交按钮 */
-const submitForm = () => {
-  deviceFormRef.value?.validate(async (valid: boolean) => {
-    if (valid) {
-      let param = new FormData();
-      const data = cloneDeep(form.value);
-      const json = JSON.stringify(data);
-      // param.append('req', json);
-      // 将 json 字符串转化为 Blob 对象
-      const req = new Blob([json], { type: 'application/json' });
-      // if (fileData.value && form.value.authenticationMethod == '0') {
-      //   param.append('eimPublicKey', fileData.value?.raw)
-      // } else 
-      if (fileData.value && form.value.authenticationMethod == '1') {
-        param.append('eimCertificate', fileData.value?.raw)
-      }
-      // else if (!fileData.value && form.value.authenticationMethod == '0') {
-      //   param.append('eimPublicKey', '')
-      // } 
-      else {
-        param.append('eimCertificate', '')
-      }
-      param.append('req', req)
-      ids.value.forEach(async (item: any) => {
-        form.value.eid = item.eid
-        try {
-          const res = await eimChange(form.value.eid, form.value.eimIdOriginal, param)
-          if (res.code == 200) {
-            proxy?.$modal.msgSuccess("操作成功");
-            dialog.visible = false;
-            await getList();
-          } else {
-            proxy?.$modal.msgError("操作失败");
-          }
-        } catch (err) {
-          proxy?.$modal.msgError("操作失败");
-        }
-      })
-    }
-  })
-}
-
-/**
- * 关闭弹窗
- */
-const closeDialog = () => {
-  dialog.visible = false;
-  resetForm();
-}
-
-/**
- * 重置表单
- */
-const resetForm = () => {
-  deviceFormRef.value?.resetFields();
-  deviceFormRef.value?.clearValidate();
-
-  form.value.authenticationMethod = '0';
-}
-
-/** 批量导入 */
-const importOption = reactive<DialogOption>({
-  title: '批量导入',
-  visible: false
-})
-
-const toImport = () => {
-  importOption.visible = true;
-}
-
-const cancelImport = () => {
-  importOption.visible = false;
-  resetForm();
-}
+});
 </script>
-
-<style scoped>
-:deep() .el-table__header-wrapper .el-checkbox {
-  display: var(--type)
-}
-</style>

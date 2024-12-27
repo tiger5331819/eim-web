@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px">
+  <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px" @close="cancel">
     <el-form ref="AllocationCardRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="批次" prop="productionBatch">
         <el-select v-model="form.productionBatch" placeholder="请选择" clearable style="width: 300px;" @change="batchChange">

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px">
+  <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px" @close="cancel">
     <el-form ref="addSupplierFormRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="DP+来源" prop="dpSource">
         <el-input v-model="form.dpSource" placeholder="请输入" />
