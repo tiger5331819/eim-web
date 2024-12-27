@@ -182,7 +182,7 @@ const handleUpdate = () => {
     localStorage.removeItem('downloadList');
     localStorage.setItem('downloadList', JSON.stringify(selectArray.value));
     router.push({
-      path: '/download'
+      path: '/download',
     });
   } else if (selectType.value == 'eim') {
     eidList.value = selectArray.value.map((item: DeviceTable) => {
@@ -241,6 +241,9 @@ const getList = async () => {
 
 /** 查看详情 */
 const handleView = (row?: any) => {
+  // 添加缓存
+  localStorage.removeItem('eid');
+  localStorage.setItem('eid', row.eid);
   router.push({
     path: "/device_detail",
     query: {

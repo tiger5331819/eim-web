@@ -23,12 +23,23 @@ export interface DeviceTable {
 }
 
 export interface ChangeEimForm {
-  eimId?: string;// eimid
-  eimFqdn?: string;//  EIM地址
-  eimIdType?: string;//  EIMIdType
-  counterValue?: string;//  counterValue
-  associationToken?: string;//  associationToken
-  authenticationMethod?: string;//  radio存数据用
-  eimPublicKey?: string;//  eimPublicKey
-  
+  eimId?: string; // eimid
+  eimFqdn?: string; //  EIM地址
+  eimIdType?: string; //  EIMIdType
+  counterValue?: string; //  counterValue
+  associationToken?: string; //  associationToken
+  authenticationMethod?: string; //  radio存数据用
+  eimPublicKey?: string; //  eimPublicKey
+}
+
+interface DownloadList {
+  eid?: string;
+  productionBatch?: string;
+  projectId?: string;
+  count?: string;
+}
+
+export interface AllocationAndDownload {
+  use?: boolean;
+  deviceList?: DownloadList;
 }

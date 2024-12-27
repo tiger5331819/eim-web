@@ -1,4 +1,5 @@
 import request from '@/utils/request';
+import { AllocationAndDownload } from './types';
 
 /**
  * 卡信息记录查询
@@ -319,5 +320,40 @@ export const eimProfile = (eid?: any) => {
   return request({
     url: `/eimProfile`,
     method: 'get'
+  });
+};
+
+/** 以下为新增内容 */
+/**
+ * @method:获取指定项目下的批次
+ * @param:projectId
+ */
+export const batchListByProjectId = (projectId: string) => {
+  return request({
+    url: `/manager/profile/productionBatch/${projectId}`,
+    method: 'get'
+  });
+};
+
+/**
+ * @method:获取指定批次的可分配数量
+ * @param:productionBatch
+ */
+export const countByBatchId = (productionBatch: string) => {
+  return request({
+    url: `/manager/profile/canBeAssignCount/${productionBatch}`,
+    method: 'get'
+  });
+};
+
+/**
+ * @method:批量下发资源
+ * @param:data
+ */
+export const batchAllocationAndDownload = (data: AllocationAndDownload) => {
+  return request({
+    url: '/manager/device/batch/profileDownload',
+    method: 'post',
+    data: data
   });
 };
