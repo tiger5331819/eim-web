@@ -9,7 +9,7 @@
             v-model="queryParams[item.prop]"
             :placeholder="item.placeholder"
             clearable
-            :disabled="item.prop == 'projectName' && !queryParams.companyName"
+            :disabled="item.prop == 'projectId' && !queryParams.companyId"
             @change="selectChange(item.prop)"
           >
             <el-option v-for="dict in item.dict" :key="dict.value" :label="dict.label" :value="dict.value" />
@@ -91,8 +91,8 @@ const queryFormItem = reactive<any>([
   { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
   { label: 'ICCID', placeholder: '请输入', prop: 'iccid', type: 'input' },
   { label: '运营商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: providerDict },
-  { label: '归属企业', placeholder: '请选择', prop: 'companyName', type: 'select', dict: companyDict },
-  { label: '归属项目', placeholder: '请选择', prop: 'projectName', type: 'select', dict: projectDict },
+  { label: '归属企业', placeholder: '请选择', prop: 'companyId', type: 'select', dict: companyDict },
+  { label: '归属项目', placeholder: '请选择', prop: 'projectId', type: 'select', dict: projectDict },
   { label: '分配状态', placeholder: '请选择', prop: 'allocate', type: 'select', dict: sys_allocate_status },
 ]);
 
@@ -130,8 +130,8 @@ const updateDict = async () => {
 
 /** 归属企业变化影响归属项目 */
 const selectChange = async (type: string) => {
-  if (type == 'companyName' && queryParams.companyName) {
-    projectDict.value = await getProjectDict(queryParams.companyName);
+  if (type == 'companyId' && queryParams.companyId) {
+    projectDict.value = await getProjectDict(queryParams.companyId);
   }
 }
 

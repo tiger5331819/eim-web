@@ -194,8 +194,11 @@ const handleUpdate = () => {
 
 /** 取消多选 */
 const cancelSelect = () => {
-  selectType.value = ''
-  showSelect.value = false
+  selectType.value = '';
+  selectValue.value = '';
+  selectArray.value = [];
+  showSelect.value = false;
+  deviceTable.value.clearSelection();
 };
 
 /** 下载模板 */

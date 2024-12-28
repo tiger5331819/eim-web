@@ -169,6 +169,7 @@ const allocation = () => {
 
 //  分配资源并下载
 const handleDownload = async () => {
+  allocation();
   const _data = {
     use: form.value.use,
     deviceList: tableData.value.map((item: { [key: string]: any }) => {
@@ -184,6 +185,7 @@ const handleDownload = async () => {
   const res = await batchAllocationAndDownload(_data);
   if (res.code == 200) {
     proxy?.$modal.msgSuccess("操作成功");
+    localStorage.removeItem('downloadList');
     router.push({
     path: "/task"
   });

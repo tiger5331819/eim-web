@@ -30,7 +30,7 @@ export async function getProjectDict(params: string) {
   const res = await projectList(params);
   const target = res.data.map((item: any) => {
     const _item = {
-      label: item.dpSource,
+      label: item.name,
       value: item.id
     };
     return _item;

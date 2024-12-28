@@ -38,7 +38,7 @@
         :row-key="getRowKey"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="50" align="center" :reserve-selection="true" />
+        <el-table-column type="selection" width="50" align="center" :selectable="selectAble" :reserve-selection="true" />
         <el-table-column label="ICCID" align="center" prop="iccid" />
         <el-table-column label="EID" width="400" align="center" prop="eid" />
         <el-table-column label="进度条" align="center" prop="downloadRate" />
@@ -122,6 +122,15 @@ const cancel = async() => {
     } else {
       proxy?.$modal.msgError("操作失败");
     }
+  }
+};
+
+/** 多选按钮控制 */
+const selectAble = (row: TaskTable) => {
+  if (row.state == 0) {
+    return true;
+  } else {
+    return false;
   }
 };
 
