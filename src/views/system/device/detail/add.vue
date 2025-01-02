@@ -1,6 +1,5 @@
 <template>
   <div class="p-5">
-
     <el-card shadow="hover">
       <template #header>
         <div>
@@ -11,7 +10,6 @@
       <span class="m-2" style="font-size: 24px;">下载业务号</span>
 
       <el-form :model="form" :rules="rules" ref="deviceFormRef" label-width="120px" style="margin-top: 20px;">
-
         <el-form-item label="请求方式：" prop="method">
           <el-radio-group v-model="form.method">
             <el-radio v-for="dict in sys_code_method" :key="dict.value" :label="dict.value">{{
@@ -24,9 +22,21 @@
         </el-form-item>
 
         <el-form-item v-if="form.method == '2'" label="上传QRcode：" prop="code">
-          <el-upload style="width: auto;" accept=".jpg, .png, .svg" :headers="upload.headers" list-type="picture-card"
-            action="#" :on-change="changeFile" :on-remove="handleRemove" :auto-upload="false" :limit="1"
-            :file-list="fileList" :data="uploadData" :on-preview="handlePictureCardPreview">
+          <el-upload
+            :class="{'hide': btnHidden }"
+            style="width: auto;"
+            accept=".jpg, .png, .svg"
+            :headers="upload.headers"
+            list-type="picture-card"
+            action="#"
+            :on-change="changeFile"
+            :on-remove="handleRemove"
+            :auto-upload="false"
+            :limit="1"
+            :file-list="fileList"
+            :data="uploadData"
+            :on-preview="handlePictureCardPreview"
+          >
             <el-icon>
               <Plus />
             </el-icon>
@@ -45,8 +55,7 @@
         </el-form-item>
 
         <el-form-item label="">
-          <el-button v-if="form.method == '0' || form.method == '3'" type="primary"
-            @click="profileDownload">获取并下载资源</el-button>
+          <el-button v-if="form.method == '0' || form.method == '3'" type="primary" @click="profileDownload">获取并下载资源</el-button>
           <el-button v-else type="primary" @click="profileDownload">识别并下载资源</el-button>
         </el-form-item>
 
@@ -83,8 +92,6 @@
           <span style="font-size: 16px;">ICCID：{{ downloadData.iccid }}</span>
         </el-form-item>
       </el-form>
-
-
     </el-card>
 
     <el-dialog v-model="dialogVisible">
@@ -127,6 +134,8 @@ const rules = ref({
 
 const issuerList = ref<any>([])
 
+const btnHidden = ref(false);
+
 const getList = async () => {
   const res = await eimProfile()
   issuerList.value = res.data
@@ -163,7 +172,7 @@ function changeFile(file: any) {
   // console.log('file1', file)
   // console.log('file.raw1', file.raw)
   dialogImageUrl.value = window.URL.createObjectURL(file.raw)
-
+  btnHidden.value = true;
   getQrUrl(file.raw).then((res: any) => {
     console.log('res', res)
     trigger.value = res?.data
@@ -177,6 +186,8 @@ function changeFile(file: any) {
 function handleRemove(file: any, fileList: any) {
   fileList.value = []
   dialogImageUrl.value = ''
+  btnHidden.value = false;
+
 };
 
 const store = useTagsViewStore()
@@ -302,5 +313,10 @@ onMounted(() => {
     country: undefined,
   }
 })
-
 </script>
+
+<style scoped>
+:deep(.hide .el-upload--picture-card) {
+  display: none;
+}
+</style>
