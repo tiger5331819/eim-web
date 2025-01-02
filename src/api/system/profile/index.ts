@@ -1,11 +1,11 @@
 import request from '@/utils/request';
-import { query, AllocationForm } from './types';
+import { QueryFrom, AllocationForm } from './types';
 
 /**
  * @method:获取profile资源列表
  * @param:query
  */
-export const profileList = (query: query) => {
+export const profileList = (query: QueryFrom) => {
   return request({
     url: '/manager/profile/list',
     method: 'get',
