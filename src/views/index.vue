@@ -2,7 +2,7 @@
   <div class="home">
     <div>
       <h2>您好，{{ nickname }}！</h2>
-      <p style="font-size: 20px; color: #909399;">欢迎您进入eSIM IOT系统，请开启您的使用之旅吧！</p>
+      <p style="font-size: 20px; color: #909399;">欢迎您进入广东云百eSIM IOT系统，请开启您的使用之旅吧！</p>
     </div>
     <img class="compute-img" src="@/assets/images/home.png" alt="" style="">
 
