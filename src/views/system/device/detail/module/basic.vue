@@ -7,10 +7,8 @@
       <el-form-item label="设备名称:">
         <el-input v-model="detailData.name" v-if="changeName" style="width: 220px" />
         <span v-else>{{ detailData.name || '--' }}</span>
-        <el-button type="primary" size="small" style="margin-left: 20px" @click="editName"
-          v-if="changeName">保存</el-button>
-        <el-button type="primary" size="small" style="margin-left: 20px" @click="changeName = true"
-          v-else>修改</el-button>
+        <el-button type="primary" size="small" style="margin-left: 20px" @click="editName" v-if="changeName">保存</el-button>
+        <el-button type="primary" size="small" style="margin-left: 20px" @click="changeName = true" v-else>修改</el-button>
       </el-form-item>
       <el-form-item label="预制种子号:">
         <span>{{ detailData.iccid || '--' }}</span>
@@ -26,10 +24,8 @@
       <el-form-item label="企业名称:">
         <el-input v-model="detailData.companyName" v-if="changeCompany" style="width: 220px" />
         <span v-else>{{ detailData.companyName || '--' }}</span>
-        <el-button type="primary" size="small" style="margin-left: 20px" @click="editCompany"
-          v-if="changeCompany">保存</el-button>
-        <el-button type="primary" size="small" style="margin-left: 20px" @click="changeCompany = true"
-          v-else>修改</el-button>
+        <el-button type="primary" size="small" style="margin-left: 20px" @click="editCompany" v-if="changeCompany">保存</el-button>
+        <el-button type="primary" size="small" style="margin-left: 20px" @click="changeCompany = true" v-else>修改</el-button>
       </el-form-item>
       <el-form-item label="在线状态:">
         <template #default="scope">
@@ -69,12 +65,28 @@
       <el-table-column label="操作" fixed="right" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip v-if="scope.row.state == '0'" content="启用业务号" placement="top">
-            <el-switch v-model="scope.row.state" active-value="1" inactive-value="0" active-text="启用" inactive-text="停用"
-              class="mr-8" :loading="switchLoading" :before-change="() => handleEnable(scope.row)"></el-switch>
+            <el-switch
+              v-model="scope.row.state"
+              active-value="1"
+              inactive-value="0"
+              active-text="启用"
+              inactive-text="停用"
+              class="mr-8"
+              :loading="switchLoading"
+              :before-change="() => handleEnable(scope.row)"
+            ></el-switch>
           </el-tooltip>
           <el-tooltip v-else content="停用业务号" placement="top">
-            <el-switch v-model="scope.row.state" active-value="1" inactive-value="0" active-text="启用" inactive-text="停用"
-              class="mr-8" :loading="switchLoading" :before-change="() => handleDisable(scope.row)"></el-switch>
+            <el-switch
+              v-model="scope.row.state"
+              active-value="1"
+              inactive-value="0"
+              active-text="启用"
+              inactive-text="停用"
+              class="mr-8"
+              :loading="switchLoading"
+              :before-change="() => handleDisable(scope.row)"
+            ></el-switch>
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
             <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"> </el-button>
@@ -82,8 +94,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="totalItems > 0" :total="totalItems" v-model:page="currentPage" v-model:limit="pageSize"
-      @pagination="getList" />
+    <pagination v-show="totalItems > 0" :total="totalItems" v-model:page="currentPage" v-model:limit="pageSize" @pagination="getList" />
   </el-card>
 </template>
 <script setup name="In" lang="ts">
@@ -130,7 +141,7 @@ const getList = async () => {
   detailData.value = res.data;
   tableData.value = res.data.profileList;
   totalItems.value = res.data.profileList.length;
-  tableData.value.forEach((item:any) => {
+  tableData.value.forEach((item: any) => {
     item.state = item.state.toString()
   })
   handleCurrentChange(currentPage.value)
@@ -162,30 +173,38 @@ const editCompany = () => {
 /** 启用业务号  */
 const handleEnable = async (row: any) => {
   switchLoading.value = true
-  const res = await toEnable(eid.value, row.iccid)
-  if (res.code == 200) {
+  try {
+    const res = await toEnable(eid.value, row.iccid)
+    if (res.code == 200) {
+      switchLoading.value = false
+      proxy?.$modal.msgSuccess("操作成功");
+      return true
+    } else {
+      switchLoading.value = false
+      proxy?.$modal.msgError("操作失败");
+      return false
+    }
+  } catch {
     switchLoading.value = false
-    proxy?.$modal.msgSuccess("操作成功");
-    return true
-  } else {
-    switchLoading.value = false
-    proxy?.$modal.msgError("操作失败");
-    return false
   }
 }
 
 /** 停用业务号  */
 const handleDisable = async (row: any) => {
   switchLoading.value = true
-  const res = await toDisable(eid.value, row.iccid)
-  if (res.code == 200) {
+  try {
+    const res = await toDisable(eid.value, row.iccid)
+    if (res.code == 200) {
+      switchLoading.value = false
+      proxy?.$modal.msgSuccess("操作成功");
+      return true
+    } else {
+      switchLoading.value = false
+      proxy?.$modal.msgError("操作失败");
+      return false
+    }
+  } catch {
     switchLoading.value = false
-    proxy?.$modal.msgSuccess("操作成功");
-    return true
-  } else {
-    switchLoading.value = false
-    proxy?.$modal.msgError("操作失败");
-    return false
   }
 }
 
