@@ -19,7 +19,7 @@
     </div>
     <div style="flex: 1">
       <el-form-item label="EIM:">
-        <span>{{ detailData.eid || '--' }}</span>
+        <span>{{ detailData.eimFqdn || '--' }}</span>
       </el-form-item>
       <el-form-item label="企业名称:">
         <el-input v-model="detailData.companyName" v-if="changeCompany" style="width: 220px" />
