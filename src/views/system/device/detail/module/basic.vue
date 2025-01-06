@@ -178,6 +178,7 @@ const handleEnable = async (row: any) => {
     if (res.code == 200) {
       switchLoading.value = false
       proxy?.$modal.msgSuccess("操作成功");
+      getList();
       return true
     } else {
       switchLoading.value = false
@@ -197,6 +198,7 @@ const handleDisable = async (row: any) => {
     if (res.code == 200) {
       switchLoading.value = false
       proxy?.$modal.msgSuccess("操作成功");
+      getList();
       return true
     } else {
       switchLoading.value = false
