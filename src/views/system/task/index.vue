@@ -2,18 +2,18 @@
   <div class="p-2">
     <div class="search">
       <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
-        <el-form-item label="任务类型" prop="taskType">
-          <el-select v-model="queryParams.taskType" placeholder="请选择" clearable style="width: 240px">
+        <el-form-item label="任务类型" prop="state">
+          <el-select v-model="queryParams.state" placeholder="请选择" clearable style="width: 240px">
             <el-option v-for="dict in sys_task_status" :key="dict.value" :label="dict.label" :value="dict.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="操作人" prop="handlePeople">
-          <el-input v-model="queryParams.handlePeople" placeholder="请输入操作人" clearable style="width: 240px" @keyup.enter="handleQuery" />
+        <el-form-item label="操作人" prop="operatorUser">
+          <el-input v-model="queryParams.operatorUser" placeholder="请输入操作人" clearable style="width: 240px" @keyup.enter="handleQuery" />
         </el-form-item>
         <el-form-item label="操作时间" prop="handleTime">
           <el-date-picker
             v-model="queryParams.handleTime"
-            type="daterange"
+            type="datetimerange"
             range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -80,6 +80,7 @@ const data = reactive({
 
 const { queryParams } = toRefs(data);
 const loading = ref(true);
+const taskTable = ref();
 const taskData = ref<TaskTable>();
 const multipleSelection = ref();
 const total = ref(0);
@@ -118,6 +119,7 @@ const cancel = async() => {
     if (res.code == 200) {
       proxy?.$modal.msgSuccess("操作成功");
       multipleSelection.value = [];
+      taskTable.value.clearSelection();
       getList();
     } else {
       proxy?.$modal.msgError("操作失败");

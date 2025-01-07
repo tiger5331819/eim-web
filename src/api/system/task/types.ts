@@ -1,8 +1,8 @@
 import { Pagination } from '@/api/types';
 
 export interface QueryFrom extends Pagination {
-  taskType?: number; // 任务类型
-  handlePeople?: string; // 操作人
+  state?: number; // 任务类型
+  operatorUser?: string; // 操作人
   handleTime?: Array<string>; // 操作时间：存数据用
   startCreationTime?: string; //    操作时间
   endCreationTime?: string; //    操作时间

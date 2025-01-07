@@ -2,7 +2,7 @@
   <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px" @close="cancel">
     <el-form ref="addSupplierFormRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="DP+来源" prop="dpSource">
-        <el-input v-model="form.dpSource" placeholder="请输入" />
+        <el-input v-model="form.dpSource" placeholder="请输入" :disabled="isEdit" />
       </el-form-item>
       <el-form-item label="接口地址" prop="apiUrl">
         <el-input v-model="form.apiUrl" placeholder="请输入" />
@@ -75,6 +75,7 @@ const { form, rules } = toRefs(data);
 
 //  表单
 const addSupplierFormRef = ref<ElFormInstance>();
+const isEdit = ref<boolean>(false);
 
 /** 确定 */
 const submitForm = () => {
@@ -101,9 +102,11 @@ const reset = () => {
 /** 监听是否为编辑 */
 watch(() => props.dialog, async(v) => {
   if (v.title == '编辑') {
+    isEdit.value = true;
     const res = await getSupplierDetail(props.detail.id);
     form.value = res.data;
   } else {
+    isEdit.value = false;
     reset();
   }
 }, { deep: true, immediate: true });
