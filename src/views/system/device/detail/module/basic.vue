@@ -4,11 +4,11 @@
       <el-form-item label="EID:">
         <span>{{ detailData.eid || '--' }}</span>
       </el-form-item>
-      <el-form-item label="设备名称:">
+      <el-form-item label="设备SN:">
         <el-input v-model="detailData.name" v-if="changeName" style="width: 220px" />
         <span v-else>{{ detailData.name || '--' }}</span>
-        <el-button type="primary" size="small" style="margin-left: 20px" @click="editName" v-if="changeName">保存</el-button>
-        <el-button type="primary" size="small" style="margin-left: 20px" @click="changeName = true" v-else>修改</el-button>
+        <!-- <el-button type="primary" size="small" style="margin-left: 20px" @click="editName" v-if="changeName">保存</el-button>
+        <el-button type="primary" size="small" style="margin-left: 20px" @click="changeName = true" v-else>修改</el-button> -->
       </el-form-item>
       <el-form-item label="预制种子号:">
         <span>{{ detailData.iccid || '--' }}</span>

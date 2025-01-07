@@ -47,7 +47,7 @@
         <el-table-column label="EID" width="200" align="center" prop="eid" v-if="!showSelect" /> -->
         <el-table-column label="预制种子号" width="200" align="center" prop="iccid" />
         <el-table-column label="企业名称" width="200" align="center" prop="companyName" />
-        <el-table-column label="设备名称" width="200" align="center" prop="name" />
+        <el-table-column label="设备SN" width="200" align="center" prop="name" />
         <el-table-column label="业务号数量" width="120" align="center" prop="profileCount" />
         <el-table-column label="在线状态" width="80" align="center" prop="online">
           <template #default="scope">
