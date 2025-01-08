@@ -38,11 +38,20 @@
     </div>
     <el-card class=" mt-8">
       <el-table :data="paginatedData">
-        <el-table-column label="ICCID" align="center" prop="iccid" />
-        <el-table-column label="运营商" align="center" prop="carrierName" />
-        <el-table-column label="批次" align="center" prop="productionBatch" />
-        <el-table-column label="DP+来源" align="center" prop="dpSource" />
-        <el-table-column label="数据校验" align="center" prop="result" />
+        <el-table-column
+          v-for="(item, index) in tableColumn"
+          :key="index"
+          :label="item.label"
+          :width="item.width"
+          :align="item.align"
+          :prop="item.prop"
+        >
+          <!-- 插槽预留 -->
+          <template v-if="item.slot == 'required'" #header>
+            <span style="color: #ff6c00; margin-right: 5px;">*</span>
+            <span>{{item.label }}</span>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         class="mt-6"
@@ -109,6 +118,14 @@ const pageSize = ref(10);
 const buttonLoading = ref(false);
 const errorToken = ref();
 const uploadSuccess = ref(false);
+const tableColumn = reactive([
+  { label: 'ICCID', width: '', align: 'center', prop: 'iccid', slot: 'required' },
+  { label: '运营商', width: '', align: 'center', prop: 'carrierName', slot: 'required' },
+  { label: '批次', width: '', align: 'center', prop: 'productionBatch', slot: 'required' },
+  { label: 'DP+来源', width: '', align: 'center', prop: 'dpSource', slot: 'required' },
+  { label: '数据校验', width: '', align: 'center', prop: 'result' },
+
+]);
 
 function handleRemove() {
   paginatedData.value = [];

@@ -192,7 +192,7 @@ const handleDataSync = async () => {
 
 /** 下载模板 */
 const handleDownload = async () => {
-  proxy?.download('/manager/profile/import/template', {}, `批量导入模板.xlsx`);
+  proxy?.download('/manager/profile/import/template', {}, `profile资源批量导入模板.xlsx`);
 };
 
 /** 打开弹窗 */

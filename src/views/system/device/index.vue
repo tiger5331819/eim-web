@@ -203,7 +203,7 @@ const cancelSelect = () => {
 
 /** 下载模板 */
 const handleDownload = () => {
-  proxy?.download('/manager/device/batch/profileDownload/importTemplate', {}, `批量导入模板.xlsx`);
+  proxy?.download('/manager/device/batch/profileDownload/importTemplate', {}, `设备列表批量导入模板.xlsx`);
 };
 
 /** 设置row-key */

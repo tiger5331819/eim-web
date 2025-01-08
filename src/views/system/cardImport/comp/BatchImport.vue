@@ -49,6 +49,10 @@
           :prop="item.prop"
         >
           <!-- 插槽预留 -->
+          <template v-if="item.slot == 'required'" #header>
+            <span style="color: #ff6c00; margin-right: 5px;">*</span>
+            <span>{{item.label }}</span>
+          </template>
         </el-table-column>
       </el-table>
       <el-pagination
@@ -113,12 +117,12 @@ const uploadData = ref({})
 //  表格
 const tableData = ref([]);
 const tableColumn = reactive([
-    { label: 'EID', width: '', align: 'center', prop: 'eid' },
+    { label: 'EID', width: '', align: 'center', prop: 'eid', slot: 'required' },
     { label: '预制种子号ICCID', width: '', align: 'center', prop: 'iccid' },
     { label: '预制EIM', width: '', align: 'center', prop: 'eimFqdn' },
-    { label: '制卡商', width: '', align: 'center', prop: 'cardProviderName' },
-    { label: '运营商', width: '', align: 'center', prop: 'providerName' },
-    { label: '批次', width: '', align: 'center', prop: 'productionBatch' },
+    { label: '制卡商', width: '', align: 'center', prop: 'cardProviderName', slot: 'required' },
+    { label: '运营商', width: '', align: 'center', prop: 'providerName', slot: 'required' },
+    { label: '批次', width: '', align: 'center', prop: 'productionBatch', slot: 'required' },
     { label: '归属企业', width: '', align: 'center', prop: 'companyName' },
     { label: '归属项目', width: '', align: 'center', prop: 'projectName' },
     { label: '数据校验', width: '', align: 'center', prop: 'result' },

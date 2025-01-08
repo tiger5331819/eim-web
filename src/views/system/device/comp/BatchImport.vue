@@ -46,10 +46,20 @@
     </div>
     <el-card class=" mt-8">
       <el-table :data="paginatedData">
-        <el-table-column label="EID" align="center" prop="eid" />
-        <el-table-column label="批次" align="center" prop="productionBatch" />
-        <el-table-column label="资源码号" align="center" prop="iccidList" />
-        <el-table-column label="数据校验" align="center" prop="result" />
+        <el-table-column
+          v-for="(item, index) in tableColumn"
+          :key="index"
+          :label="item.label"
+          :width="item.width"
+          :align="item.align"
+          :prop="item.prop"
+        >
+          <!-- 插槽预留 -->
+          <template v-if="item.slot == 'required'" #header>
+            <span style="color: #ff6c00; margin-right: 5px;">*</span>
+            <span>{{item.label }}</span>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         class="mt-6"
@@ -124,6 +134,12 @@ const pageSize = ref(10);
 const buttonLoading = ref(false);
 const errorToken = ref();
 const uploadSuccess = ref(false);
+const tableColumn = reactive([
+  { label: 'EID', width: '', align: 'center', prop: 'eid', slot: 'required' },
+  { label: '批次', width: '', align: 'center', prop: 'productionBatch', slot: 'required' },
+  { label: '资源码号', width: '', align: 'center', prop: 'iccidList' },
+  { label: '数据校验', width: '', align: 'center', prop: 'result' }
+]);
 
 function handleRemove() {
   paginatedData.value = [];

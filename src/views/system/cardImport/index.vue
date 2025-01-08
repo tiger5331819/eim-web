@@ -168,7 +168,7 @@ const handleUpdate = () => {
 
 /** 下载模板 */
 const handleDownload = async () => {
-  proxy?.download('/manager/seed/importTemplate', {}, `批量导入模板.xlsx`);
+  proxy?.download('/manager/seed/importTemplate', {}, `卡信息管理批量导入模板.xlsx`);
 };
 
 /** 弹窗关闭 */
