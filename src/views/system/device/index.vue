@@ -239,6 +239,7 @@ const getList = async () => {
   loading.value = true;
   const res = await deviceList(queryParams);
   deviceData.value = res.rows;
+  total.value = res.total;
   loading.value = false;
 };
 
