@@ -1,5 +1,6 @@
 <template>
   <div class="login">
+    <img src="../assets/logo/login_bg.png" class="login-bg" />
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
       <h3 class="title">eIM设备管理平台</h3>
       <!-- <el-form-item prop="tenantId" v-if="tenantEnabled">
@@ -212,11 +213,16 @@ onMounted(() => {
 <style lang="scss" scoped>
 .login {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
   background-image: url("../assets/images/login-background.jpg");
   background-size: cover;
+}
+
+.login-bg {
+  width: 400px;
 }
 
 .title {
