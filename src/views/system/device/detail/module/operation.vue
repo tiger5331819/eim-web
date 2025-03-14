@@ -57,11 +57,13 @@ const queryParams = ref({
 const getList = async () => {
   loading.value = true;
   eid.value = localStorage.getItem('eid')
-  const res = await operationLog(eid.value, queryParams.value);
+  const res = await operationLog(eid.value, queryParams.value).finally(()=>{
+    loading.value = false;
+  });
   tableData.value = res.rows;
   total.value = res.total;
   // handleCurrentChange(currentPage)
-  loading.value = false;
+  
 }
 
 onMounted(() => {

@@ -207,9 +207,11 @@ const tableData = ref<any>([])
 const getList = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
-  const res = await eimList(eid.value);
+  const res = await eimList(eid.value).finally(()=>{
+    loading.value = false;
+  });
   tableData.value = res.rows;
-  loading.value = false;
+  
 }
 
 /** 同步数据 */

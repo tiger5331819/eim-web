@@ -137,7 +137,9 @@ const handleCurrentChange = (newPage: any) => {
 const getList = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
-  const res = await deviceDetail(eid.value);
+  const res = await deviceDetail(eid.value).finally(()=>{
+    loading.value = false;
+  });
   detailData.value = res.data;
   tableData.value = res.data.profileList;
   totalItems.value = res.data.profileList.length;
@@ -145,7 +147,7 @@ const getList = async () => {
     item.state = item.state.toString()
   })
   handleCurrentChange(currentPage.value)
-  loading.value = false;
+
 }
 
 const editName = () => {
