@@ -87,3 +87,11 @@ export const downloadFailRecord = (errorToken: string) => {
     method: 'post'
   });
 };
+
+//查看制卡商
+export const cardProviderList = () => {
+  return request({
+    url: '/manager/seed/cardProviderName',
+    method: 'get'
+  });
+};
