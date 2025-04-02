@@ -131,7 +131,7 @@ const tableColumn = reactive([
   { label: '业务号', width: '', align: 'center', prop: 'profileCount' },
   { label: '在线状态', width: '', align: 'center', prop: 'online', slot: 'online' },
   { label: 'EIMId', width: '', align: 'center', prop: 'eimFqdn' },
-  { label: '创建时间', width: '', align: 'center', prop: 'creationTime' },
+  // { label: '创建时间', width: '', align: 'center', prop: 'creationTime' },
 ]);
 
 //  弹窗
