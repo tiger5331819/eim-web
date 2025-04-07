@@ -24,7 +24,7 @@
             <span></span>
           </template>
         </el-table-column>
-        <el-table-column prop="profileCount" label="资源数量"></el-table-column>
+        <!-- <el-table-column prop="profileCount" label="资源数量"></el-table-column> -->
         <el-table-column prop="deviceCount" label="设备数量"></el-table-column>
         <el-table-column prop="remark" label="备注"></el-table-column>
         <el-table-column prop="creationTime" label="创建时间">
