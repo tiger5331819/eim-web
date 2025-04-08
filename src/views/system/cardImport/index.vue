@@ -90,7 +90,7 @@ const queryFormRef = ref();
 const queryFormItem = reactive<any>([
   { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
   { label: 'ICCID', placeholder: '请输入', prop: 'iccid', type: 'input' },
-  { label: '运营商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: providerDict },
+  { label: '制卡商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: providerDict },
   { label: '归属企业', placeholder: '请选择', prop: 'companyId', type: 'select', dict: companyDict },
   { label: '归属项目', placeholder: '请选择', prop: 'projectId', type: 'select', dict: projectDict },
   { label: '分配状态', placeholder: '请选择', prop: 'allocate', type: 'select', dict: sys_allocate_status },
