@@ -88,6 +88,7 @@
               :before-change="() => handleDisable(scope.row)"
             ></el-switch>
           </el-tooltip>
+          <el-button link type="primary" @click="handleEditApn(scope.row)">APN更新</el-button>
           <el-tooltip content="删除" placement="top">
             <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"> </el-button>
           </el-tooltip>
@@ -95,11 +96,14 @@
       </el-table-column>
     </el-table>
     <pagination v-show="totalItems > 0" :total="totalItems" v-model:page="currentPage" v-model:limit="pageSize" @pagination="getList" />
+
+    <apn-modal v-if="apnDialog.visible" v-model:visible="apnDialog.visible" :row="apnInfo" @success="getList" />
   </el-card>
 </template>
 <script setup name="In" lang="ts">
 import { ref } from "vue"
 import { deviceDetail, deviceName, companyName, toEnable, toDisable, toDelete, updateDetail } from "@/api/system/device/index";
+import ApnModal from './apnModal.vue'
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_profile_status, sys_device_status } = toRefs<any>(proxy?.useDict('sys_profile_status', 'sys_device_status'));
@@ -111,6 +115,10 @@ const changeCompany = ref(false)
 const loading = ref(true);
 const eid = ref<any>('')
 const switchLoading = ref(false)
+const apnInfo = ref<any>({})
+const apnDialog = reactive({
+  visible:false
+})
 
 // 实现分页
 const currentPage = ref(1);
@@ -211,7 +219,10 @@ const handleDisable = async (row: any) => {
     switchLoading.value = false
   }
 }
-
+const handleEditApn = (row:any)=>{
+  apnInfo.value = row
+  apnDialog.visible = true
+}
 /** 删除  */
 const handleDelete = async (row: any) => {
   const res = await toDelete(eid.value, row.iccid)

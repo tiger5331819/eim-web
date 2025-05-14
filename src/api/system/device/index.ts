@@ -309,7 +309,13 @@ export const updateEim = (eid?: any) => {
     method: 'post'
   });
 };
-
+//修改配置文件的APN
+export const updateProfileApn = ({ eid, iccid, apnId }: any) => {
+  return request({
+    url: `/manager/device/${eid}/profile/${iccid}/apn/${apnId}`,
+    method: 'patch'
+  });
+};
 /**
  * 获取运营商列表
  * @param eid
