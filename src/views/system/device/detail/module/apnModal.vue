@@ -5,7 +5,7 @@
         <el-input v-model="form.iccid" disabled placeholder="请输入" />
       </el-form-item>
       <el-form-item label="APNID" prop="apnId">
-        <SelectPro v-model="form.apnId" valueKey="id" labelKey="name" :request="listApn" @change="handleChange" clearable />
+        <SelectPro v-model="form.apnId" valueKey="id" labelKey="name" :request="listApn" clearable />
       </el-form-item>
     </el-form>
     <template #footer>
