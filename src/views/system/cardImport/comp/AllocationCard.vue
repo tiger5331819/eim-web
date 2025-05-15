@@ -15,7 +15,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="归属项目" prop="projectId">
-        <el-select v-model="form.projectId" placeholder="请先选择归属企业" clearable :disabled="!company" style="width: 300px;">
+        <el-select v-model="form.projectId" placeholder="请先选择归属企业" clearable :disabled="company===''" style="width: 300px;">
           <el-option v-for="dict in projectDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
@@ -79,7 +79,7 @@ const data = reactive({
 const { form, rules } = toRefs(data);
 const AllocationCardRef = ref<ElFormInstance>();
 const allowNum = ref();
-const company = ref();
+const company = ref('');
 
 //  字典
 const batchDict = ref();
@@ -104,9 +104,10 @@ const batchChange = async () => {
 
 /** 企业发生变更 */
 const companyChange = async () => {
-    if (company.value) {
+  console.log('company--',company.value)
+  if(company.value!=='')
         projectDict.value = await getProjectDict(company.value);
-    }
+
 }
 
 /** 确定 */
