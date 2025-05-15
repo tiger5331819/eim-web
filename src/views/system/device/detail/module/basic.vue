@@ -62,6 +62,9 @@
           <dict-tag :options="sys_profile_status" :value="scope.row.state" />
         </template>
       </el-table-column>
+      <el-table-column label="APNID" align="center" prop="apnId" />
+      <el-table-column label="APN名称" align="center" prop="apnName" />
+      <el-table-column label="APN" align="center" prop="apn" />
       <el-table-column label="操作" fixed="right" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip v-if="scope.row.state == '0'" content="启用业务号" placement="top">
