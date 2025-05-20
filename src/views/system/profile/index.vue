@@ -56,6 +56,11 @@
             <dict-tag :options="sys_installed_status" :value="scope.row.installedState" />
           </template> -->
         </el-table-column>
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" fixed="right">
+          <template #default="scope">
+            <el-button link type="primary" @click="handleUpdate(scope.row)">更新</el-button>
+          </template>
+        </el-table-column>
       </el-table>
 
       <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
@@ -65,6 +70,8 @@
     <ResourceAllocation :dialog="allocationDialog" @close="close('allocation')" @submit="close('allocation', true)" />
     <!-- 批量导入 -->
     <BatchImport :dialog="importDialog" @close="close('import')" @submit="close('import', true)" />
+
+    <ApnModal v-if="apnDialog.visible" v-model:visible="apnDialog.visible" :row="rowInfo" @success="getList" />
   </div>
 </template>
 
@@ -74,6 +81,7 @@ import { ProfileTable } from '@/api/system/profile/types';
 import { getCompanyDict, getProjectDict } from '../cardImport/hooks/useGetDict';
 import ResourceAllocation from './comp/ResourceAllocation.vue';
 import BatchImport from './comp/BatchImport.vue';
+import ApnModal from './comp/apnModal.vue'
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 
@@ -81,7 +89,8 @@ const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const { sys_allocate_status, sys_profile_state, sys_installed_status } = toRefs<any>(proxy?.useDict('sys_allocate_status', 'sys_profile_state', 'sys_installed_status'));
 const companyDict = ref();
 const projectDict = ref();
-
+const apnDialog = reactive({visible:false})
+const rowInfo = ref<any>({})
 //  查询表单
 const queryFormRef = ref();
 const queryFormItem = reactive([
@@ -111,23 +120,26 @@ const queryParams = reactive<{ [key: string]: any }>({
 const loading = ref(true);
 const profileData = ref<ProfileTable>();
 const tableColumn = reactive([
-  { label: 'DP+来源', width: '200', align:"center", prop:"dpSource" },
-  { label: 'iccid', width: '200', align:"center", prop:"iccid" },
-  { label: 'imsi', width: '200', align:"center", prop:"imsi" },
-  { label: 'isdp aid', width: '200', align:"center", prop:"isdpAid" },
-  { label: 'eid', width: '200', align:"center", prop:"eid" },
-  { label: 'nickName', width: '200', align:"center", prop:"nick" },
-  { label: 'ProfileClass', width: '200', align:"center", prop:"ProfileClass" },
-  { label: 'profileType', width: '200', align:"center", prop:"type" },
-  { label: 'providerName', width: '200', align:"center", prop:"providerName" },
-  { label: 'state', width: '200', align:"center", prop:"state" },
-  { label: '下载次数', width: '200', align:"center", prop:"downloadTimes" },
-  { label: '确认码错误输入次数', width: '200', align:"center", prop:"codeErrorTimes" },
-  { label: '下载错误尝试次数', width: '200', align:"center", prop:"downloadErrorTimes" },
-  { label: 'createDate', width: '200', align:"center", prop:"createTime" },
-  { label: 'upDate', width: '200', align:"center", prop:"updateTime" },
+  // { label: 'DP+来源', width: '200', align:"center", prop:"dpSource" },
+  // { label: 'iccid', width: '200', align:"center", prop:"iccid" },
+  // { label: 'imsi', width: '200', align:"center", prop:"imsi" },
+  // { label: 'isdp aid', width: '200', align:"center", prop:"isdpAid" },
+  // { label: 'eid', width: '200', align:"center", prop:"eid" },
+  // { label: 'nickName', width: '200', align:"center", prop:"nick" },
+  // { label: 'ProfileClass', width: '200', align:"center", prop:"ProfileClass" },
+  // { label: 'profileType', width: '200', align:"center", prop:"type" },
+  // { label: 'providerName', width: '200', align:"center", prop:"providerName" },
+  // { label: 'state', width: '200', align:"center", prop:"state" },
+  // { label: '下载次数', width: '200', align:"center", prop:"downloadTimes" },
+  // { label: '确认码错误输入次数', width: '200', align:"center", prop:"codeErrorTimes" },
+  // { label: '下载错误尝试次数', width: '200', align:"center", prop:"downloadErrorTimes" },
+  // { label: 'createDate', width: '200', align:"center", prop:"createTime" },
+  // { label: 'upDate', width: '200', align:"center", prop:"updateTime" },
   { label: '运营商', width: '200', align:"center", prop:"carrierName" },
   { label: '批次', width: '200', align:"center", prop:"productionBatch" },
+    { label: 'APNID', width: '200', align:"center", prop:"apnId" },
+    { label: 'APN', width: '200', align:"center", prop:"apn" },
+    { label: '地区码', width: '200', align:"center", prop:"apnLocal" },
   { label: '分配状态', width: '200', align:"center", prop:"assignedState" },
   { label: '归属企业', width: '200', align:"center", prop:"companyName" },
   { label: '归属项目', width: '200', align:"center", prop:"projectName" },
@@ -189,7 +201,11 @@ const handleDataSync = async () => {
   handleQuery();
   loading.value = false;
 };
-
+//更新
+const handleUpdate=(row:any)=>{
+  rowInfo.value = row
+  apnDialog.visible = true
+}
 /** 下载模板 */
 const handleDownload = async () => {
   proxy?.download('/manager/profile/import/template', {}, `profile资源批量导入模板.xlsx`);

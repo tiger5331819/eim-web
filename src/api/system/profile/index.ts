@@ -55,3 +55,11 @@ export const handleAllocation = (form: AllocationForm) => {
     data: form
   });
 };
+
+//更新
+export const updateProfileApn = ({ id, apnId }: any) => {
+  return request({
+    url: `/manager/profile/${id}/apn/${apnId}`,
+    method: 'patch'
+  });
+};
