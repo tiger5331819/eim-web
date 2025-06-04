@@ -211,7 +211,7 @@ const submitForm = () => {
     if (valid) {
       buttonLoading.value = true;
       if (isEdit.value) {
-        await updateApn(form.value).finally(() =>  buttonLoading.value = false);
+        await updateApn(form.value,form.value.id).finally(() =>  buttonLoading.value = false);
       } else {
         await addApn(form.value).finally(() =>  buttonLoading.value = false);
       }

@@ -43,10 +43,10 @@ export const addApn = (data: ApnForm) => {
  * 修改apn
  * @param data
  */
-export const updateApn = (data: ApnForm) => {
+export const updateApn = (data: ApnForm, id: any) => {
   return request({
-    url: '/manager/apn',
-    method: 'put',
+    url: `/manager/apn/${id}`,
+    method: 'patch',
     data: data
   });
 };
