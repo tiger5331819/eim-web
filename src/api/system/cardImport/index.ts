@@ -95,3 +95,13 @@ export const cardProviderList = () => {
     method: 'get'
   });
 };
+
+/**
+ * @method:查询租户列表
+ */
+export const tenantList = () => {
+  return request({
+    url: `/system/tenant/list`,
+    method: 'get'
+  });
+};

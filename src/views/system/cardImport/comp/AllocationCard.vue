@@ -9,13 +9,13 @@
       <el-form-item label="允许分配数量">
         <el-input style="width: 300px;" v-model="allowNum" placeholder="上述条件全部输入完成后，进行统计" disabled />
       </el-form-item>
-      <el-form-item label="归属企业" prop="company">
-        <el-select v-model="company" placeholder="请选择" clearable style="width: 300px;" @change="companyChange">
+      <el-form-item label="所属租户" prop="tenantId">
+        <el-select v-model="tenantId" placeholder="请选择" clearable style="width: 300px;" @change="companyChange">
           <el-option v-for="dict in companyDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
-      <el-form-item label="归属项目" prop="projectId">
-        <el-select v-model="form.projectId" placeholder="请先选择归属企业" clearable :disabled="company===''" style="width: 300px;">
+      <el-form-item label="所属项目" prop="projectId">
+        <el-select v-model="form.projectId" placeholder="请先选择" clearable :disabled="tenantId === ''" style="width: 300px;">
           <el-option v-for="dict in projectDict" :key="dict.value" :label="dict.label" :value="dict.value" />
         </el-select>
       </el-form-item>
@@ -35,7 +35,7 @@
 <script setup name="AllocationCard" lang="ts">
 import { batchAllowableNumber, handleAllocation } from '@/api/system/cardImport';
 import { AllocationForm } from "@/api/system/cardImport/types";
-import { getBatchDict, getCompanyDict, getProjectDict } from '../hooks/useGetDict';
+import { getBatchDict, getCompanyDict, getProjectDict, getTenantDict } from '../hooks/useGetDict';
 
 const props = defineProps({
     dialog: {
@@ -79,7 +79,7 @@ const data = reactive({
 const { form, rules } = toRefs(data);
 const AllocationCardRef = ref<ElFormInstance>();
 const allowNum = ref();
-const company = ref('');
+const tenantId = ref('');
 
 //  字典
 const batchDict = ref();
@@ -89,7 +89,8 @@ const projectDict = ref();
 /** 更新字典 */
 const updateDict = async () => {
     batchDict.value = await getBatchDict();
-    companyDict.value = await getCompanyDict();
+    // companyDict.value = await getCompanyDict();
+    companyDict.value = await getTenantDict();
 };
 
 /** 批次发生变更 */
@@ -104,10 +105,10 @@ const batchChange = async () => {
 
 /** 企业发生变更 */
 const companyChange = async () => {
-  console.log('company--',company.value)
-  if(company.value!=='')
-        projectDict.value = await getProjectDict(company.value);
-
+  console.log('tenantId--',tenantId.value)
+  if(tenantId.value!=='') {
+    projectDict.value = await getProjectDict(tenantId.value);
+  }
 }
 
 /** 确定 */
@@ -129,7 +130,7 @@ const cancel = () => {
 /** 重置 */
 const reset = () => {
     allowNum.value = 0;
-    company.value = '';
+    tenantId.value = '';
     form.value = { ...initAllocationForm };
     AllocationCardRef.value?.resetFields();
 }

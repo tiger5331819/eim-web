@@ -1,4 +1,4 @@
-import { providerList, cardProviderList, companyList, projectList, allBatchList } from '@/api/system/cardImport';
+import { providerList, cardProviderList, companyList, projectList, allBatchList, tenantList } from '@/api/system/cardImport';
 
 export async function getproviderDict() {
   const res = await providerList();
@@ -58,6 +58,19 @@ export async function getBatchDict() {
     const _item = {
       label: item,
       value: item
+    };
+    return _item;
+  });
+  return target;
+}
+
+/** 获取下拉框数据：所属租户 */
+export async function getTenantDict() {
+  const res = await tenantList();
+  const target = res.rows.map((item: any) => {
+    const _item = {
+      label: item.companyName,
+      value: item.tenantId
     };
     return _item;
   });

@@ -30,7 +30,7 @@
                 <div class="el-upload__tip m-2" style="font-size: 16px">温馨提示：</div>
                 <div class="el-upload__tip m-2" style="font-size: 16px">1、请按照模板格式输入信息，数据量不要超过10000条；</div>
                 <div class="el-upload__tip m-2" style="font-size: 16px">
-                  2、只支持xlsx格式文件，其中EID、制卡商、运营商、批次信息为必填内容；预制种子号ICCID、预制EIM、归属企业、归属项目为非必填信息；
+                  2、只支持xlsx格式文件，其中EID、制卡商、运营商、批次信息为必填内容；预制种子号ICCID、预制EIM为非必填信息；
                 </div>
               </el-col>
             </el-row>
@@ -38,7 +38,8 @@
         </template>
       </el-upload>
     </div>
-    <el-card class=" mt-8">
+    <el-card v-if="paginatedData.length > 0" class=" mt-8">
+      <p>导入失败记录</p>
       <el-table :data="paginatedData">
         <el-table-column
           v-for="(item, index) in tableColumn"
@@ -71,7 +72,7 @@
       </el-pagination>
     </el-card>
 
-    <template #footer>
+    <template v-if="paginatedData.length > 0" #footer>
       <div class="dialog-footer">
         <el-button :loading="buttonLoading" type="primary" @click="downloadFailRecord">导出失败记录</el-button>
       </div>
@@ -81,6 +82,7 @@
 
 <script setup name="batchImport" lang="ts">
 import { globalHeaders } from "@/utils/request";
+import { ElMessageBox } from 'element-plus';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
 const props = defineProps({
@@ -123,8 +125,8 @@ const tableColumn = reactive([
     { label: '制卡商', width: '', align: 'center', prop: 'cardProviderName', slot: 'required' },
     { label: '运营商', width: '', align: 'center', prop: 'providerName', slot: 'required' },
     { label: '批次', width: '', align: 'center', prop: 'productionBatch', slot: 'required' },
-    { label: '归属企业', width: '', align: 'center', prop: 'companyName' },
-    { label: '归属项目', width: '', align: 'center', prop: 'projectName' },
+    { label: '所属租户', width: '', align: 'center', prop: 'companyName' },
+    { label: '所属项目', width: '', align: 'center', prop: 'projectName' },
     { label: '数据校验', width: '', align: 'center', prop: 'result' },
 ]);
 //  分页器
@@ -145,20 +147,30 @@ function beforeUpload(file: any) {
   let type = file.name.substr((file.name.lastIndexOf(".")))
   if (type != '.xlsx') {
     proxy?.$modal.msgError("文件格式错误");
-    return false
+    return false;
   }
-  let promise = new Promise((resolve) => {
-    nextTick(function () {
-      resolve(true);
-    });
-  });
-  return promise;
+  return ElMessageBox.confirm('确认批量导入吗？')
+  .then(() => {
+    return true;
+  })
+  .catch(() => {
+    return false;
+  })
 }
 
 function uploadFileSuccess(res: any) {
   if (res.code == 200) {
     uploadSuccess.value = true;
-    proxy?.$modal.msgSuccess("文件上传成功");
+    // proxy?.$modal.msgSuccess("文件上传成功");
+    ElMessageBox.confirm(
+      '导入完成',
+      '提示',
+      {
+        showCancelButton: false
+      }
+    ).then(() => {
+      return true;
+    })
     tableData.value = res.data.importResultList || [];
     errorToken.value = res.data.errorToken;
     totalItems.value = tableData.value.length;
@@ -167,6 +179,7 @@ function uploadFileSuccess(res: any) {
     paginatedData.value = tableData.value.slice(start, end);
   } else {
     proxy?.$modal.msgError("文件上传失败");
+    init();
     uploadSuccess.value = false;
   }
 }

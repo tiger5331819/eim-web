@@ -2,23 +2,37 @@
   <div class="p-2">
     <div class="search">
       <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
-        <el-form-item v-for="(item, index) in queryFormItem" :key="index" :label="item.label" :prop="item.prop">
-          <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
-          <el-select
-            v-if="item.type == 'select'"
-            v-model="queryParams[item.prop]"
-            :placeholder="item.placeholder"
-            clearable
-            :disabled="item.prop == 'projectId' && !queryParams.companyId"
-            @change="selectChange(item.prop)"
-          >
-            <el-option v-for="dict in item.dict" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-        </el-form-item>
+        <el-row>
+          <el-col :span="18">
+            <el-form-item v-for="(item, index) in queryFormItem.slice(0, 3)" :key="index" :label="item.label" :prop="item.prop">
+              <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item>
+              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+              <el-button v-if="!showExtra" type="text" icon="ArrowDown" @click="showExtra = true">展开</el-button>
+              <el-button v-else type="text" icon="ArrowUp" @click="showExtra = false">收起</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="showExtra">
+          <el-form-item v-for="(item, index) in queryFormItem.slice(3)" :key="index" :label="item.label" :prop="item.prop">
+            <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
+            <el-select
+              :style="{'width': '192px'}"
+              v-if="item.type == 'select'"
+              v-model="queryParams[item.prop]"
+              :placeholder="item.placeholder"
+              clearable
+              :disabled="item.prop == 'projectId' && !queryParams.companyId"
+              @change="selectChange(item.prop)"
+            >
+              <el-option v-for="dict in item.dict" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </el-select>
+          </el-form-item>
+        </el-row>
       </el-form>
     </div>
 
@@ -91,6 +105,7 @@ const projectDict = ref();
 
 //  搜索
 const queryFormRef = ref();
+const showExtra = ref(false);
 const queryParams = reactive<{ [key: string]: any }>({
   pageNum: 1,
   pageSize: 10,
@@ -104,10 +119,11 @@ const queryParams = reactive<{ [key: string]: any }>({
 const queryFormItem = reactive([
   { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
   { label: '预制种子号', placeholder: '请输入', prop: 'iccid', type: 'input' },
-  { label: '在线状态', placeholder: '请选择', prop: 'online', type: 'select', dict: sys_device_status },
   { label: 'EIMId', placeholder: '请输入', prop: 'eimFqdn', type: 'input' },
-  { label: '归属企业', placeholder: '请选择', prop: 'companyId', type: 'select', dict: companyDict },
-  { label: '归属项目', placeholder: '请选择', prop: 'projectId', type: 'select', dict: projectDict },
+  { label: '在线状态', placeholder: '请选择', prop: 'online', type: 'select', dict: sys_device_status },
+  { label: '设备名称', placeholder: '请输入', prop: 'name', type: 'input' },
+  { label: '所属项目', placeholder: '请选择', prop: 'projectName', type: 'input' },
+  { label: '所属租户', placeholder: '请选择', prop: 'tenantName', type: 'input' },
 ]);
 
 //  表格按钮组
@@ -131,6 +147,8 @@ const tableColumn = reactive([
   { label: '业务号', width: '', align: 'center', prop: 'profileCount' },
   { label: '在线状态', width: '', align: 'center', prop: 'online', slot: 'online' },
   { label: 'EIMId', width: '', align: 'center', prop: 'eimFqdn' },
+  { label: '所属项目', width: '', align: 'center', prop: 'projectName' },
+  { label: '所属租户', width: '', align: 'center', prop: 'companyName' },
   // { label: '创建时间', width: '', align: 'center', prop: 'creationTime' },
 ]);
 
@@ -271,7 +289,7 @@ const close = (type: string, edit?: boolean) => {
 };
 
 onMounted(() => {
-  updateDict();
+  // updateDict();
   getList();
 });
 </script>

@@ -2,23 +2,45 @@
   <div class="p-2">
     <div class="search">
       <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
-        <el-form-item v-for="(item, index) in queryFormItem" :key="index" :label="item.label" :prop="item.prop">
-          <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
-          <el-select
-            v-if="item.type == 'select'"
-            v-model="queryParams[item.prop]"
-            :placeholder="item.placeholder"
-            clearable
-            :disabled="item.prop == 'projectId' && !queryParams.companyId"
-            @change="selectChange(item.prop)"
-          >
-            <el-option v-for="dict in item.dict" :key="dict.value" :label="dict.label" :value="dict.value" />
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-          <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-        </el-form-item>
+        <el-row>
+          <el-col :span="18">
+            <el-form-item v-for="(item, index) in queryFormItem.slice(0, 3)" :key="index" :label="item.label" :prop="item.prop">
+              <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item>
+              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+              <el-button v-if="!showExtra" type="text" icon="ArrowDown" @click="showExtra = true">展开</el-button>
+              <el-button v-else type="text" icon="ArrowUp" @click="showExtra = false">收起</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row v-if="showExtra">
+          <el-form-item v-for="(item, index) in queryFormItem.slice(3)" :key="index" :label="item.label" :prop="item.prop">
+            <el-input v-if="item.type == 'input'" v-model="queryParams[item.prop]" :placeholder="item.placeholder"></el-input>
+            <el-select
+              v-if="item.type == 'select'"
+              v-model="queryParams[item.prop]"
+              :placeholder="item.placeholder"
+              clearable
+              :disabled="item.prop == 'projectId' && !queryParams.companyId"
+              @change="selectChange(item.prop)"
+            >
+              <el-option v-for="dict in item.dict" :key="dict.value" :label="dict.label" :value="dict.value" />
+            </el-select>
+            <el-date-picker
+              v-if="item.type == 'date'"
+              v-model="queryParams.dateRange"
+              type="daterange"
+              unlink-panels
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </el-form-item>
+        </el-row>
       </el-form>
     </div>
 
@@ -81,19 +103,26 @@ const queryParams = reactive<{ [key: string]: any }>({
   pageSize: 10,
   eid: undefined,
   iccid: undefined,
-  providerName: undefined,
-  companyName: undefined,
-  projectName: undefined,
-  allocate: undefined
+  eimFqdn: undefined,
+  cardProviderName: undefined,
+  projectId: undefined,
+  tenantId: undefined,
+  operator: undefined,
+  dateRange: undefined,
+  startCreationTime: undefined,
+  endCreationTime: undefined
 });
 const queryFormRef = ref();
+const showExtra = ref(false);
 const queryFormItem = reactive<any>([
   { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
-  { label: 'ICCID', placeholder: '请输入', prop: 'iccid', type: 'input' },
-  { label: '制卡商', placeholder: '请选择', prop: 'providerName', type: 'select', dict: providerDict },
-  { label: '归属企业', placeholder: '请选择', prop: 'companyId', type: 'select', dict: companyDict },
-  { label: '归属项目', placeholder: '请选择', prop: 'projectId', type: 'select', dict: projectDict },
-  { label: '分配状态', placeholder: '请选择', prop: 'allocate', type: 'select', dict: sys_allocate_status },
+  { label: '预制种子号', placeholder: '请输入', prop: 'iccid', type: 'input' },
+  { label: '预制EIM', placeholder: '请输入', prop: 'eimFqdn', type: 'input' },
+  { label: '制卡商', placeholder: '请选择', prop: 'cardProviderName', type: 'select', dict: providerDict },
+  { label: '所属项目', placeholder: '请选择', prop: 'projectName', type: 'input' },
+  { label: '所属租户', placeholder: '请选择', prop: 'tenantName', type: 'input' },
+  { label: '操作人', placeholder: '请选择', prop: 'operator', type: 'input' },
+  { label: '入库时间', placeholder: '请选择', prop: 'dateRange', type: 'date' },
 ]);
 
 // 表格
@@ -106,9 +135,11 @@ const tableColumn = reactive([
   { label: '预制EIM', width: '', align: 'center', prop: 'eimFqdn' },
   { label: '制卡商', width: '', align: 'center', prop: 'cardProviderName' },
   { label: '运营商', width: '', align: 'center', prop: 'providerName' },
-  { label: '批次', width: '', align: 'center', prop: 'productionBatch' },
-  { label: '归属企业', width: '', align: 'center', prop: 'companyName' },
+  { label: '生产批次', width: '', align: 'center', prop: 'productionBatch' },
   { label: '归属项目', width: '', align: 'center', prop: 'projectName' },
+  { label: '归属租户', width: '', align: 'center', prop: 'companyName' },
+  { label: '操作人', width: '', align: 'center', prop: 'operator' },
+  { label: '入库时间', width: '', align: 'center', prop: 'creationTime' },
 ]);
 
 // 弹窗
@@ -126,7 +157,7 @@ const importDialog = reactive<DialogOption>({
 const updateDict = async () => {
  // providerDict.value = await getproviderDict();
  providerDict.value = await getCardProviderDict();
-  companyDict.value = await getCompanyDict();
+  // companyDict.value = await getCompanyDict();
 };
 
 /** 归属企业变化影响归属项目 */
@@ -139,7 +170,13 @@ const selectChange = async (type: string) => {
 /** 查询卡信息列表 */
 const getList = async () => {
   loading.value = true;
-  const res = await cardImportList(queryParams);
+  const params = JSON.parse(JSON.stringify(queryParams))
+  if (Array.isArray(params.dateRange)) {
+    params.startCreationTime = toISOStringFormat(params.dateRange[0]);
+    params.endCreationTime = toISOStringFormat(params.dateRange[1], false);
+    delete params.dateRange;
+  }
+  const res = await cardImportList(params);
   cardData.value = res.rows;
   total.value = res.total;
   loading.value = false;
@@ -177,6 +214,19 @@ const close = (type: string, edit?: boolean) => {
   if (type == 'allocation') { allocationDialog.visible = false; }
   if (type == 'import') { importDialog.visible = false; }
   if (edit) { getList(); }
+};
+
+/** 时间格式化 */
+const toISOStringFormat = (dateInput: Date, isStart = true) => {
+  if (!dateInput) return;
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : new Date(dateInput);
+  const pad = (n: number) => n < 10 ? '0' + n : n;
+  if (isStart) {
+    date.setHours(0, 0, 0, 0);
+  } else {
+    date.setHours(23, 59, 59, 999);
+  }
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${date.getMilliseconds()}`;
 };
 
 onMounted(() => {
