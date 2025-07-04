@@ -7,6 +7,7 @@ export interface CompanyForm {
 
 export interface ProjectForm {
   id?: string; // 项目唯一标识
+  tenantId?: string; // 所属租户id
   companyId?: string; //    所属企业id
   cNumber?: string; // 所属企业编号
   cName?: string; //   所属企业名称

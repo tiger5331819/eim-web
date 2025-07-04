@@ -1,143 +1,138 @@
 <template>
   <div class="p-2">
+    <div class="search">
+      <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
+        <el-row>
+          <el-col :span="18">
+            <el-form-item label="项目名称" prop="name">
+              <el-input v-model="queryParams.name" placeholder="请输入"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="6">
+            <el-form-item>
+              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
     <el-card shadow="hover">
       <template #header>
         <el-row :gutter="10">
           <el-col :span="1.5">
-            <el-button type="primary" @click="handleAdd('新增')">新增</el-button>
+            <el-button type="primary" @click="handleUpdate('添加')">添加</el-button>
           </el-col>
         </el-row>
       </template>
 
-      <el-table
-        ref="tableRef"
-        v-loading="loading"
-        :data="companyData"
-        row-key="id"
-        :tree-props="{ children: 'projcetList', hasChildren: 'hasChildren' }"
-        :default-expand-all="isExpandAll"
-      >
-        <el-table-column prop="name" label="企业管理"></el-table-column>
-        <el-table-column label="有效时间">
-          <template #default="scope">
-            <span v-if="scope.row.startTime && scope.row.endTime">{{ parseTime(scope.row.startTime) + ' ~ ' + parseTime(scope.row.endTime) }}</span>
-            <span></span>
-          </template>
-        </el-table-column>
-        <!-- <el-table-column prop="profileCount" label="资源数量"></el-table-column> -->
-        <el-table-column prop="deviceCount" label="设备数量"></el-table-column>
-        <el-table-column prop="remark" label="备注"></el-table-column>
-        <el-table-column prop="creationTime" label="创建时间">
-          <template #default="scope">
-            <span>{{ parseTime(scope.row.creationTime) }}</span>
+      <el-table v-loading="loading" :data="companyData">
+        <el-table-column
+          v-for="(item, index) in tableColumn"
+          :key="index"
+          :label="item.label"
+          :width="item.width"
+          :align="item.align"
+          :prop="item.prop"
+        >
+          <template v-if="item.slot === 'time'" #default="scope">
+            <span>{{ scope.row.startTime + ' ~ ' + scope.row.endTime }}</span>
           </template>
         </el-table-column>
         <el-table-column fixed="right" align="center" label="操作">
           <template #default="scope">
-            <el-tooltip content="编辑" placement="top">
-              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:dept:edit']" />
-            </el-tooltip>
-            <el-tooltip v-if="scope.row.projcetList" content="创建项目" placement="top">
-              <el-button link type="primary" icon="Plus" @click="handleCreat('创建项目', scope.row)" v-hasPermi="['system:dept:add']" />
-            </el-tooltip>
-            <el-tooltip v-if="scope.row.profileCount == 0 && scope.row.profileCount == 0" content="删除" placement="top">
-              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:dept:remove']" />
-            </el-tooltip>
+            <el-button link type="primary" @click="handleUpdate('编辑', scope.row)" v-hasPermi="['system:dept:edit']">编辑</el-button>
+            <el-button link type="danger" @click="handleDelete(scope.row)" v-hasPermi="['system:dept:remove']">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
+      <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
 
-    <AddCompany :dialog="addCompany" :detail="detailRow" @close="close('add')" @submit="close('add', true)" />
-    <CreatProject :dialog="creatProject" :parent="parentRow" @close="close('creat')" @submit="close('creat', true)" />
+    <Update :dialog="updateDialog" :detail="detailRow" @close="close('project')" @submit="close('project', true)" />
   </div>
 </template>
 
 <script setup name="company" lang="ts">
 import { CompanyTable } from "@/api/system/company/types";
-import { companyList, handledeleteCompany, handledeleteProject } from '@/api/system/company';
-import AddCompany from './comp/AddCompany.vue';
-import CreatProject from './comp/CreatProject.vue';
+import { companyList, handledeleteProject } from '@/api/system/company';
+import useUserStore from "@/store/modules/user";
+import Update from './comp/CreatProject.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
+const { tenantId } = useUserStore();
+
+const queryParams = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  name: undefined
+});
+const queryFormRef = ref();
+
 //  表格
-const tableRef = ref();
 const loading = ref(true);
+const total = ref(0);
 const companyData = ref<CompanyTable[]>([]);
-const isExpandAll = ref(true);
+const tableColumn = reactive([
+  { label: '项目编号', width: '', align: 'center', prop: 'code' },
+  { label: '项目名称', width: '', align: 'center', prop: 'name' },
+  { label: '设备数量', width: '', align: 'center', prop: 'deviceCount' },
+  { label: '有效期', width: '300', align: 'center', prop: 'time', slot: 'time' },
+  { label: '所属租户', width: '', align: 'center', prop: 'companyName' },
+  { label: '备注', width: '', align: 'center', prop: 'remark' },
+  { label: '创建人', width: '', align: 'center', prop: 'creationBy' },
+  { label: '创建时间', width: '', align: 'center', prop: 'creationTime' },
+]);
 
 //  弹窗
-const addCompany = reactive<DialogOption>({
-  title: '新增',
+const updateDialog = reactive<DialogOption>({
+  title: '添加',
   visible: false
 });
-const creatProject = reactive<DialogOption>({
-  title: '创建项目',
-  visible: false
-});
-const detailRow = ref<CompanyTable>();//  当前企业信息
-const parentRow = ref<CompanyTable>();//  传递父级信息
+const detailRow = ref<CompanyTable>();//  当前项目信息
 
 /** 获取列表 */
 const getList = async() => {
   loading.value = true;
   const res = await companyList();
-  companyData.value = res.data.map((item: CompanyTable) => {
-    if (item.projcetList && item.projcetList.length > 0) {
-      item.projcetList = item.projcetList.map((child: CompanyTable) => {
-        delete child.projcetList;
-        return child
-      });
-    }
-    return item;
-  });
-  loading.value = false
+  companyData.value = res.data;
+  total.value = res.total || 0;
+  loading.value = false;
 };
 
-/** 新增企业 */
-const handleAdd = (title?: string, row?: CompanyTable) => {
-  addCompany.title = title;
-  addCompany.visible = true;
-  if (row) {
-    detailRow.value = row;
-  }
+/** 搜索按钮操作 */
+const handleQuery = () => {
+  queryParams.pageNum = 1;
+  getList();
 };
 
-/** 更新企业/项目 */
-const handleUpdate = (row: CompanyTable) => {
-    if (row.projcetList) {
-      //  存在子级，编辑企业
-      handleAdd('编辑', row);
-    } else {
-      //  编辑项目
-      handleCreat('编辑项目', row);
-    }
+/** 重置按钮操作 */
+const resetQuery = () => {
+  queryFormRef.value?.resetFields();
+  handleQuery();
 };
 
 /** 新增项目 */
-const handleCreat = (title?: string, row?: CompanyTable) => {
-    parentRow.value = row;
-    creatProject.title = title;
-    creatProject.visible = true;
+const handleUpdate = (title?: string, row?: CompanyTable) => {
+    detailRow.value = row;
+    updateDialog.title = title;
+    updateDialog.visible = true;
 };
 
 /** 弹窗关闭 */
 const close = (type: string, edit?: boolean) => {
-  if (type == 'add') { addCompany.visible = false; }
-  if (type == 'creat') { creatProject.visible = false; }
+  if (type == 'project') { updateDialog.visible = false; }
   if (edit) { getList(); }
 };
 
 /** 删除企业/项目 */
 const handleDelete = async(row: CompanyTable) => {
-  if (row.companyId == undefined) {
-    await proxy?.$modal.confirm('是否确认删除名称为"' + row.name + '"的企业?');
-    await handledeleteCompany(row.id);
-  } else {
-    await proxy?.$modal.confirm('是否确认删除名称为"' + row.name + '"的项目?');
-    await handledeleteProject(row.companyId, row.id);
-  }
+  await proxy?.$modal.confirm('不可恢复，确认删除吗？');
+  await handledeleteProject(row.companyId, row.id)
+  .then((res) => {
+    console.log(res);
+  })
   await getList();
   proxy?.$modal.msgSuccess("删除成功");
 };

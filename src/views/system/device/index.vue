@@ -12,8 +12,8 @@
             <el-form-item>
               <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
               <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-              <el-button v-if="!showExtra" type="text" icon="ArrowDown" @click="showExtra = true">展开</el-button>
-              <el-button v-else type="text" icon="ArrowUp" @click="showExtra = false">收起</el-button>
+              <el-button v-if="!showExtra" link icon="ArrowDown" @click="showExtra = true">展开</el-button>
+              <el-button v-else link icon="ArrowUp" @click="showExtra = false">收起</el-button>
             </el-form-item>
           </el-col>
         </el-row>
@@ -141,12 +141,9 @@ const deviceData = ref();
 const tableColumn = reactive([
   { label: 'EID', width: '', align: 'center', prop: 'eid' },
   { label: '预制种子号', width: '', align: 'center', prop: 'iccid' },
-  { label: '归属企业', width: '', align: 'center', prop: 'companyName' },
-  { label: '归属项目', width: '', align: 'center', prop: 'projectName' },
-  { label: '设备名称', width: '', align: 'center', prop: 'name' },
-  { label: '业务号', width: '', align: 'center', prop: 'profileCount' },
-  { label: '在线状态', width: '', align: 'center', prop: 'online', slot: 'online' },
   { label: 'EIMId', width: '', align: 'center', prop: 'eimFqdn' },
+  { label: '设备名称', width: '', align: 'center', prop: 'name' },
+  { label: '在线状态', width: '', align: 'center', prop: 'online', slot: 'online' },
   { label: '所属项目', width: '', align: 'center', prop: 'projectName' },
   { label: '所属租户', width: '', align: 'center', prop: 'companyName' },
   // { label: '创建时间', width: '', align: 'center', prop: 'creationTime' },

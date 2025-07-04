@@ -6,7 +6,7 @@ import { CompanyForm, ProjectForm } from './types';
  */
 export const companyList = () => {
   return request({
-    url: '/manager/company/list',
+    url: `/manager/company/list`,
     method: 'get'
   });
 };
@@ -101,5 +101,25 @@ export const handledeleteProject = (companyId: string, ids: string) => {
   return request({
     url: `/manager/company/${companyId}/project/${ids}`,
     method: 'delete'
+  });
+};
+
+/**
+ * @method:查询租户列表
+ */
+export const tenantList = () => {
+  return request({
+    url: `/system/tenant/list`,
+    method: 'get'
+  });
+};
+
+/**
+ * @method:查询用户租户信息
+ */
+export const tenantInfo = () => {
+  return request({
+    url: `/system/user/getTenant`,
+    method: 'get'
   });
 };

@@ -12,8 +12,8 @@
             <el-form-item>
               <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
               <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-              <el-button v-if="!showExtra" type="text" icon="ArrowDown" @click="showExtra = true">展开</el-button>
-              <el-button v-else type="text" icon="ArrowUp" @click="showExtra = false">收起</el-button>
+              <el-button v-if="!showExtra" link icon="ArrowDown" @click="showExtra = true">展开</el-button>
+              <el-button v-else link icon="ArrowUp" @click="showExtra = false">收起</el-button>
             </el-form-item>
           </el-col>
         </el-row>

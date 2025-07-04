@@ -1,19 +1,15 @@
 <template>
   <el-dialog :title="dialog.title" v-model="visible" destroy-on-close append-to-body width="600px" @close="cancel">
-    <el-form ref="creatProjectRef" :model="form" :rules="rules" label-width="100px">
-      <el-form-item label="企业编号" prop="cNumber">
-        <el-input v-model="cNumber" disabled />
-      </el-form-item>
-      <el-form-item label="企业名称" prop="cName">
-        <el-input v-model="cName" disabled />
-      </el-form-item>
-      <el-form-item v-if="isEdit" label="项目编号" prop="id">
-        <el-input v-model="form.id" disabled />
-      </el-form-item>
+    <el-form ref="projectRef" :model="form" :rules="rules" label-width="100px">
       <el-form-item label="项目名称" prop="name">
         <el-input v-model="form.name" placeholder="请输入部门名称" />
       </el-form-item>
-      <el-form-item label="有效时间" prop="time">
+      <el-form-item v-if="isAdmin" label="所属租户" prop="tenantId">
+        <el-select v-model="form.tenantId" :disabled="isAdmin && isEdit" placeholder="请选择" clearable style="width: 100%;">
+          <el-option v-for="dict in companyDict" :key="dict.value" :label="dict.label" :value="dict.value" />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="有效期" prop="time">
         <el-date-picker v-model="form.time" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
         </el-date-picker>
       </el-form-item>
@@ -31,22 +27,48 @@
 </template>
 
 <script setup name="CreatProject" lang="ts">
-import { getCompanyDetail, getProjectDetail, addProject, updateProject } from '@/api/system/company';
+import { getProjectDetail, addProject, updateProject, tenantList, tenantInfo } from '@/api/system/company';
 import { ProjectForm } from "@/api/system/company/types";
 import { parseTime } from '@/utils/ruoyi';
+import useUserStore from "@/store/modules/user";
 
+const { roles } = useUserStore();
+const isAdmin = roles.includes('superadmin');
 const props = defineProps({
     dialog: {
         type: Object,
         default: null
     },
-    parent: {
+    detail: {
         type: Object,
         default: null
     }
 });
+
 const emits = defineEmits(['submit', 'close']);
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
+
+const companyDict = ref();
+
+/** 更新字典 */
+const updateDict = async () => {
+    if (isAdmin) {
+      const res = await tenantList();
+      companyDict.value = res.rows.map((item: any) => {
+        return {
+          label: item.companyName,
+          value: item.tenantId
+        }
+      })
+    } else {
+      const res = await tenantInfo();
+      companyDict.value = [{
+        label: res.data.companyName,
+        value: res.data.tenantId
+      }]
+      form.value.tenantId = res.data.tenantId
+    }
+};
 
 // 弹窗控制
 const visible = computed({
@@ -62,6 +84,7 @@ const visible = computed({
 const initFormData: ProjectForm = {
     id: undefined,
     name: undefined,
+    tenantId: undefined,
     time: [],
     startTime: undefined,
     endTime: undefined,
@@ -73,41 +96,31 @@ const data = reactive({
         name: [
             { required: true, message: "项目名称不能为空", trigger: "blur" }
         ],
-        time: [
-            { required: true, message: "请选择有效时间", trigger: "blur" }
+        tenantId: [
+            { required: true, message: "请选择租户", trigger: "change" }
         ]
     }
 });
 const { form, rules } = toRefs(data);
-const cNumber = ref();
-const cName = ref();
-
 const isEdit = ref(false);
 
 //  表单
-const creatProjectRef = ref<ElFormInstance>();
-
-/** 获取父级企业编号及名称 */
-const getParentInfo = async(id: string) => {
-  const res = await getCompanyDetail(id);
-  cNumber.value = res.data.companyCode;
-  cName.value = res.data.name;
-};
+const projectRef = ref<ElFormInstance>();
 
 /** 确定 */
 const submitForm = () => {
-  creatProjectRef.value?.validate(async (valid: boolean) => {
-      if (valid) {
-          if (form.value.time) {
-            form.value.startTime = parseTime(form.value.time[0]) as string;
-            form.value.endTime = parseTime(form.value.time[1]) as string;
-          }
-          delete form.value.time;
-          isEdit.value && form.value.id ? await updateProject(props.parent.companyId, form.value.id, form.value) : await addProject(props.parent.id, form.value);
-          let _message = isEdit.value ? '编辑成功' : "新增成功";
-          proxy?.$modal.msgSuccess(_message);
-          emits('submit');
-      }
+  projectRef.value?.validate(async (valid: boolean) => {
+    if (valid) {
+        if (form.value.time) {
+          form.value.startTime = parseTime(form.value.time[0]) as string;
+          form.value.endTime = parseTime(form.value.time[1]) as string;
+        }
+        delete form.value.time;
+        isEdit.value && form.value.id ? await updateProject(form.value.tenantId as string, form.value.id, form.value) : await addProject(form.value.tenantId as string, form.value);
+        let _message = isEdit.value ? '编辑成功' : "添加成功";
+        proxy?.$modal.msgSuccess(_message);
+        emits('submit');
+    }
   });
 }
 /** 取消 */
@@ -119,20 +132,21 @@ const cancel = () => {
 const reset = () => {
     isEdit.value = false;
     form.value = { ...initFormData };
-    creatProjectRef.value?.resetFields();
+    projectRef.value?.resetFields();
 }
 
 /** 监听是否为编辑 */
 watch(() => props.dialog, async (v) => {
-  if (v.title == '编辑项目') {
-    getParentInfo(props.parent.companyId);
+  if (v.title == '编辑') {
     isEdit.value = true;
-    const res = await getProjectDetail(props.parent.companyId, props.parent.id);
+    const res = await getProjectDetail(props.detail.tenantId, props.detail.id);
     form.value = res.data;
     form.value.time = [res.data.startTime, res.data.endTime];
   } else {
-    getParentInfo(props.parent.id);
     reset();
+  }
+  if (v.visible) {
+    updateDict();
   }
 }, { deep: true, immediate: true });
 </script>
