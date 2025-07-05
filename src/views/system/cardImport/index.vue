@@ -136,8 +136,8 @@ const tableColumn = reactive([
   { label: '制卡商', width: '', align: 'center', prop: 'cardProviderName' },
   { label: '运营商', width: '', align: 'center', prop: 'providerName' },
   { label: '生产批次', width: '', align: 'center', prop: 'productionBatch' },
-  { label: '归属项目', width: '', align: 'center', prop: 'projectName' },
-  { label: '归属租户', width: '', align: 'center', prop: 'companyName' },
+  { label: '所属项目', width: '', align: 'center', prop: 'projectName' },
+  { label: '所属租户', width: '', align: 'center', prop: 'companyName' },
   { label: '操作人', width: '', align: 'center', prop: 'operator' },
   { label: '入库时间', width: '', align: 'center', prop: 'creationTime' },
 ]);

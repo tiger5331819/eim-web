@@ -98,8 +98,8 @@ const queryFormItem = reactive([
   { label: 'ICCID', placeholder: '请输入', prop: 'iccid', type: 'input' },
   { label: 'EID', placeholder: '请输入', prop: 'eid', type: 'input' },
   { label: 'state', placeholder: '请输入', prop: 'state', type: 'select', dict: sys_profile_state },
-  { label: '归属企业', placeholder: '请输入', prop: 'companyId', type: 'select', dict: companyDict },
-  { label: '归属项目', placeholder: '请输入', prop: 'projectId', type: 'select', dict: projectDict },
+  { label: '所属租户', placeholder: '请输入', prop: 'tenantName', type: 'input' },
+  { label: '所属项目', placeholder: '请输入', prop: 'projectName', type: 'input' },
   { label: '分配状态', placeholder: '请输入', prop: 'assigned', type: 'select', dict: sys_allocate_status },
   { label: '下号状态', placeholder: '请输入', prop: 'installed', type: 'select',  dict: sys_installed_status },
 ]);
@@ -137,12 +137,12 @@ const tableColumn = reactive([
   // { label: 'upDate', width: '200', align:"center", prop:"updateTime" },
   { label: '运营商', width: '200', align:"center", prop:"carrierName" },
   { label: '批次', width: '200', align:"center", prop:"productionBatch" },
-    { label: 'APNID', width: '200', align:"center", prop:"apnId" },
-    { label: 'APN', width: '200', align:"center", prop:"apn" },
-    { label: '地区码', width: '200', align:"center", prop:"apnLocal" },
+  { label: 'APNID', width: '200', align:"center", prop:"apnId" },
+  { label: 'APN', width: '200', align:"center", prop:"apn" },
+  { label: '地区码', width: '200', align:"center", prop:"apnLocal" },
   { label: '分配状态', width: '200', align:"center", prop:"assignedState" },
-  { label: '归属企业', width: '200', align:"center", prop:"companyName" },
-  { label: '归属项目', width: '200', align:"center", prop:"projectName" },
+  { label: '所属企业', width: '200', align:"center", prop:"companyName" },
+  { label: '所属项目', width: '200', align:"center", prop:"projectName" },
   { label: '下号状态', width: '200', align:"center", prop:"installedState" },
 ]);
 
@@ -161,7 +161,7 @@ const importDialog = reactive<DialogOption>({
 
 /** 更新字典 */
 const updateDict = async () => {
-  companyDict.value = await getCompanyDict();
+  // companyDict.value = await getCompanyDict();
 };
 
 /** 归属企业变化影响归属项目 */

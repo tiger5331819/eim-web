@@ -56,12 +56,10 @@
 <script setup name="company" lang="ts">
 import { CompanyTable } from "@/api/system/company/types";
 import { companyList, handledeleteProject } from '@/api/system/company';
-import useUserStore from "@/store/modules/user";
 import Update from './comp/CreatProject.vue';
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance
 
-const { tenantId } = useUserStore();
 
 const queryParams = reactive({
   pageNum: 1,
@@ -96,7 +94,7 @@ const detailRow = ref<CompanyTable>();//  当前项目信息
 const getList = async() => {
   loading.value = true;
   const res = await companyList();
-  companyData.value = res.data;
+  companyData.value = res.rows;
   total.value = res.total || 0;
   loading.value = false;
 };
