@@ -1,13 +1,14 @@
 import request from '@/utils/request';
-import { CompanyForm, ProjectForm } from './types';
+import { CompanyForm, ProjectForm, QueryFrom } from './types';
 
 /**
  * @method: 获取企业列表
  */
-export const companyList = () => {
+export const companyList = (query: QueryFrom) => {
   return request({
     url: `/manager/company/list`,
-    method: 'get'
+    method: 'get',
+    params: query
   });
 };
 

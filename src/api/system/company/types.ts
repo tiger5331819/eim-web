@@ -1,3 +1,5 @@
+import { Pagination } from '@/api/types';
+
 export interface CompanyForm {
   id?: string; // 企业唯一标识
   companyCode?: string; // 企业编号:无法修改
@@ -28,4 +30,8 @@ export interface CompanyTable {
   remark: string; // 备注
   creatTime: string; //  创建时间
   [key: string]: any; // 接口多余数据
+}
+
+export interface QueryFrom extends Pagination {
+  name?: string; // eid
 }

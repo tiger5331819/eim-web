@@ -1,7 +1,7 @@
 <template>
   <div class="p-2">
     <div class="search">
-      <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px">
+      <el-form :model="queryParams" ref="queryFormRef" :inline="true" label-width="88px" @submit.prevent>
         <el-row>
           <el-col :span="18">
             <el-form-item label="项目名称" prop="name">
@@ -93,7 +93,7 @@ const detailRow = ref<CompanyTable>();//  当前项目信息
 /** 获取列表 */
 const getList = async() => {
   loading.value = true;
-  const res = await companyList();
+  const res = await companyList(queryParams);
   companyData.value = res.rows;
   total.value = res.total || 0;
   loading.value = false;
