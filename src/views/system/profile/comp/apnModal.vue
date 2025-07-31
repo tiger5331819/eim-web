@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="A更新" v-model="dialogVisible" append-to-body>
+  <el-dialog title="APN更新" v-model="dialogVisible" append-to-body>
     <el-form class="mt-10" ref="formRef" :rules="rules" :model="form" label-width="100px">
       <el-form-item label="ICCID" prop="iccid">
         <el-input v-model="form.iccid" disabled placeholder="请输入" />

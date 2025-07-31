@@ -251,14 +251,17 @@ const handleAdd = (row?: any) => {
 const handleUpdate = async () => {
   eid.value = localStorage.getItem('eid')
   loading.value = true;
-  const res = await updateDetail(eid.value)
-  if (res.code == 200) {
+  try {
+    const res = await updateDetail(eid.value)
+    if (res.code == 200) {
+      getList();
+      proxy?.$modal.msgSuccess("操作成功");
+    } else {
+      getList();
+      proxy?.$modal.msgError("操作失败");
+    }
+  } catch (error) {
     getList();
-    proxy?.$modal.msgSuccess("操作成功");
-    loading.value = false;
-  } else {
-    proxy?.$modal.msgError("操作失败");
-    loading.value = false;
   }
 }
 

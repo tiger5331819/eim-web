@@ -223,7 +223,6 @@ const handleSynchronize = async () => {
     tableData.value = res.rows;
     ElMessage.success('正在同步数据，请稍等...');
   }
-  loading.value = false;
 }
 
 const showSearch = ref(true)
