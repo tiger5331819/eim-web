@@ -21,12 +21,12 @@
       <el-form-item label="EIM:">
         <span>{{ detailData.eimFqdn || '--' }}</span>
       </el-form-item>
-      <el-form-item label="企业名称:">
+      <!-- <el-form-item label="企业名称:">
         <el-input v-model="detailData.companyName" v-if="changeCompany" style="width: 220px" />
         <span v-else>{{ detailData.companyName || '--' }}</span>
         <el-button type="primary" size="small" style="margin-left: 20px" @click="editCompany" v-if="changeCompany">保存</el-button>
         <el-button type="primary" size="small" style="margin-left: 20px" @click="changeCompany = true" v-else>修改</el-button>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="在线状态:">
         <template #default="scope">
           <dict-tag :options="sys_device_status" :value="detailData.online" />
