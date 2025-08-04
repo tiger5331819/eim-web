@@ -1,13 +1,13 @@
 <template>
   <div class="register">
     <el-form ref="registerRef" :model="registerForm" :rules="registerRules" class="register-form">
-      <h3 class="title">RuoYi-Vue-Plus多租户管理系统</h3>
-      <el-form-item prop="tenantId" v-if="tenantEnabled">
+      <h3 class="title">eIM设备管理平台</h3>
+      <!-- <el-form-item prop="tenantId" v-if="tenantEnabled">
         <el-select v-model="registerForm.tenantId" filterable placeholder="请选择/输入公司名称" style="width: 100%">
           <el-option v-for="item in tenantList" :key="item.tenantId" :label="item.companyName" :value="item.tenantId"> </el-option>
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item prop="username">
         <el-input v-model="registerForm.username" type="text" size="large" auto-complete="off" placeholder="账号">
           <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>
@@ -49,14 +49,14 @@
       </el-form-item>
     </el-form>
     <!--  底部  -->
-    <div class="el-register-footer">
+    <!-- <div class="el-register-footer">
       <span>Copyright © 2018-2023 疯狂的狮子Li All Rights Reserved.</span>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { getCodeImg, register, getTenantList } from '@/api/login';
+import { getCodeImg, register } from '@/api/login';
 import { RegisterForm, TenantVO } from '@/api/types';
 import { to } from 'await-to-js';
 
@@ -141,20 +141,20 @@ const getCode = async () => {
   }
 };
 
-const initTenantList = async () => {
-  const { data } = await getTenantList();
-  tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
-  if (tenantEnabled.value) {
-    tenantList.value = data.voList;
-    if (tenantList.value != null && tenantList.value.length !== 0) {
-      registerForm.value.tenantId = tenantList.value[0].tenantId;
-    }
-  }
-}
+// const initTenantList = async () => {
+//   const { data } = await getTenantList();
+//   tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
+//   if (tenantEnabled.value) {
+//     tenantList.value = data.voList;
+//     if (tenantList.value != null && tenantList.value.length !== 0) {
+//       registerForm.value.tenantId = tenantList.value[0].tenantId;
+//     }
+//   }
+// }
 
 onMounted(() => {
   getCode();
-  initTenantList();
+  // initTenantList();
 })
 </script>
 

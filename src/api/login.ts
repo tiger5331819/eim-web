@@ -62,7 +62,7 @@ export function getCodeImg(): AxiosPromise<VerifyCodeResult> {
   return request({
     url: '/auth/code',
     headers: {
-      isToken: false
+      isToken: false,
     },
     method: 'get',
     timeout: 20000

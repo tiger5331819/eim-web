@@ -1,30 +1,28 @@
 <template>
   <div class="p-2">
-    <transition :enter-active-class="proxy?.animate.searchAnimate.enter" :leave-active-class="proxy?.animate.searchAnimate.leave">
+    <transition :enter-active-class="proxy?.animate.searchAnimate.enter"
+      :leave-active-class="proxy?.animate.searchAnimate.leave">
       <div class="mb-[10px]" v-show="showSearch">
         <el-card shadow="hover">
           <el-form ref="queryFormRef" :model="queryParams" :inline="true" label-width="68px">
             <el-form-item label="角色名称" prop="roleName">
-              <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable style="width: 240px" @keyup.enter="handleQuery" />
+              <el-input v-model="queryParams.roleName" placeholder="请输入角色名称" clearable style="width: 240px"
+                @keyup.enter="handleQuery" />
             </el-form-item>
-            <el-form-item label="权限字符" prop="roleKey">
-              <el-input v-model="queryParams.roleKey" placeholder="请输入权限字符" clearable style="width: 240px" @keyup.enter="handleQuery" />
-            </el-form-item>
+            <!-- <el-form-item label="权限字符" prop="roleKey">
+              <el-input v-model="queryParams.roleKey" placeholder="请输入权限字符" clearable style="width: 240px"
+                @keyup.enter="handleQuery" />
+            </el-form-item> -->
             <el-form-item label="状态" prop="status">
               <el-select v-model="queryParams.status" placeholder="角色状态" clearable style="width: 240px">
-                <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label" :value="dict.value" />
+                <el-option v-for="dict in sys_normal_disable" :key="dict.value" :label="dict.label"
+                  :value="dict.value" />
               </el-select>
             </el-form-item>
             <el-form-item label="创建时间" style="width: 308px">
-              <el-date-picker
-                v-model="dateRange"
-                value-format="YYYY-MM-DD"
-                type="daterange"
-                range-separator="-"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
-              ></el-date-picker>
+              <el-date-picker v-model="dateRange" value-format="YYYY-MM-DD" type="daterange" range-separator="-"
+                start-placeholder="开始日期" end-placeholder="结束日期"
+                :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"></el-date-picker>
             </el-form-item>
 
             <el-form-item>
@@ -40,16 +38,16 @@
       <template #header>
         <el-row :gutter="10">
           <el-col :span="1.5">
-            <el-button type="primary" plain @click="handleAdd()" icon="Plus" v-hasPermi="['system:role:add']">新增</el-button>
+            <el-button type="primary" plain @click="handleAdd()" icon="Plus"
+              v-hasPermi="['system:role:add']">新增</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button type="success" plain @click="handleUpdate()" :disabled="single" icon="Edit" v-hasPermi="['system:role:edit']">修改</el-button>
+            <el-button type="success" plain @click="handleUpdate()" :disabled="single" icon="Edit"
+              v-hasPermi="['system:role:edit']">修改</el-button>
           </el-col>
           <el-col :span="1.5">
-            <el-button type="danger" plain :disabled="ids.length === 0" @click="handleDelete()" v-hasPermi="['system:role:delete']">删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button type="warning" plain icon="Download" @click="handleExport" v-hasPermi="['system:role:export']">导出</el-button>
+            <el-button type="danger" plain :disabled="ids.length === 0" @click="handleDelete()"
+              v-hasPermi="['system:role:delete']">删除</el-button>
           </el-col>
           <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
         </el-row>
@@ -63,7 +61,8 @@
         <el-table-column label="显示顺序" prop="roleSort" width="100" />
         <el-table-column label="状态" align="center" width="100">
           <template #default="scope">
-            <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
+            <el-switch v-model="scope.row.status" active-value="0" inactive-value="1"
+              @change="handleStatusChange(scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="创建时间" align="center" prop="createTime">
@@ -75,28 +74,27 @@
         <el-table-column fixed="right" label="操作" width="180">
           <template #default="scope">
             <el-tooltip content="修改" placement="top" v-if="scope.row.roleId !== 1">
-              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['system:role:edit']"></el-button>
+              <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"
+                v-hasPermi="['system:role:edit']"></el-button>
             </el-tooltip>
             <el-tooltip content="删除" placement="top" v-if="scope.row.roleId !== 1">
-              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['system:role:remove']"></el-button>
+              <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+                v-hasPermi="['system:role:remove']"></el-button>
             </el-tooltip>
             <el-tooltip content="数据权限" placement="top" v-if="scope.row.roleId !== 1">
-              <el-button link type="primary" icon="CircleCheck" @click="handleDataScope(scope.row)" v-hasPermi="['system:role:edit']"></el-button>
+              <el-button link type="primary" icon="CircleCheck" @click="handleDataScope(scope.row)"
+                v-hasPermi="['system:role:edit']"></el-button>
             </el-tooltip>
             <el-tooltip content="分配用户" placement="top" v-if="scope.row.roleId !== 1">
-              <el-button link type="primary" icon="User" @click="handleAuthUser(scope.row)" v-hasPermi="['system:role:edit']"></el-button>
+              <el-button link type="primary" icon="User" @click="handleAuthUser(scope.row)"
+                v-hasPermi="['system:role:edit']"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
 
-      <pagination
-        v-if="total > 0"
-        v-model:total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
-        @pagination="getList"
-      />
+      <pagination v-if="total > 0" v-model:total="total" v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
 
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
@@ -128,17 +126,11 @@
         <el-form-item label="菜单权限">
           <el-checkbox v-model="menuExpand" @change="handleCheckedTreeExpand($event, 'menu')">展开/折叠</el-checkbox>
           <el-checkbox v-model="menuNodeAll" @change="handleCheckedTreeNodeAll($event, 'menu')">全选/全不选</el-checkbox>
-          <el-checkbox v-model="form.menuCheckStrictly" @change="handleCheckedTreeConnect($event, 'menu')">父子联动</el-checkbox>
-          <el-tree
-            class="tree-border"
-            :data="menuOptions"
-            show-checkbox
-            ref="menuRef"
-            node-key="id"
-            :check-strictly="!form.menuCheckStrictly"
-            empty-text="加载中，请稍候"
-            :props="{ label: 'label', children: 'children' }"
-          ></el-tree>
+          <el-checkbox v-model="form.menuCheckStrictly"
+            @change="handleCheckedTreeConnect($event, 'menu')">父子联动</el-checkbox>
+          <el-tree class="tree-border" :data="menuOptions" show-checkbox ref="menuRef" node-key="id"
+            :check-strictly="!form.menuCheckStrictly" empty-text="加载中，请稍候"
+            :props="{ label: 'label', children: 'children' }"></el-tree>
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
@@ -163,24 +155,18 @@
         </el-form-item>
         <el-form-item label="权限范围">
           <el-select v-model="form.dataScope" @change="dataScopeSelectChange">
-            <el-option v-for="item in dataScopeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+            <el-option v-for="item in dataScopeOptions" :key="item.value" :label="item.label"
+              :value="item.value"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="数据权限" v-show="form.dataScope === '2'">
           <el-checkbox v-model="deptExpand" @change="handleCheckedTreeExpand($event, 'dept')">展开/折叠</el-checkbox>
           <el-checkbox v-model="deptNodeAll" @change="handleCheckedTreeNodeAll($event, 'dept')">全选/全不选</el-checkbox>
-          <el-checkbox v-model="form.deptCheckStrictly" @change="handleCheckedTreeConnect($event, 'dept')">父子联动</el-checkbox>
-          <el-tree
-            class="tree-border"
-            :data="deptOptions"
-            show-checkbox
-            default-expand-all
-            ref="deptRef"
-            node-key="id"
-            :check-strictly="!form.deptCheckStrictly"
-            empty-text="加载中，请稍候"
-            :props="{ label: 'label', children: 'children' }"
-          ></el-tree>
+          <el-checkbox v-model="form.deptCheckStrictly"
+            @change="handleCheckedTreeConnect($event, 'dept')">父子联动</el-checkbox>
+          <el-tree class="tree-border" :data="deptOptions" show-checkbox default-expand-all ref="deptRef" node-key="id"
+            :check-strictly="!form.deptCheckStrictly" empty-text="加载中，请稍候"
+            :props="{ label: 'label', children: 'children' }"></el-tree>
         </el-form-item>
       </el-form>
       <template #footer>

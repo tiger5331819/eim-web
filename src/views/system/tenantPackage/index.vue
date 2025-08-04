@@ -321,7 +321,7 @@ const handleDelete = async (row?: TenantPkgVO) => {
 
 /** 导出按钮操作 */
 const handleExport = () => {
-  proxy?.download("system/tenantPackage/export", {
+  proxy?.download("system/tenant/package/export", {
     ...queryParams.value
   }, `tenantPackage_${new Date().getTime()}.xlsx`);
 };

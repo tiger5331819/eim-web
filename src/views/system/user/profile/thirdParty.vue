@@ -10,14 +10,14 @@
       </el-table-column>
       <el-table-column label="系统账号" width="180" align="center" prop="userName" :show-overflow-tooltip="true" />
       <el-table-column label="绑定时间" width="180" align="center" prop="createTime" />
-      <el-table-column label="操作" width="80" align="center" class-name="small-padding fixed-width">
+      <!-- <el-table-column label="操作" width="80" align="center" class-name="small-padding fixed-width">
         <template v-slot="scope">
           <el-button size="small" type="text" @click="unlockAuth(scope.row)">解绑</el-button>
         </template>
-      </el-table-column>
+      </el-table-column> -->
     </el-table>
 
-    <div id="git-user-binding">
+    <!-- <div id="git-user-binding">
       <h4 class="provider-desc">你可以绑定以下第三方帐号</h4>
       <div id="authlist" class="user-bind">
         <a class="third-app" href="#" @click="authUrl('wechat');" title="使用 微信 账号授权登录">
@@ -45,12 +45,12 @@
           <span class="app-name">Github</span>
         </a>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script lang="ts" setup>
-import { authUnlock, authBinding } from "@/api/system/social/auth";
+// import { authUnlock, authBinding } from "@/api/system/social/auth";
 import { PropType } from "vue";
 
 const { proxy } = getCurrentInstance() as ComponentInternalInstance;
@@ -63,29 +63,29 @@ const props = defineProps({
 const auths = computed(() => props.auths);
 
 
-const unlockAuth = (row: any) => {
-  ElMessageBox.confirm('您确定要解除"' + row.source + '"的账号绑定吗？')
-    .then(() => {
-      return authUnlock(row.id);
-    }).then((res: any) => {
-      if (res.code === 200) {
-        proxy?.$modal.msgSuccess("解绑成功");
-        proxy?.$tab.refreshPage();
-      } else {
-        proxy?.$modal.msgError(res.msg);
-      }
-    }).catch(() => { });
-};
+// const unlockAuth = (row: any) => {
+//   ElMessageBox.confirm('您确定要解除"' + row.source + '"的账号绑定吗？')
+//     .then(() => {
+//       return authUnlock(row.id);
+//     }).then((res: any) => {
+//       if (res.code === 200) {
+//         proxy?.$modal.msgSuccess("解绑成功");
+//         proxy?.$tab.refreshPage();
+//       } else {
+//         proxy?.$modal.msgError(res.msg);
+//       }
+//     }).catch(() => { });
+// };
 
-const authUrl = (source: string) => {
-  authBinding(source).then((res: any) => {
-    if (res.code === 200) {
-      window.location.href = res.data;
-    } else {
-      proxy?.$modal.msgError(res.msg);
-    }
-  });
-};
+// const authUrl = (source: string) => {
+//   authBinding(source).then((res: any) => {
+//     if (res.code === 200) {
+//       window.location.href = res.data;
+//     } else {
+//       proxy?.$modal.msgError(res.msg);
+//     }
+//   });
+// };
 </script>
 
 <style type="text/css">

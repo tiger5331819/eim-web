@@ -1,3 +1,3 @@
-FROM mirror.yunbaitech.cn/docker.io/nginx:1.23.4
+FROM mirror.yunbaitech.cn/docker.io/nginx:latest
 COPY dist/ /usr/share/nginx/html/
 COPY default.conf /etc/nginx/nginx.conf

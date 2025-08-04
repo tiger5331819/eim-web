@@ -1,7 +1,8 @@
 <template>
   <div class="login">
+    <img src="../assets/logo/login_bg.png" class="login-bg" />
     <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
-      <h3 class="title">RuoYi-Vue-Plus多租户管理系统</h3>
+      <h3 class="title">eIM设备管理平台</h3>
       <el-form-item prop="tenantId" v-if="tenantEnabled">
         <el-select v-model="loginForm.tenantId" filterable placeholder="请选择/输入公司名称" style="width: 100%">
           <el-option v-for="item in tenantList" :key="item.tenantId" :label="item.companyName" :value="item.tenantId"></el-option>
@@ -27,7 +28,7 @@
         </div>
       </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
-      <el-form-item style="float: right;">
+      <!-- <el-form-item style="float: right;">
         <el-button circle title="微信登录" @click="doSocialLogin('wechat')">
           <svg-icon icon-class="wechat" />
         </el-button>
@@ -40,7 +41,7 @@
         <el-button circle title="Github登录" @click="doSocialLogin('github')">
           <svg-icon icon-class="github" />
         </el-button>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item style="width:100%;">
         <el-button :loading="loading" size="large" type="primary" style="width:100%;" @click.prevent="handleLogin">
           <span v-if="!loading">登 录</span>
@@ -52,15 +53,15 @@
       </el-form-item>
     </el-form>
     <!--  底部  -->
-    <div class="el-login-footer">
+    <!-- <div class="el-login-footer">
       <span>Copyright © 2018-2023 疯狂的狮子Li All Rights Reserved.</span>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script setup lang="ts">
 import { getCodeImg, getTenantList } from '@/api/login';
-import { authBinding } from '@/api/system/social/auth';
+// import { authBinding } from '@/api/system/social/auth';
 import { useUserStore } from '@/store/modules/user';
 import { LoginData, TenantVO } from '@/api/types';
 import { to } from 'await-to-js';
@@ -70,16 +71,16 @@ const userStore = useUserStore();
 const router = useRouter();
 
 const loginForm = ref<LoginData>({
-  tenantId: '000000',
-  username: 'admin',
-  password: 'admin123',
+  // tenantId: '000000',
+  username: '',
+  password: '',
   rememberMe: false,
   code: '',
   uuid: ''
 } as LoginData);
 
 const loginRules: ElFormRules = {
-  tenantId: [{ required: true, trigger: "blur", message: "请输入您的租户编号" }],
+  // tenantId: [{ required: true, trigger: "blur", message: "请输入您的租户编号" }],
   username: [{ required: true, trigger: 'blur', message: '请输入您的账号' }],
   password: [{ required: true, trigger: 'blur', message: '请输入您的密码' }],
   code: [{ required: true, trigger: 'change', message: '请输入验证码' }]
@@ -110,13 +111,13 @@ const handleLogin = () => {
       loading.value = true;
       // 勾选了需要记住密码设置在 localStorage 中设置记住用户名和密码
       if (loginForm.value.rememberMe) {
-        localStorage.setItem("tenantId", String(loginForm.value.tenantId));
+        // localStorage.setItem("tenantId", String(loginForm.value.tenantId));
         localStorage.setItem('username', String(loginForm.value.username));
         localStorage.setItem('password', String(loginForm.value.password));
         localStorage.setItem('rememberMe', String(loginForm.value.rememberMe));
       } else {
         // 否则移除
-        localStorage.removeItem("tenantId");
+        // localStorage.removeItem("tenantId");
         localStorage.removeItem('username');
         localStorage.removeItem('password');
         localStorage.removeItem('rememberMe');
@@ -153,12 +154,12 @@ const getCode = async () => {
 };
 
 const getLoginData = () => {
-  const tenantId = localStorage.getItem("tenantId");
+  // const tenantId = localStorage.getItem("tenantId");
   const username = localStorage.getItem('username');
   const password = localStorage.getItem('password');
   const rememberMe = localStorage.getItem('rememberMe');
   loginForm.value = {
-    tenantId: tenantId === null ? String(loginForm.value.tenantId) : tenantId,
+    // tenantId: tenantId === null ? String(loginForm.value.tenantId) : tenantId,
     username: username === null ? String(loginForm.value.username) : username,
     password: password === null ? String(loginForm.value.password) : String(password),
     rememberMe: rememberMe === null ? false : Boolean(rememberMe)
@@ -185,20 +186,20 @@ watch(() => loginForm.value.tenantId, () => {
   localStorage.setItem("tenantId", String(loginForm.value.tenantId))
 });
 
-/**
- * 第三方登录
- * @param type
- */
-const doSocialLogin = (type: string) => {
-  authBinding(type).then((res: any) => {
-    if (res.code === HttpStatus.SUCCESS) {
-      // 获取授权地址跳转
-      window.location.href = res.data;
-    } else {
-      ElMessage.error(res.msg);
-    }
-  });
-};
+// /**
+//  * 第三方登录
+//  * @param type
+//  */
+// const doSocialLogin = (type: string) => {
+//   authBinding(type).then((res: any) => {
+//     if (res.code === HttpStatus.SUCCESS) {
+//       // 获取授权地址跳转
+//       window.location.href = res.data;
+//     } else {
+//       ElMessage.error(res.msg);
+//     }
+//   });
+// };
 
 
 
@@ -212,11 +213,16 @@ onMounted(() => {
 <style lang="scss" scoped>
 .login {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100%;
   background-image: url("../assets/images/login-background.jpg");
   background-size: cover;
+}
+
+.login-bg {
+  width: 400px;
 }
 
 .title {

@@ -7,7 +7,7 @@ const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
   return (-c / 2) * (t * (t - 2) - 1) + b;
 };
 
-// requestAnimationFrame for Smart Animating http://goo.gl/sx5sts
+// requestAnimationFrame for Smart Animating https://goo.gl/sx5sts
 const requestAnimFrame = (function () {
   return (
     window.requestAnimationFrame ||

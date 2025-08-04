@@ -35,7 +35,7 @@ defineProps({
     }
 })
 
-const title = ref('RuoYi-Vue-Plus');
+const title = ref('eIM设备管理平台');
 const settingsStore = useSettingsStore();
 const sideTheme = computed(() => settingsStore.sideTheme);
 </script>

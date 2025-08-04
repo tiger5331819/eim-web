@@ -6,7 +6,7 @@
 
     <div class="right-menu flex align-center">
       <template v-if="appStore.device !== 'mobile'">
-        <el-select
+        <!-- <el-select
           v-model="companyName"
           clearable
           filterable
@@ -18,17 +18,17 @@
         >
           <el-option v-for="item in tenantList" :key="item.tenantId" :label="item.companyName" :value="item.tenantId"> </el-option>
           <template #prefix><svg-icon icon-class="company" class="el-input__icon input-icon" /></template>
-        </el-select>
+        </el-select> -->
 
         <!-- <header-search id="header-search" class="right-menu-item" /> -->
-        <search-menu ref="searchMenuRef" />
-        <el-tooltip content="搜索" effect="dark" placement="bottom">
+        <!-- <search-menu ref="searchMenuRef" /> -->
+        <!-- <el-tooltip content="搜索" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect" @click="openSearchMenu">
             <svg-icon class-name="search-icon" icon-class="search" />
           </div>
-        </el-tooltip>
+        </el-tooltip> -->
         <!-- 消息 -->
-        <el-tooltip :content="$t('navbar.message')" effect="dark" placement="bottom">
+        <!-- <el-tooltip :content="$t('navbar.message')" effect="dark" placement="bottom">
           <div>
             <el-popover placement="bottom" trigger="click" transition="el-zoom-in-top" :width="300" :persistent="false">
               <template #reference>
@@ -41,14 +41,14 @@
               </template>
             </el-popover>
           </div>
-        </el-tooltip>
-        <el-tooltip content="Github" effect="dark" placement="bottom">
+        </el-tooltip> -->
+        <!-- <el-tooltip content="Github" effect="dark" placement="bottom">
           <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
 
-        <el-tooltip :content="$t('navbar.document')" effect="dark" placement="bottom">
+        <!-- <el-tooltip :content="$t('navbar.document')" effect="dark" placement="bottom">
           <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
-        </el-tooltip>
+        </el-tooltip> -->
 
         <el-tooltip :content="$t('navbar.full')" effect="dark" placement="bottom">
           <screenfull id="screenfull" class="right-menu-item hover-effect" />
@@ -88,15 +88,15 @@
 </template>
 
 <script setup lang="ts">
-import SearchMenu from './TopBar/search.vue';
+// import SearchMenu from './TopBar/search.vue';
 import useAppStore from '@/store/modules/app';
 import useUserStore from '@/store/modules/user';
 import useSettingsStore from '@/store/modules/settings';
-import { getTenantList } from "@/api/login";
+// import { getTenantList } from "@/api/login";
 import { dynamicClear, dynamicTenant } from "@/api/system/tenant";
 import { ComponentInternalInstance } from "vue";
 import { TenantVO } from "@/api/types";
-import notice from './notice/index.vue';
+// import notice from './notice/index.vue';
 import useNoticeStore from '@/store/modules/notice';
 
 const appStore = useAppStore();
@@ -113,42 +113,42 @@ const tenantList = ref<TenantVO[]>([]);
 // 是否切换了租户
 const dynamic = ref(false);
 // 租户开关
-const tenantEnabled = ref(true);
+// const tenantEnabled = ref(true);
 // 搜索菜单
-const searchMenuRef = ref<InstanceType<typeof SearchMenu>>();
+// const searchMenuRef = ref<InstanceType<typeof SearchMenu>>();
 
-const openSearchMenu = () => {
-  searchMenuRef.value?.openSearch();
-}
+// const openSearchMenu = () => {
+//   searchMenuRef.value?.openSearch();
+// }
 
 // 动态切换
-const dynamicTenantEvent = async (tenantId: string) => {
-  if (companyName.value != null && companyName.value !== '') {
-    await dynamicTenant(tenantId);
-    dynamic.value = true;
-    proxy?.$tab.closeAllPage();
-    proxy?.$router.push('/');
-  }
-}
+// const dynamicTenantEvent = async (tenantId: string) => {
+//   if (companyName.value != null && companyName.value !== '') {
+//     await dynamicTenant(tenantId);
+//     dynamic.value = true;
+//     proxy?.$tab.closeAllPage();
+//     proxy?.$router.push('/');
+//   }
+// }
 
-const dynamicClearEvent = async () => {
-  await dynamicClear();
-  dynamic.value = false;
-  proxy?.$tab.closeAllPage();
-  proxy?.$router.push('/');
-}
+// const dynamicClearEvent = async () => {
+//   await dynamicClear();
+//   dynamic.value = false;
+//   proxy?.$tab.closeAllPage();
+//   proxy?.$router.push('/');
+// }
 
-/** 租户列表 */
-const initTenantList = async () => {
-  const { data } = await getTenantList();
-  tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
-  if (tenantEnabled.value) {
-    tenantList.value = data.voList;
-  }
-}
+// /** 租户列表 */
+// const initTenantList = async () => {
+//   const { data } = await getTenantList();
+//   tenantEnabled.value = data.tenantEnabled === undefined ? true : data.tenantEnabled;
+//   if (tenantEnabled.value) {
+//     tenantList.value = data.voList;
+//   }
+// }
 
 defineExpose({
-  initTenantList,
+  // initTenantList,
 })
 
 const toggleSideBar = () => {

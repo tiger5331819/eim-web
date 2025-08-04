@@ -88,6 +88,20 @@ export const constantRoutes: RouteOption[] = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  //批量下载资源
+  {
+    path: '/download',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/system/device/download/index.vue'),
+        name: 'DeviceDownload',
+        meta: { title: '批量下载资源', activeMenu: '/device', icon: '' }
+      }
+    ]
   }
 ];
 
@@ -135,6 +149,37 @@ export const dynamicRoutes: RouteOption[] = [
       }
     ]
   },
+  //设备列表详情
+  {
+    path: '/device_detail',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:device:detail'],
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/system/device/detail/index.vue'),
+        name: 'DeviceDetail',
+        meta: { title: '设备详情', activeMenu: '/device', icon: '' }
+      }
+    ]
+  },
+  //下载业务号
+  {
+    path: '/device_add',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:device:add'],
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/system/device/detail/add.vue'),
+        name: 'DeviceAdd',
+        meta: { title: '下载业务号', activeMenu: '/device', icon: '' }
+      }
+    ]
+  },
+
   {
     path: '/system/oss-config',
     component: Layout,
