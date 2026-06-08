@@ -37,3 +37,24 @@ export interface AllocationForm {
   projectId?: string;
   size?: number;
 }
+
+export interface UserProfile {
+  user: {
+    userId: string;
+    userName: string;
+    nickName: string;
+    email: string;
+    phonenumber: string;
+    sex: string;
+    avatar: string;
+    deptName?: string;
+    loginDate: string;
+  };
+  postGroup?: string;
+  roleGroup?: string;
+}
+
+export interface UpdatePasswordParam {
+  oldPassword: string;
+  newPassword: string;
+}
