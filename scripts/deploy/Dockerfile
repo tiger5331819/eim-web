@@ -21,7 +21,8 @@ COPY . .
 # 安装依赖
 # --frozen-lockfile: 确保使用 lock 文件中的版本
 # --mount=type=cache: 缓存 pnpm 存储，加速后续构建
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
+#RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --no-catalog
 
 # 构建 web-antd 应用
 # 使用 filter 只构建需要的应用，避免构建整个 monorepo
