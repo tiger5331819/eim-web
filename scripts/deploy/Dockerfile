@@ -1,7 +1,7 @@
 # ==============================
 # Stage 1: 构建阶段
 # ==============================
-FROM node:22-slim AS builder
+FROM mirror.yunbaitech.cn/docker.io/node:22-slim AS builder
 
 # 设置环境变量
 ENV PNPM_HOME="/pnpm"
@@ -30,7 +30,7 @@ RUN pnpm run build --filter=@vben/web-antd
 # ==============================
 # Stage 2: 生产环境运行阶段
 # ==============================
-FROM nginx:stable-alpine AS production
+FROM mirror.yunbaitech.cn/docker.io/nginx:stable-alpine AS production
 
 # 清理默认配置并复制自定义 Nginx 配置
 # 这里复用了 scripts/deploy/nginx.conf，它监听 8080 端口
