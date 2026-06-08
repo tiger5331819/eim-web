@@ -8,6 +8,8 @@ ENV TZ=Asia/Shanghai
 
 RUN npm i -g corepack
 
+ENV COREPACK_ENABLE_STRICT=0
+
 WORKDIR /app
 
 # copy package.json and pnpm-lock.yaml to workspace
