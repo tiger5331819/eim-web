@@ -14,7 +14,8 @@ COPY . /app
 RUN npm install -g pnpm@9.15.0 --no-update-notifier
 
 # 安装依赖
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+#RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install 
 RUN pnpm run build --filter=\!./docs
 
 RUN echo "Builder Success 🎉"
