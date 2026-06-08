@@ -11,7 +11,7 @@ ENV NODE_OPTIONS=--max-old-space-size=8192
 ENV TZ=Asia/Shanghai
 
 # 启用 corepack 以使用 pnpm
-RUN npm i -g corepack
+#RUN npm i -g corepack
 
 WORKDIR /app
 
@@ -22,7 +22,7 @@ COPY . .
 # --frozen-lockfile: 确保使用 lock 文件中的版本
 # --mount=type=cache: 缓存 pnpm 存储，加速后续构建
 #RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --no-catalog
+RUN pnpm install
 
 # 构建 web-antd 应用
 # 使用 filter 只构建需要的应用，避免构建整个 monorepo
