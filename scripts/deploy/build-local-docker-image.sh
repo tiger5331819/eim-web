@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ROOT_DIR=$( cd -- "${SCRIPT_DIR}/../.." &> /dev/null && pwd )
 LOG_FILE=${SCRIPT_DIR}/build-local-docker-image.log
 ERROR=""
 IMAGE_NAME="vben-admin-local"
@@ -18,13 +19,13 @@ function remove_image() {
 
 function install_dependencies() {
     # Install all dependencies
-    cd ${SCRIPT_DIR}
+    cd ${ROOT_DIR}
     pnpm install || ERROR="install_dependencies failed"
 }
 
 function build_image() {
     # build docker
-    docker build ../../ -f Dockerfile -t ${IMAGE_NAME} || ERROR="build_image failed"
+    docker build ${ROOT_DIR} -f ${SCRIPT_DIR}/Dockerfile -t ${IMAGE_NAME} || ERROR="build_image failed"
 }
 
 function log_message() {
