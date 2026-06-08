@@ -18,9 +18,9 @@ coverage
 .temp
 dev-dist
 .stylelintcache
-yarn.lock
-package-lock.json
-pnpm-lock.yaml
+#yarn.lock
+#package-lock.json
+#pnpm-lock.yaml
 .VSCodeCounter
 **/backend-mock/data
 .omx
