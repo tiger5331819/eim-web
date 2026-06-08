@@ -1,75 +1,195 @@
-## 平台简介
+[![license](https://img.shields.io/github/license/anncwb/vue-vben-admin.svg)](LICENSE)
 
-* 本仓库为前端技术栈 [Vue3](https://v3.cn.vuejs.org) + [TS](https://www.typescriptlang.org/) + [Element Plus](https://element-plus.org/zh-CN) + [Vite](https://cn.vitejs.dev) 版本。
-* 配套后端代码仓库地址
-* [RuoYi-Vue-Plus 5.X(注意版本号)](https://gitee.com/dromara/RuoYi-Vue-Plus)
-* [RuoYi-Cloud-Plus 2.X(注意版本号)](https://gitee.com/dromara/RuoYi-Cloud-Plus)
+## 置顶说明
 
-## 前端运行
+使用`antdv-next`已经作为主分支进行更新
 
-```bash
-# 克隆项目
-git clone https://gitee.com/JavaLionLi/plus-ui.git
+原`ant-design-vue`已经归档到`v1/ant-design-vue`分支 不再进行更新(当然你可以手动合并官方的更新)
 
-# 安装依赖
-npm install --registry=https://registry.npmmirror.com
+## 提示
 
-# 启动服务
-npm run dev
+最低需要使用`node版本>22.16.0` 否则会影响编辑器的格式化(需要安装oxc插件)
 
-# 构建生产环境 
-npm run build:prod
+该分支使用[antdv-next](https://github.com/antdv-next/antdv-next)替代已经不维护的antd-design-vue
 
-# 前端访问地址 https://localhost:80
+该仓库使用vben最新版本v5开发
+
+v5版本采用分仓(包)目录结构, 具体开发路径为: `根目录/apps/web-antd`
+
+目前对应后端版本: **分布式5.6.0/微服务2.6.0**
+
+## 简介
+
+基于 [vben5 & antdv-next](https://github.com/vbenjs/vue-vben-admin) 的 RuoYi-Vue-Plus 前端项目
+
+| 组件/框架  | 版本   |
+| :--------- | :----- |
+| vben       | 5.6.0  |
+| antdv-next | 1.3.0  |
+| vue        | 3.5.13 |
+
+对应后端项目: **(分布式 5.X 分支 微服务 2.分支)**
+
+分布式 [RuoYi-Vue-Plus](https://gitee.com/dromara/RuoYi-Vue-Plus/tree/5.X/)
+
+微服务 [RuoYi-Cloud-Plus](https://gitee.com/dromara/RuoYi-Cloud-Plus/tree/2.X/)
+
+## 赞助商
+
+- 万级算力服务 https://ku0.com/
+
+## 预览
+
+admin 账号: admin admin123
+
+[预览地址点这里](http://vben5.dapdap.top)
+
+服务器由以下群友赞助(以下排名不分前后)
+
+依依-阿里/腾讯/华为云服务器高返, 疯狂的牛子Li, 四海升平(站长推荐https://ku0.com/), 疯狂的骡子Li, 疯狂的鸟哥Li疯狂的麦克斯, 消息必须回🤔, 群复读机(末初科技 mochu.tech), 大熊, 張Zcccccy, 等風來再離開, AI主理人
+
+## WX Group
+
+演示站 - 微信群菜单
+
+## 文档
+
+[本框架文档 强烈建议阅读](https://dapdap.top/)
+
+[Vben V5 文档地址](https://doc.vben.pro/)
+
+[RuoYi-Plus 文档地址](https://plus-doc.dromara.org/#/)
+
+## 预览图
+
+![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/1.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/2.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/3.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/4.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/5.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/6.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/7.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/8.png) ![图片](https://github.com/imdap/ruoyi-plus-vben5/raw/main/scripts/preview/9.png)
+
+## 安装使用
+
+前置准备环境(只能用pnpm)
+
+```json
+"packageManager": "pnpm",
+"engines": {
+  "node": ">=22.16.0",
+  "pnpm": "latest"
+},
 ```
 
-## 本框架与RuoYi的业务差异
+- 获取项目代码
 
-| 业务     | 功能说明                                    | 本框架 | RuoYi            |
-|--------|-----------------------------------------|-----|------------------|
-| 租户管理   | 系统内租户的管理 如:租户套餐、过期时间、用户数量、企业信息等         | 支持  | 无                |
-| 租户套餐管理 | 系统内租户所能使用的套餐管理 如:套餐内所包含的菜单等             | 支持  | 无                |
-| 用户管理   | 用户的管理配置 如:新增用户、分配用户所属部门、角色、岗位等          | 支持  | 支持               |
-| 部门管理   | 配置系统组织机构（公司、部门、小组） 树结构展现支持数据权限          | 支持  | 支持               |
-| 岗位管理   | 配置系统用户所属担任职务                            | 支持  | 支持               |
-| 菜单管理   | 配置系统菜单、操作权限、按钮权限标识等                     | 支持  | 支持               |
-| 角色管理   | 角色菜单权限分配、设置角色按机构进行数据范围权限划分              | 支持  | 支持               |
-| 字典管理   | 对系统中经常使用的一些较为固定的数据进行维护                  | 支持  | 支持               |
-| 参数管理   | 对系统动态配置常用参数                             | 支持  | 支持               |
-| 通知公告   | 系统通知公告信息发布维护                            | 支持  | 支持               |
-| 操作日志   | 系统正常操作日志记录和查询 系统异常信息日志记录和查询             | 支持  | 支持               |
-| 登录日志   | 系统登录日志记录查询包含登录异常                        | 支持  | 支持               |
-| 文件管理   | 系统文件展示、上传、下载、删除等管理                      | 支持  | 无                |
-| 文件配置管理 | 系统文件上传、下载所需要的配置信息动态添加、修改、删除等管理          | 支持  | 无                |
-| 在线用户管理 | 已登录系统的在线用户信息监控与强制踢出操作                   | 支持  | 支持               |
-| 定时任务   | 运行报表、任务管理(添加、修改、删除)、日志管理、执行器管理等         | 支持  | 仅支持任务与日志管理       |
-| 代码生成   | 多数据源前后端代码的生成（java、html、xml、sql）支持CRUD下载 | 支持  | 仅支持单数据源          |
-| 系统接口   | 根据业务代码自动生成相关的api接口文档                    | 支持  | 支持               |
-| 服务监控   | 监视集群系统CPU、内存、磁盘、堆栈、在线日志、Spring相关配置等     | 支持  | 仅支持单机CPU、内存、磁盘监控 |
-| 缓存监控   | 对系统的缓存信息查询，命令统计等。                       | 支持  | 支持               |
-| 在线构建器  | 拖动表单元素生成相应的HTML代码。                      | 支持  | 支持               |
-| 使用案例   | 系统的一些功能案例                               | 支持  | 不支持              |
+```bash
+git clone https://github.com/imdap/ruoyi-plus-vben5.git
+```
 
-## 演示图例
+2. 安装依赖
 
-|                                                                                            |                                                                                            |
-|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| ![输入图片说明](https://foruda.gitee.com/images/1680077524361362822/270bb429_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680077619939771291/989bf9b6_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680077681751513929/1c27c5bd_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680077721559267315/74d63e23_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680077765638904515/1b75d4a6_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078026375951297/eded7a4b_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078237104531207/0eb1b6a7_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078254306078709/5931e22f_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078287971528493/0b9af60a_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078308138770249/8d3b6696_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078352553634393/db5ef880_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078378238393374/601e4357_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078414983206024/2aae27c1_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078446738419874/ecce7d59_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078475971341775/149e8634_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078491666717143/3fadece7_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078558863188826/fb8ced2a_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078574561685461/ae68a0b2_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078594932772013/9d8bfec6_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078626493093532/fcfe4ff6_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078643608812515/0295bd4f_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078685196286463/d7612c81_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078703877318597/56fce0bc_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078716586545643/b6dbd68f_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078734103217688/eb1e6aa6_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078759131415480/73c525d8_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078779416197879/75e3ed02_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078802329118061/77e10915_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078893627848351/34a1c342_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078928175016986/f126ec4a_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078941718318363/b68a0f72_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680078963175518631/3bb769a1_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680078982294090567/b31c343d_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680079000642440444/77ca82a9_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680079020995074177/03b7d52e_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680079039367822173/76811806_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1680079274333484664/4dfdc7c0_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1680079290467458224/d6715fcf_1766278.png "屏幕截图") |
+```bash
+cd ruoyi-plus-vben5
+
+pnpm install
+```
+
+- 菜单图标替换
+
+参考 [菜单图标替换](https://dapdap.top/guide/quick-start.html#%E8%8F%9C%E5%8D%95%E5%9B%BE%E6%A0%87%E5%AF%BC%E5%85%A5)
+
+- 关于一些监控的地址配置(微服务版本可以跳过这一小节)
+
+使用[RuoYi-Vue-Plus](https://gitee.com/dromara/RuoYi-Vue-Plus/tree/5.X/)注意 `已经去除 admin/snailjob 的.env 配置` 可自行修改 有两种方式
+
+1. 修改源码`/views/monitor/admin` `views/monitor/snailjob`
+
+```html
+<!-- 修改地址 -->
+<template>
+  <iframe
+    class="size-full"
+    src="http://localhost:9090/admin/applications"
+  ></iframe>
+</template>
+```
+
+2. **推荐** 使用菜单自行配置 (跟 cloud 版本打开方式一致)
+
+![图片](https://github.com/imdap/ruoyi-plus-vben/raw/main/preview/菜单修改.png)
+
+使用内嵌 iframe 方式需要解决跨域问题 可参考[nginx.conf](https://gitee.com/dromara/RuoYi-Vue-Plus/blob/5.X/script/docker/nginx/conf/nginx.conf#LC87)配置
+
+- 修改.env.development 配置文件
+- **注意 RSA 公私钥一定要修改和后端匹配**
+- RSA 公私钥为两对 `前端请求加密-后端解密是一对` `后端响应加密 前端解密是一对`
+
+```properties
+# 端口号
+VITE_PORT=5666
+# 打包路径
+VITE_BASE=/
+# 是否开启 Nitro Mock服务，true 为开启，false 为关闭
+VITE_NITRO_MOCK=false
+# 是否打开 devtools，true 为打开，false 为关闭
+VITE_DEVTOOLS=false
+# 是否注入全局loading
+VITE_INJECT_APP_LOADING=true
+
+# 后台请求路径 具体在vite.config.mts配置代理
+VITE_GLOB_API_URL=/api
+# 全局加密开关(即开启了加解密功能才会生效 不是全部接口加密 需要和后端对应)
+VITE_GLOB_ENABLE_ENCRYPT=true
+# RSA公钥 请求加密使用 注意这两个是两对RSA公私钥 请求加密-后端解密是一对 响应解密-后端加密是一对
+VITE_GLOB_RSA_PUBLIC_KEY=
+# RSA私钥 响应解密使用 注意这两个是两对RSA公私钥 请求加密-后端解密是一对 响应解密-后端加密是一对
+VITE_GLOB_RSA_PRIVATE_KEY=
+# 客户端id
+VITE_GLOB_APP_CLIENT_ID=e5cd7e4891bf95d1d19206ce24a7b32e
+# 开启WEBSOCKET
+VITE_GLOB_WEBSOCKET_ENABLE=false
+```
+
+- 运行
+
+```bash
+pnpm dev:antd
+```
+
+4. 打包
+
+```bash
+pnpm build:antd
+```
+
+## 这是一个特性 而不是一个bug!
+
+1. 菜单管理可分配 但只有`admin`/`superadmin`角色能访问 其他角色访问会到403页面
+2. 租户相关菜单可分配 但只有`superadmin`角色能访问 其他角色访问会到403页面
+3. 分配的租户管理员无法修改自己的角色的菜单(即管理员角色的菜单) 防止自己把自己权限弄没了
+
+## Git 贡献提交规范
+
+参考 [vue](https://github.com/vuejs/vue/blob/dev/.github/COMMIT_CONVENTION.md) 规范 ([Angular](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular))
+
+- `feat` 增加新功能
+- `fix` 修复问题/BUG
+- `style` 代码风格相关无影响运行结果的
+- `perf` 优化/性能提升
+- `refactor` 重构
+- `revert` 撤销修改
+- `test` 测试相关
+- `docs` 文档/注释
+- `chore` 依赖更新/脚手架配置修改等
+- `workflow` 工作流改进
+- `ci` 持续集成
+- `types` 类型定义文件更改
+- `wip` 开发中
+
+## 浏览器支持
+
+最低适配应该为`Chrome 88+`以上浏览器 详见 [css - where](https://developer.mozilla.org/en-US/docs/Web/CSS/:where#browser_compatibility)
+
+本地开发推荐使用`Chrome` 最新版本浏览器
+
+支持现代浏览器，不支持 IE
+
+| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt=" Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>IE | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt=" Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari |
+| :-: | :-: | :-: | :-: | :-: |
+| not support | last 2 versions | last 2 versions | last 2 versions | last 2 versions |

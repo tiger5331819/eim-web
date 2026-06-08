@@ -1,0 +1,71 @@
+<h2>迁移方案对比</h2>
+<p class="subtitle">选择适合项目情况的迁移策略</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>A. 组件映射迁移法 <span style="color:#52c41a;font-size:0.8em">⭐ 推荐</span></h3>
+      <p>逐模块迁移，将 Element Plus 组件直接映射为 Ant Design Vue 组件</p>
+      <div class="mockup">
+        <div class="mockup-header">迁移映射示意</div>
+        <div class="mockup-body" style="font-size:13px;padding:12px">
+          <table style="width:100%;border-collapse:collapse">
+            <tr style="background:#f0f0f0"><th style="padding:6px;text-align:left">旧 (Element Plus)</th><th style="padding:6px;text-align:left">新 (Ant Design Vue)</th></tr>
+            <tr><td style="padding:6px;border-bottom:1px solid #eee">el-table</td><td style="padding:6px;border-bottom:1px solid #eee">VXE Table / a-table</td></tr>
+            <tr><td style="padding:6px;border-bottom:1px solid #eee">el-form + rules</td><td style="padding:6px;border-bottom:1px solid #eee">VbenForm + Zod</td></tr>
+            <tr><td style="padding:6px;border-bottom:1px solid #eee">el-dialog</td><td style="padding:6px;border-bottom:1px solid #eee">a-modal / Drawer</td></tr>
+            <tr><td style="padding:6px;border-bottom:1px solid #eee">el-upload</td><td style="padding:6px;border-bottom:1px solid #eee">a-upload</td></tr>
+            <tr><td style="padding:6px;border-bottom:1px solid #eee">el-select (远程)</td><td style="padding:6px;border-bottom:1px solid #eee">ApiSelect</td></tr>
+            <tr><td style="padding:6px">自定义 Pagination</td><td style="padding:6px">VXE Table 内置分页</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>优势</h4><ul><li>迁移路径清晰，风险低</li><li>可逐模块交付，快速见效</li><li>充分利用新框架的表单/表格能力</li><li>API 层几乎不用改</li></ul></div>
+        <div class="cons"><h4>注意</h4><ul><li>需要理解 VbenForm schema 配置</li><li>部分复杂交互（如设备详情）需重新设计</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>B. 先搭骨架再填充</h3>
+      <p>先创建所有模块的路由、页面骨架和 API 层，再逐个实现功能</p>
+      <div class="mockup">
+        <div class="mockup-header">执行步骤</div>
+        <div class="mockup-body" style="font-size:13px;padding:12px">
+          <div style="padding:8px;border-left:3px solid #1890ff;background:#f6f8fa;margin-bottom:8px">
+            <strong>Phase 1:</strong> 创建路由 → API 层 → 类型定义
+          </div>
+          <div style="padding:8px;border-left:3px solid #faad14;background:#f6f8fa;margin-bottom:8px">
+            <strong>Phase 2:</strong> 创建页面骨架（表格 + 搜索表单）
+          </div>
+          <div style="padding:8px;border-left:3px solid #52c41a;background:#f6f8fa">
+            <strong>Phase 3:</strong> 填充每个模块的业务逻辑
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>优势</h4><ul><li>全局视角，模块间依赖先解决</li><li>骨架搭好后可并行开发</li></ul></div>
+        <div class="cons"><h4>注意</h4><ul><li>前期无可见成果</li><li>骨架设计如果不当，返工成本高</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-body">
+      <h3>C. 功能切片迁移</h3>
+      <p>按功能类型（列表 → 弹窗 → 导入 → 详情）而非按模块迁移</p>
+      <div class="mockup">
+        <div class="mockup-header">执行顺序</div>
+        <div class="mockup-body" style="font-size:13px;padding:12px">
+          <div style="padding:6px;margin-bottom:4px">📋 所有模块的列表页 → 所有模块的搜索表单 → 所有模块的弹窗 → 批量导入 → 设备详情</div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>优势</h4><ul><li>同类型代码模式统一</li><li>每一步只关注一种交互模式</li></ul></div>
+        <div class="cons"><h4>注意</h4><ul><li>每个模块都没法独立完成</li><li>用户体验上进度不明显</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
