@@ -6,16 +6,15 @@ ENV PATH="$PNPM_HOME:$PATH"
 ENV NODE_OPTIONS=--max-old-space-size=8192
 ENV TZ=Asia/Shanghai
 
+RUN npm i -g corepack
+
 WORKDIR /app
 
 # copy package.json and pnpm-lock.yaml to workspace
 COPY . /app
 
-RUN npm install -g pnpm@9.15.0 --no-update-notifier
-
 # 安装依赖
-#RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install 
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run build --filter=\!./docs
 
 RUN echo "Builder Success 🎉"
