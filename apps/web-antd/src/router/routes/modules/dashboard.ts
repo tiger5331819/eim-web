@@ -47,18 +47,6 @@ const routes: RouteRecordRaw[] = [
           title: $t('demos.vben.document'),
         },
       },
-      {
-        name: 'V5UpdateLog',
-        path: '/changelog',
-        component: () => import('#/views/演示使用自行删除/changelog/index.vue'),
-        meta: {
-          icon: 'lucide:book-open-text',
-          keepAlive: true,
-          title: '更新记录',
-          badge: `当前: ${version}`,
-          badgeVariants: 'bg-primary',
-        },
-      },
     ],
   },
   {
