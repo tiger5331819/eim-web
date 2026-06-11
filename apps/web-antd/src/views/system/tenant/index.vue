@@ -30,6 +30,7 @@ import { ApiSwitch } from '#/components/global';
 import { useTenantStore } from '#/store/tenant';
 import { useBlobExport } from '#/utils/file/export';
 import LicenseAdjustModal from '#/views/license/license-adjust-modal.vue';
+import { getLicense } from '#/api/system/license';
 
 import { columns, querySchema } from './data';
 import tenantDrawer from './tenant-drawer.vue';
@@ -98,11 +99,20 @@ function handleViewLicense(record: Tenant) {
   });
 }
 
-function handleAdjustLicense(record: Tenant) {
-  licenseAdjustApi.setData({
-    tenantId: record.tenantId,
-    current: 0,
-  });
+async function handleAdjustLicense(record: Tenant) {
+  // 先获取真实余额再弹窗，避免预览显示 0
+  try {
+    const data = await getLicense(record.tenantId);
+    licenseAdjustApi.setData({
+      tenantId: record.tenantId,
+      current: data.availableQuota,
+    });
+  } catch {
+    licenseAdjustApi.setData({
+      tenantId: record.tenantId,
+      current: 0,
+    });
+  }
   licenseAdjustApi.open();
 }
 

@@ -1,4 +1,4 @@
-import type { BaseEntity, PageQuery } from '#/api/common';
+import type { PageQuery } from '#/api/common';
 
 /** 租户 License 余额视图对象 */
 export interface TenantLicenseVO {

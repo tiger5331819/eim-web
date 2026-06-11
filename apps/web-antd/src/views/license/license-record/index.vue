@@ -3,14 +3,25 @@ import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { onMounted } from 'vue';
+
 import { Page } from '@vben/common-ui';
 
 import { Tag } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { licenseRecordList } from '#/api/system/license';
+import { useTenantStore } from '#/store/tenant';
 
 import { columns, getChangeTypeMeta, querySchema } from './data';
+
+// 确保租户列表已加载（直接访问本页时 store 可能未初始化）
+const tenantStore = useTenantStore();
+onMounted(async () => {
+  if (tenantStore.tenantList.length === 0) {
+    await tenantStore.initTenant();
+  }
+});
 
 const formOptions: VbenFormProps = {
   commonConfig: {
