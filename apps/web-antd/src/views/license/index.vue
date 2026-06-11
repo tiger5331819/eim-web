@@ -2,6 +2,7 @@
 import type { TenantLicenseVO } from '#/api/system/license/model';
 
 import { computed, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { useAccess } from '@vben/access';
 import { Page, useVbenModal } from '@vben/common-ui';
@@ -17,6 +18,7 @@ import LicenseAdjustModal from './license-adjust-modal.vue';
 const { hasAccessByCodes } = useAccess();
 
 const tenantStore = useTenantStore();
+const route = useRoute();
 const selectedTenantId = ref<string>('');
 const license = ref<null | TenantLicenseVO>(null);
 const loading = ref(false);
@@ -98,9 +100,16 @@ onMounted(async () => {
   if (tenantStore.tenantList.length === 0) {
     await tenantStore.initTenant();
   }
-  // 默认选择第一个租户
-  const first = tenantStore.tenantList[0];
-  if (first) selectedTenantId.value = first.tenantId;
+  const queryTenantId = route.query.tenantId as string | undefined;
+  if (
+    queryTenantId &&
+    tenantStore.tenantList.some((t) => t.tenantId === queryTenantId)
+  ) {
+    selectedTenantId.value = queryTenantId;
+  } else {
+    const first = tenantStore.tenantList[0];
+    if (first) selectedTenantId.value = first.tenantId;
+  }
 });
 </script>
 

@@ -8,8 +8,10 @@ import type { Tenant } from '#/api/system/tenant/model';
 
 import { computed } from 'vue';
 
+import { useRouter } from 'vue-router';
+
 import { useAccess } from '@vben/access';
-import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
+import { Fallback, Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { EnableStatus } from '@vben/constants';
 
 import { Dropdown, Popconfirm, Space } from 'antdv-next';
@@ -27,6 +29,7 @@ import {
 import { ApiSwitch } from '#/components/global';
 import { useTenantStore } from '#/store/tenant';
 import { useBlobExport } from '#/utils/file/export';
+import LicenseAdjustModal from '#/views/license/license-adjust-modal.vue';
 
 import { columns, querySchema } from './data';
 import tenantDrawer from './tenant-drawer.vue';
@@ -81,6 +84,27 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
 const [TenantDrawer, drawerApi] = useVbenDrawer({
   connectedComponent: tenantDrawer,
 });
+
+const router = useRouter();
+
+const [LicenseAdjustModalCmp, licenseAdjustApi] = useVbenModal({
+  connectedComponent: LicenseAdjustModal,
+});
+
+function handleViewLicense(record: Tenant) {
+  router.push({
+    path: '/license/balance',
+    query: { tenantId: record.tenantId },
+  });
+}
+
+function handleAdjustLicense(record: Tenant) {
+  licenseAdjustApi.setData({
+    tenantId: record.tenantId,
+    current: 0,
+  });
+  licenseAdjustApi.open();
+}
 
 function handleAdd() {
   drawerApi.setData({});
@@ -252,6 +276,22 @@ const handleMenuClick: DropdownEmits['menuClick'] = (e) => {
       <template #action="{ row }">
         <Space v-if="row.id !== 1">
           <action-button
+            v-access:code="['eim:license:query']"
+            variant="link"
+            color="purple"
+            @click="handleViewLicense(row)"
+          >
+            License详情
+          </action-button>
+          <action-button
+            v-access:code="['eim:license:adjust']"
+            variant="link"
+            color="orange"
+            @click="handleAdjustLicense(row)"
+          >
+            调整License
+          </action-button>
+          <action-button
             v-access:code="['system:tenant:edit']"
             @click="handleEdit(row)"
           >
@@ -287,6 +327,7 @@ const handleMenuClick: DropdownEmits['menuClick'] = (e) => {
       </template>
     </BasicTable>
     <TenantDrawer @reload="tableApi.query()" />
+    <LicenseAdjustModalCmp @reload="tableApi.query()" />
   </Page>
   <Fallback v-else description="您没有租户的访问权限" status="403" />
 </template>
