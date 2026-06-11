@@ -1,6 +1,33 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+/** APN 来源映射 — 与后端 sourceType 字段值对齐 */
+const SOURCE_TYPE_MAP: Record<string, { color: string; text: string }> = {
+  MANUAL:   { color: 'blue',   text: '手动录入' },
+  DP_PLUS:  { color: 'purple', text: 'DP+ 同步' },
+};
+
+export function getSourceTypeMeta(type?: string) {
+  if (!type) return { color: 'default', text: '--' };
+  return SOURCE_TYPE_MAP[type] ?? { color: 'default', text: type };
+}
+
+export const SOURCE_TYPE_OPTIONS = Object.entries(SOURCE_TYPE_MAP).map(
+  ([value, { text }]) => ({ value, label: text }),
+);
+
+/** 是否默认 APN 选项 */
+export const IS_DEFAULT_OPTIONS = [
+  { value: '1', label: '是' },
+  { value: '0', label: '否' },
+];
+
+/** 状态选项 */
+export const STATUS_OPTIONS = [
+  { value: '0', label: '正常' },
+  { value: '1', label: '停用' },
+];
+
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
@@ -12,22 +39,77 @@ export const querySchema: FormSchemaGetter = () => [
     fieldName: 'apn',
     label: 'APN',
   },
+  {
+    component: 'Input',
+    fieldName: 'carrierCode',
+    label: '运营商编码',
+    componentProps: {
+      placeholder: '如 CMCC / CUCC / CTCC',
+    },
+  },
+  {
+    component: 'Select',
+    fieldName: 'isDefault',
+    label: '是否默认',
+    componentProps: {
+      allowClear: true,
+      options: IS_DEFAULT_OPTIONS,
+      placeholder: '请选择',
+    },
+  },
+  {
+    component: 'Select',
+    fieldName: 'status',
+    label: '状态',
+    componentProps: {
+      allowClear: true,
+      options: STATUS_OPTIONS,
+      placeholder: '请选择',
+    },
+  },
 ];
 
 export const columns: VxeGridProps['columns'] = [
   { type: 'checkbox', width: 60 },
-  { title: 'APN ID', field: 'id' },
-  { title: '名称', field: 'name' },
-  { title: 'APN', field: 'apn' },
-  { title: '适用地区', field: 'local' },
-  { title: '创建时间', field: 'creationTime' },
+  { title: 'APN ID', field: 'id', width: 100 },
+  { title: '名称', field: 'name', minWidth: 120 },
+  { title: 'APN', field: 'apn', minWidth: 120 },
+  { title: '适用地区', field: 'local', width: 120 },
+  {
+    title: '运营商',
+    field: 'carrierName',
+    width: 140,
+    formatter: ({ row }) => {
+      const code = row.carrierCode ? `（${row.carrierCode}）` : '';
+      return row.carrierName ? `${row.carrierName}${code}` : '--';
+    },
+  },
+  {
+    title: '是否默认',
+    field: 'isDefault',
+    width: 100,
+    slots: { default: 'isDefault' },
+  },
+  {
+    title: '状态',
+    field: 'status',
+    width: 100,
+    slots: { default: 'status' },
+  },
+  {
+    title: '来源',
+    field: 'sourceType',
+    width: 110,
+    slots: { default: 'sourceType' },
+  },
+  { title: '创建时间', field: 'creationTime', width: 170 },
   {
     field: 'action',
     fixed: 'right',
     slots: { default: 'action' },
     title: '操作',
     resizable: false,
-    width: 'auto',
+    width: 200,
   },
 ];
 
@@ -36,7 +118,6 @@ export const modalSchema: FormSchemaGetter = () => [
     component: 'Input',
     dependencies: {
       show(values) {
-        // 编辑模式下隐藏ID字段（通过API获取），新增模式下显示
         return !values?.id;
       },
       triggerFields: ['id'],
@@ -62,5 +143,46 @@ export const modalSchema: FormSchemaGetter = () => [
     fieldName: 'local',
     label: '适用地区',
     rules: 'required',
+  },
+  {
+    component: 'Input',
+    fieldName: 'carrierCode',
+    label: '运营商编码',
+    componentProps: {
+      placeholder: '如 CMCC / CUCC / CTCC',
+    },
+  },
+  {
+    component: 'Input',
+    fieldName: 'carrierName',
+    label: '运营商名称',
+    componentProps: {
+      placeholder: '如 中国移动 / 中国联通 / 中国电信',
+    },
+  },
+  {
+    component: 'Switch',
+    fieldName: 'isDefault',
+    label: '设为默认',
+    defaultValue: '0',
+    componentProps: {
+      checkedChildren: '是',
+      unCheckedChildren: '否',
+      checkedValue: '1',
+      unCheckedValue: '0',
+    },
+    help: '同一运营商只能有一个默认 APN，设置时会自动替换原默认',
+  },
+  {
+    component: 'Switch',
+    fieldName: 'status',
+    label: '状态',
+    defaultValue: '0',
+    componentProps: {
+      checkedChildren: '正常',
+      unCheckedChildren: '停用',
+      checkedValue: '0',
+      unCheckedValue: '1',
+    },
   },
 ];
