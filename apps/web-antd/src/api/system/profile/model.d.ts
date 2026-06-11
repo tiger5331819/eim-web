@@ -9,9 +9,14 @@ export interface ProfileQuery {
   projectId?: string;
   assigned?: boolean;
   installed?: boolean;
+  poolStatus?: string;
+  assignedTenantId?: string;
+  productionBatch?: string;
+  carrierName?: string;
 }
 
 export interface ProfileVO {
+  id?: number | string;
   dpSource: string;
   iccid: string;
   imsi: string;
@@ -30,6 +35,12 @@ export interface ProfileVO {
   companyName: string;
   projectName: string;
   installedState: string;
+  poolStatus?: string;
+  apnId?: string;
+  apn?: string;
+  apnLocal?: string;
+  projectId?: string;
+  tenantName?: string;
 }
 
 export interface AllocationForm {

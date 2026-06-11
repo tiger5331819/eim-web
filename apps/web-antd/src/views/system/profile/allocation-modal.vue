@@ -1,3 +1,7 @@
+<!--
+  @deprecated P3 之后请使用 views/eim/profilepool/stats/allocate-modal.vue
+  当前文件仅作回滚备份，无任何引用。计划在 P4 上线后删除。
+-->
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';

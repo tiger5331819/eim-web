@@ -29,7 +29,7 @@ import {
 import { ApiSwitch } from '#/components/global';
 import { useTenantStore } from '#/store/tenant';
 import { useBlobExport } from '#/utils/file/export';
-import LicenseAdjustModal from '#/views/license/license-adjust-modal.vue';
+import LicenseAdjustModal from '#/views/eim/license/balance/license-adjust-modal.vue';
 import { getLicense } from '#/api/system/license';
 
 import { columns, querySchema } from './data';

@@ -7,7 +7,6 @@ import { Space } from 'antdv-next';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { handleSync, profileList } from '#/api/system/profile';
 
-import AllocationModal from './allocation-modal.vue';
 import ApnModalComp from './apn-modal.vue';
 import BatchImportModal from './batch-import-modal.vue';
 import { columns, querySchema } from './data';
@@ -29,12 +28,10 @@ const gridOptions: VxeGridProps = {
 };
 
 const [BasicTable, tableApi] = useVbenVxeGrid({ formOptions, gridOptions });
-const [AllocationModalComp, allocationApi] = useVbenModal({ connectedComponent: AllocationModal });
 const [BatchImportModalComp, importApi] = useVbenModal({ connectedComponent: BatchImportModal });
 const [ApnModal, apnApi] = useVbenModal({ connectedComponent: ApnModalComp });
 
 async function handleDataSync() { await handleSync(); await tableApi.query(); }
-function handleAllocation() { allocationApi.open(); }
 function handleBatchImport() { importApi.open(); }
 function handleApnUpdate(row: any) { apnApi.setData({ row }); apnApi.open(); }
 function handleDownloadTemplate() { window.open(`${import.meta.env.VITE_GLOB_API_URL}/manager/profile/import/template`); }
@@ -46,9 +43,11 @@ function handleDownloadTemplate() { window.open(`${import.meta.env.VITE_GLOB_API
       <template #toolbar-tools>
         <Space>
           <a-button type="primary" @click="handleDataSync">同步数据</a-button>
-          <a-button type="primary" @click="handleAllocation">资源分配</a-button>
           <a-button type="primary" @click="handleBatchImport">批量导入</a-button>
           <a-button @click="handleDownloadTemplate">下载批量导入模板</a-button>
+          <a-button @click="$router.push('/profile-pool/total')">
+            前往资源池管理 →
+          </a-button>
         </Space>
       </template>
       <template #action="{ row }">
@@ -57,7 +56,6 @@ function handleDownloadTemplate() { window.open(`${import.meta.env.VITE_GLOB_API
         </Space>
       </template>
     </BasicTable>
-    <AllocationModalComp @reload="tableApi.query()" />
     <BatchImportModalComp @reload="tableApi.query()" />
     <ApnModal @reload="tableApi.query()" />
   </Page>
