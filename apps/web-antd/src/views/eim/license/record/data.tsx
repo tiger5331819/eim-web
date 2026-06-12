@@ -20,10 +20,11 @@ export const CHANGE_TYPE_OPTIONS = Object.entries(CHANGE_TYPE_MAP).map(
   ([value, { text }]) => ({ value, label: text }),
 );
 
-export const querySchema: FormSchemaGetter = () => {
+export const querySchema: FormSchemaGetter = (_isAdmin: boolean = true) => {
   const tenantStore = useTenantStore();
-  return [
-    {
+  const filters: any[] = [];
+  if (_isAdmin) {
+    filters.push({
       component: 'Select',
       componentProps: {
         allowClear: true,
@@ -37,18 +38,19 @@ export const querySchema: FormSchemaGetter = () => {
       },
       fieldName: 'tenantId',
       label: '租户',
+    });
+  }
+  filters.push({
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      placeholder: '请选择变更类型',
+      options: CHANGE_TYPE_OPTIONS,
     },
-    {
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请选择变更类型',
-        options: CHANGE_TYPE_OPTIONS,
-      },
-      fieldName: 'changeType',
-      label: '变更类型',
-    },
-  ];
+    fieldName: 'changeType',
+    label: '变更类型',
+  });
+  return filters;
 };
 
 export const columns: VxeGridProps['columns'] = [

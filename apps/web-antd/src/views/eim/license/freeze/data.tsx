@@ -18,10 +18,11 @@ export const FREEZE_STATUS_OPTIONS = Object.entries(FREEZE_STATUS_MAP).map(
   ([value, { text }]) => ({ value, label: text }),
 );
 
-export const querySchema: FormSchemaGetter = () => {
+export const querySchema: FormSchemaGetter = (_isAdmin: boolean = true) => {
   const tenantStore = useTenantStore();
-  return [
-    {
+  const filters: any[] = [];
+  if (_isAdmin) {
+    filters.push({
       component: 'Select',
       componentProps: {
         allowClear: true,
@@ -35,18 +36,19 @@ export const querySchema: FormSchemaGetter = () => {
       },
       fieldName: 'tenantId',
       label: '租户',
+    });
+  }
+  filters.push({
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      placeholder: '请选择状态',
+      options: FREEZE_STATUS_OPTIONS,
     },
-    {
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        placeholder: '请选择状态',
-        options: FREEZE_STATUS_OPTIONS,
-      },
-      fieldName: 'status',
-      label: '冻结状态',
-    },
-  ];
+    fieldName: 'status',
+    label: '冻结状态',
+  });
+  return filters;
 };
 
 export const columns: VxeGridProps['columns'] = [

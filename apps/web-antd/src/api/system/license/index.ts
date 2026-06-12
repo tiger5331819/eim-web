@@ -19,11 +19,17 @@ enum Api {
   status = '/manager/license/status',
   record = '/manager/license/record',
   freeze = '/manager/license/freeze',
+  my = '/manager/license/my',
 }
 
-/** 查询租户 License 余额 */
+/** 查询指定租户 License 余额（管理员用） */
 export function getLicense(tenantId: string) {
   return alovaInstance.get<TenantLicenseVO>(`${Api.root}/${tenantId}`);
+}
+
+/** 查询当前租户自己的 License 余额（普通租户用） */
+export function getMyLicense() {
+  return alovaInstance.get<TenantLicenseVO>(Api.my);
 }
 
 /** 添加 License 次数 */
