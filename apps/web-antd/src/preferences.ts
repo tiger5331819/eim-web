@@ -35,6 +35,10 @@ export const overridesPreferences = defineOverridesPreferences({
      */
     accessMode: 'mixed',
     /**
+     * eIM 首页
+     */
+    defaultHomePath: '/home',
+    /**
      * 不需要refresh token 由后端处理
      */
     enableRefreshToken: false,
@@ -56,6 +60,12 @@ export const overridesPreferences = defineOverridesPreferences({
   footer: {
     /**
      * 不显示footer
+     */
+    enable: false,
+  },
+  copyright: {
+    /**
+     * 不显示版权信息
      */
     enable: false,
   },

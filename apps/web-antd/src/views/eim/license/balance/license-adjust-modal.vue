@@ -5,11 +5,11 @@ import { useVbenModal } from '@vben/common-ui';
 import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
-import { adjustLicense } from '#/api/system/license';
+import { eimTenantLicenseAdjust } from '#/api/system/tenant';
 
 const emit = defineEmits<{ reload: [] }>();
 
-const tenantId = ref<string>('');
+const tenantId = ref<number>(0);
 const currentQuota = ref<number>(0);
 const previewDelta = ref<number | undefined>(undefined);
 
@@ -59,7 +59,7 @@ const [BasicModal, modalApi] = useVbenModal({
   },
   onOpenChange: (isOpen) => {
     if (!isOpen) return;
-    const data = modalApi.getData() as { tenantId: string; current: number };
+    const data = modalApi.getData() as { tenantId: number; current: number };
     tenantId.value = data.tenantId;
     currentQuota.value = data.current;
   },
@@ -85,7 +85,7 @@ async function handleConfirm() {
     const { valid } = await formApi.validate();
     if (!valid) return;
     const values = cloneDeep(await formApi.getValues());
-    await adjustLicense({
+    await eimTenantLicenseAdjust({
       tenantId: tenantId.value,
       delta: values.delta,
       remark: values.remark,

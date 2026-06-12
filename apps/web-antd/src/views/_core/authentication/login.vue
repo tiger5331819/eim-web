@@ -19,7 +19,6 @@ import { useAuthStore } from '#/store';
 
 import { useLoginTenantId } from '../oauth-common';
 import InputCaptcha from './input-captcha.vue';
-import OAuthLogin from './oauth-login.vue';
 
 defineOptions({ name: 'Login' });
 
@@ -177,12 +176,9 @@ async function handleAccountLogin(values: LoginAndRegisterParams) {
     :form-schema="formSchema"
     :loading="authStore.loginLoading"
     :show-register="false"
-    :show-third-party-login="true"
+    :show-code-login="false"
+    :show-qrcode-login="false"
+    :show-third-party-login="false"
     @submit="handleAccountLogin"
-  >
-    <!-- 可通过show-third-party-login控制是否显示第三方登录 -->
-    <template #third-party-login>
-      <OAuthLogin />
-    </template>
-  </AuthenticationLogin>
+  />
 </template>

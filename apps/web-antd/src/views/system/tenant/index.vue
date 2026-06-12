@@ -4,33 +4,32 @@ import type { DropdownEmits, MenuItemType, SwitchProps } from 'antdv-next';
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { Tenant } from '#/api/system/tenant/model';
+import type { EimTenantVo } from '#/api/system/tenant/model';
 
 import { computed } from 'vue';
-
-import { useRouter } from 'vue-router';
 
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { EnableStatus } from '@vben/constants';
 
-import { Dropdown, Popconfirm, Space } from 'antdv-next';
+import { Dropdown, Popconfirm, Space, Tag } from 'antdv-next';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
   dictSyncTenant,
+  eimTenantExport,
+  eimTenantLicenseAdjust,
+  eimTenantList,
+  eimTenantRemove,
+  eimTenantResetPassword,
+  eimTenantSyncPackage,
   syncTenantConfig,
-  tenantExport,
-  tenantList,
-  tenantRemove,
   tenantStatusChange,
-  tenantSyncPackage,
 } from '#/api/system/tenant';
 import { ApiSwitch } from '#/components/global';
 import { useTenantStore } from '#/store/tenant';
 import { useBlobExport } from '#/utils/file/export';
 import LicenseAdjustModal from '#/views/eim/license/balance/license-adjust-modal.vue';
-import { getLicense } from '#/api/system/license';
 
 import { columns, querySchema } from './data';
 import tenantDrawer from './tenant-drawer.vue';
@@ -48,12 +47,8 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   checkboxConfig: {
-    // 高亮
     highlight: true,
-    // 翻页时保留选中状态
     reserve: true,
-    // 点击行选中
-    // trigger: 'row',
     checkMethod: ({ row }) => row?.id !== 1,
   },
   columns,
@@ -63,7 +58,7 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await tenantList({
+        return await eimTenantList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
@@ -86,33 +81,15 @@ const [TenantDrawer, drawerApi] = useVbenDrawer({
   connectedComponent: tenantDrawer,
 });
 
-const router = useRouter();
-
 const [LicenseAdjustModalCmp, licenseAdjustApi] = useVbenModal({
   connectedComponent: LicenseAdjustModal,
 });
 
-function handleViewLicense(record: Tenant) {
-  router.push({
-    path: '/license/balance',
-    query: { tenantId: record.tenantId },
+async function handleAdjustLicense(record: EimTenantVo) {
+  licenseAdjustApi.setData({
+    tenantId: record.id,
+    current: record.licenseBalance ?? 0,
   });
-}
-
-async function handleAdjustLicense(record: Tenant) {
-  // 先获取真实余额再弹窗，避免预览显示 0
-  try {
-    const data = await getLicense(record.tenantId);
-    licenseAdjustApi.setData({
-      tenantId: record.tenantId,
-      current: data.availableQuota,
-    });
-  } catch {
-    licenseAdjustApi.setData({
-      tenantId: record.tenantId,
-      current: 0,
-    });
-  }
   licenseAdjustApi.open();
 }
 
@@ -121,55 +98,51 @@ function handleAdd() {
   drawerApi.open();
 }
 
-async function handleEdit(record: Tenant) {
+async function handleEdit(record: EimTenantVo) {
   drawerApi.setData({ id: record.id });
   drawerApi.open();
 }
 
-async function handleSync(record: Tenant) {
-  const { tenantId, packageId } = record;
-  await tenantSyncPackage(tenantId, packageId);
+async function handleSync(record: EimTenantVo) {
+  await eimTenantSyncPackage(record.id, record.packageId);
+  await tableApi.query();
+}
+
+async function handleResetPassword(record: EimTenantVo) {
+  await eimTenantResetPassword(record.id);
   await tableApi.query();
 }
 
 const tenantStore = useTenantStore();
-async function handleDelete(row: Tenant) {
-  await tenantRemove([row.id]);
+async function handleDelete(row: EimTenantVo) {
+  await eimTenantRemove([row.id]);
   await tableApi.query();
-  // 重新加载租户信息
   tenantStore.initTenant();
 }
 
 function handleMultiDelete() {
   const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: Tenant) => row.id);
+  const ids = rows.map((row: EimTenantVo) => row.id);
   window.modal.confirm({
     title: '提示',
     okType: 'danger',
     content: `确认删除选中的${ids.length}条记录吗？`,
     onOk: async () => {
-      await tenantRemove(ids);
+      await eimTenantRemove(ids);
       await tableApi.query();
-      // 重新加载租户信息
       tenantStore.initTenant();
     },
   });
 }
 
 const { exportBlob, exportLoading, buildExportFileName } =
-  useBlobExport(tenantExport);
+  useBlobExport(eimTenantExport);
 async function handleExport() {
-  // 构建表单请求参数
   const formValues = await tableApi.formApi.getValues();
-  // 文件名
   const fileName = buildExportFileName('租户数据');
   exportBlob({ data: formValues, fileName });
 }
 
-/**
- * 与后台逻辑相同
- * 只有超级管理员能访问租户相关
- */
 const { hasAccessByCodes, hasAccessByRoles } = useAccess();
 
 const isSuperAdmin = computed(() => {
@@ -200,7 +173,7 @@ function handleSyncTenantConfig() {
 
 async function handleChangeStatus(
   checked: SwitchProps['checked'],
-  row: Tenant,
+  row: EimTenantVo,
 ) {
   await tenantStatusChange({
     id: row.id,
@@ -275,6 +248,19 @@ const handleMenuClick: DropdownEmits['menuClick'] = (e) => {
           </a-button>
         </Space>
       </template>
+
+      <!-- 用户数 -->
+      <template #userCount="{ row }">
+        <span v-if="row.accountCount === -1">{{ row.userCount }} / 不限</span>
+        <span v-else>{{ row.userCount }} / {{ row.accountCount }}</span>
+      </template>
+
+      <!-- License余额 -->
+      <template #licenseBalance="{ row }">
+        <Tag color="blue" class="font-semibold">{{ row.licenseBalance ?? 0 }}</Tag>
+      </template>
+
+      <!-- 状态开关 -->
       <template #status="{ row }">
         <ApiSwitch
           :value="row.status === EnableStatus.Enable"
@@ -283,16 +269,10 @@ const handleMenuClick: DropdownEmits['menuClick'] = (e) => {
           @reload="tableApi.query()"
         />
       </template>
+
+      <!-- 操作按钮 -->
       <template #action="{ row }">
         <Space v-if="row.id !== 1">
-          <action-button
-            v-access:code="['eim:license:query']"
-            variant="link"
-            color="purple"
-            @click="handleViewLicense(row)"
-          >
-            License详情
-          </action-button>
           <action-button
             v-access:code="['eim:license:adjust']"
             variant="link"
@@ -307,6 +287,20 @@ const handleMenuClick: DropdownEmits['menuClick'] = (e) => {
           >
             {{ $t('pages.common.edit') }}
           </action-button>
+          <Popconfirm
+            title="确认重置该租户管理员密码为默认密码？"
+            placement="left"
+            @confirm="handleResetPassword(row)"
+          >
+            <action-button
+              variant="link"
+              color="purple"
+              v-access:code="['system:tenant:edit']"
+              @click.stop=""
+            >
+              重置密码
+            </action-button>
+          </Popconfirm>
           <Popconfirm
             :title="`确认同步[${row.companyName}]的套餐吗?`"
             placement="left"

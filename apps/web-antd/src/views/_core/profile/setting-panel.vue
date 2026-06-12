@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { TabPane, Tabs } from 'antdv-next';
 
-import AccountBind from './components/account-bind.vue';
 import BaseSetting from './components/base-setting.vue';
 import OnlineDevice from './components/online-device.vue';
 import SecureSetting from './components/secure-setting.vue';
@@ -18,13 +17,8 @@ const settingList = [
     name: '安全设置',
   },
   {
-    component: AccountBind,
-    key: '3',
-    name: '账号绑定',
-  },
-  {
     component: OnlineDevice,
-    key: '4',
+    key: '3',
     name: '在线设备',
   },
 ];

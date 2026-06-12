@@ -10,7 +10,7 @@ import { Button, Skeleton } from 'antdv-next';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
-import { tenantAdd, tenantInfo, tenantUpdate } from '#/api/system/tenant';
+import { eimTenantAdd, eimTenantInfo, eimTenantUpdate } from '#/api/system/tenant';
 import { packageSelectList } from '#/api/system/tenant-package';
 import { useTenantStore } from '#/store/tenant';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
@@ -40,9 +40,6 @@ const [BasicForm, formApi] = useVbenForm({
 const router = useRouter();
 async function setupPackageSelect() {
   const tenantPackageList = await packageSelectList();
-  /**
-   * 检测是否存在租户套餐 你也不想表单填完了发现套餐为0无法选中吧
-   */
   if (tenantPackageList.length === 0) {
     const closeMessage = window.message.error(
       h('span', {}, [
@@ -105,7 +102,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
 
     if (isUpdate.value && id) {
       const [record] = await Promise.all([
-        tenantInfo(id),
+        eimTenantInfo(id),
         setupPackageSelect(),
       ]);
       record.expireTime = record.expireTime
@@ -144,7 +141,7 @@ async function handleConfirm() {
     if (data.expireTime) {
       data.expireTime = dayjs(data.expireTime).format('YYYY-MM-DD HH:mm:ss');
     }
-    await (isUpdate.value ? tenantUpdate(data) : tenantAdd(data));
+    await (isUpdate.value ? eimTenantUpdate(data) : eimTenantAdd(data));
     resetInitialized();
     emit('reload');
     drawerApi.close();

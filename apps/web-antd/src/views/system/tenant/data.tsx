@@ -1,30 +1,19 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { h } from 'vue';
+
 import { getPopupContainer } from '@vben/utils';
+
+import { Tag } from 'antdv-next';
 
 import { z } from '#/adapter/form';
 
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
-    fieldName: 'tenantId',
-    label: '租户编号',
-  },
-  {
-    component: 'Input',
     fieldName: 'companyName',
     label: '租户名称',
-  },
-  {
-    component: 'Input',
-    fieldName: 'contactUserName',
-    label: '联系人',
-  },
-  {
-    component: 'Input',
-    fieldName: 'contactPhone',
-    label: '联系电话',
   },
 ];
 
@@ -33,32 +22,54 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '租户编号',
     field: 'tenantId',
+    width: 120,
   },
   {
     title: '租户名称',
     field: 'companyName',
+    minWidth: 160,
   },
   {
     title: '联系人',
     field: 'contactUserName',
+    width: 110,
   },
   {
     title: '联系电话',
     field: 'contactPhone',
+    width: 130,
+  },
+  {
+    title: '用户数',
+    field: 'userCount',
+    width: 100,
+    slots: { default: 'userCount' },
+  },
+  {
+    title: 'License余额',
+    field: 'licenseBalance',
+    width: 120,
+    slots: { default: 'licenseBalance' },
+  },
+  {
+    title: '域名',
+    field: 'domain',
+    width: 160,
+    formatter: ({ cellValue }) => cellValue || '--',
   },
   {
     title: '到期时间',
     field: 'expireTime',
+    width: 170,
     formatter: ({ cellValue }) => {
-      if (!cellValue) {
-        return '无期限';
-      }
+      if (!cellValue) return '无期限';
       return cellValue;
     },
   },
   {
     title: '租户状态',
     field: 'status',
+    width: 100,
     slots: { default: 'status' },
   },
   {
@@ -70,8 +81,6 @@ export const columns: VxeGridProps['columns'] = [
     width: 'auto',
   },
 ];
-
-// const defaultExpireTime = dayjs().add(365, 'days').startOf('day');
 
 export const drawerSchema: FormSchemaGetter = () => [
   {
@@ -186,7 +195,6 @@ export const drawerSchema: FormSchemaGetter = () => [
       valueFormat: 'YYYY-MM-DD HH:mm:ss',
       getPopupContainer,
     },
-    // defaultValue: defaultExpireTime,
     fieldName: 'expireTime',
     help: `已经设置过期时间不允许重置为'无期限'\n即在开通时未设置无期限 以后都不允许设置`,
     label: '过期时间',
