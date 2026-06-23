@@ -10,7 +10,15 @@ import { Button, Skeleton } from 'antdv-next';
 import dayjs from 'dayjs';
 
 import { useVbenForm } from '#/adapter/form';
-import { eimTenantAdd, eimTenantInfo, eimTenantUpdate } from '#/api/system/tenant';
+import {
+  eimTenantAdd,
+  eimTenantInfo,
+  eimTenantUpdate,
+} from '#/api/system/tenant';
+import type {
+  EimTenantAddBo,
+  EimTenantEditBo,
+} from '#/api/system/tenant/model';
 import { packageSelectList } from '#/api/system/tenant-package';
 import { useTenantStore } from '#/store/tenant';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
@@ -163,7 +171,11 @@ async function handleConfirm() {
     if (data.expireTime) {
       data.expireTime = dayjs(data.expireTime).format('YYYY-MM-DD HH:mm:ss');
     }
-    await (isUpdate.value ? eimTenantUpdate(data) : eimTenantAdd(data));
+    if (isUpdate.value) {
+      await eimTenantUpdate(data as EimTenantEditBo);
+    } else {
+      await eimTenantAdd(data as EimTenantAddBo);
+    }
     resetInitialized();
     emit('reload');
     drawerApi.close();
