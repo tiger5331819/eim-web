@@ -1,12 +1,8 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { h } from 'vue';
-
 import { getPopupContainer } from '@vben/utils';
 import { EnableStatus } from '@vben/constants';
-
-import { Tag } from 'antdv-next';
 
 import { z } from '#/adapter/form';
 
