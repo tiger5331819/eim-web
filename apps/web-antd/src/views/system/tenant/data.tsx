@@ -1,8 +1,8 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getPopupContainer } from '@vben/utils';
 import { EnableStatus } from '@vben/constants';
+import { getPopupContainer } from '@vben/utils';
 
 import { z } from '#/adapter/form';
 
