@@ -85,6 +85,10 @@ async function handleConfirm() {
     const { valid } = await formApi.validate();
     if (!valid) return;
     const values = cloneDeep(await formApi.getValues());
+    if (values.delta === 0) {
+      window.message.warning('调整量不能为 0');
+      return;
+    }
     await eimTenantLicenseAdjust({
       tenantId: tenantId.value,
       delta: values.delta,
