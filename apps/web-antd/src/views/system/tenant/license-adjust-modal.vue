@@ -11,7 +11,7 @@ const emit = defineEmits<{ reload: [] }>();
 
 const tenantId = ref<number>(0);
 const currentBalance = ref<number>(0);
-const previewDelta = ref<null | number>(undefined);
+const previewDelta = ref<number | undefined>(undefined);
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {
@@ -31,14 +31,7 @@ const [BasicForm, formApi] = useVbenForm({
       },
       fieldName: 'delta',
       label: '调整数量',
-      rules: [
-        { required: true, message: '请输入调整数量' },
-        {
-          validator: (_rule: any, value: number) =>
-            value === 0 ? Promise.reject(new Error('调整量不能为 0')) : Promise.resolve(),
-          trigger: 'change',
-        },
-      ],
+      rules: 'required',
       help: '正数为增加，负数为扣减（如：-100 表示扣减 100 次）',
     },
     {
