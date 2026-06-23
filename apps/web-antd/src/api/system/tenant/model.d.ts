@@ -67,6 +67,8 @@ export interface EimTenantEditBo {
   licenseNumber?: string;
   intro?: string;
   remark?: string;
+  /** 租户状态：0 启用 / 1 禁用（编辑弹窗随完整 EditBo 提交） */
+  status?: string;
 }
 
 /** eIM License 调整 BO */
