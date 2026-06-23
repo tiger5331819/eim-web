@@ -18,7 +18,6 @@ import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import {
   dictSyncTenant,
   eimTenantExport,
-  eimTenantLicenseAdjust,
   eimTenantList,
   eimTenantRemove,
   eimTenantResetPassword,
