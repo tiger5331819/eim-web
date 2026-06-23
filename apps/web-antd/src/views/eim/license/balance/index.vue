@@ -9,13 +9,12 @@ import { useUserStore } from '@vben/stores';
 
 import {
   CheckCircleFilled,
-  CloseCircleFilled,
   MinusOutlined,
   PlusOutlined,
   ReloadOutlined,
   SettingOutlined,
 } from '@antdv-next/icons';
-import { Button, Space, Table, Tag, Tooltip } from 'antdv-next';
+import { Button, Space, Table, Tooltip } from 'antdv-next';
 
 import { getLicense, getMyLicense, toggleLicenseStatus } from '#/api/system/license';
 import { useTenantStore } from '#/store/tenant';
