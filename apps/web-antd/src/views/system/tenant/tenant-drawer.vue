@@ -20,6 +20,8 @@ import { drawerSchema } from './data';
 const emit = defineEmits<{ reload: [] }>();
 
 const isUpdate = ref(false);
+/** 用户是否手动改过用户账号，改过则不再被企业名称联动覆盖 */
+const userTouched = ref(false);
 const title = computed(() => {
   return isUpdate.value ? $t('pages.common.edit') : $t('pages.common.add');
 });
@@ -78,6 +80,31 @@ async function setupPackageSelect() {
   ]);
 }
 
+/** 监听企业名称变化：新增模式下，未手动编辑账号时自动预填同名 */
+function bindUsernameAutoFill() {
+  if (isUpdate.value) return;
+  formApi.updateSchema([
+    {
+      fieldName: 'username',
+      componentProps: {
+        onChange: () => {
+          userTouched.value = true;
+        },
+      },
+    },
+    {
+      fieldName: 'companyName',
+      componentProps: {
+        onChange: (e: any) => {
+          if (userTouched.value) return;
+          const val = typeof e === 'string' ? e : e?.target?.value;
+          if (val) formApi.setFieldValue('username', val);
+        },
+      },
+    },
+  ]);
+}
+
 const { onBeforeClose, markInitialized, resetInitialized } = useBeforeCloseDiff(
   {
     initializedGetter: defaultFormValueGetter(formApi),
@@ -105,22 +132,17 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
         eimTenantInfo(id),
         setupPackageSelect(),
       ]);
+      // 编辑模式 username 字段隐藏，锁定标志位避免误触发
+      userTouched.value = true;
       record.expireTime = record.expireTime
         ? (dayjs(record.expireTime) as any)
         : undefined;
       await formApi.setValues(record);
     } else {
       await setupPackageSelect();
+      bindUsernameAutoFill();
     }
 
-    formApi.updateSchema([
-      {
-        fieldName: 'packageId',
-        componentProps: {
-          disabled: isUpdate.value,
-        },
-      },
-    ]);
     await markInitialized();
 
     drawerApi.drawerLoading(false);
@@ -156,6 +178,7 @@ async function handleConfirm() {
 
 async function handleClosed() {
   await formApi.resetForm();
+  userTouched.value = false;
   resetInitialized();
 }
 </script>
