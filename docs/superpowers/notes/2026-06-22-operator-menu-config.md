@@ -18,7 +18,9 @@
 
 | menu_name | parent_id | order_num | path | component | menu_type | perms | icon |
 |---|---|---|---|---|---|---|---|
-| 运营商管理 | `<归属一级目录>` | `<自定义>` | `operator` | `eim/operator/index` | `C`（菜单） | `eim:operator:list` | `ant-design:cloud-outlined` |
+| 运营商管理 | `Eim-base12050`(基础信息管理) | `1` | `operator` | `eim/base/operator/index` | `C`（菜单） | `eim:operator:list` | `peoples` |
+
+> 后端菜单实际配置已确认（见接口返回）：运营商管理挂在「基础信息管理」(`Eim-base12050`, path `/eim-base`) 下，component 为 `eim/base/operator/index`。前端页面已对齐放置于 `apps/web-antd/src/views/eim/base/operator/index.vue`。
 
 ## 按钮权限码
 
