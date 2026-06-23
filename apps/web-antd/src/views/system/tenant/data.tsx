@@ -4,6 +4,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { h } from 'vue';
 
 import { getPopupContainer } from '@vben/utils';
+import { EnableStatus } from '@vben/constants';
 
 import { Tag } from 'antdv-next';
 
@@ -267,5 +268,17 @@ export const drawerSchema: FormSchemaGetter = () => [
     fieldName: 'remark',
     formItemClass: 'items-start',
     label: '备注',
+  },
+  {
+    component: 'RadioGroup',
+    componentProps: {
+      options: [
+        { label: '启用', value: EnableStatus.Enable },
+        { label: '禁用', value: EnableStatus.Disable },
+      ],
+    },
+    defaultValue: EnableStatus.Enable,
+    fieldName: 'status',
+    label: '租户状态',
   },
 ];
