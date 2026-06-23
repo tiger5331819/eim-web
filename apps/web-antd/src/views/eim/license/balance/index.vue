@@ -191,7 +191,7 @@ onMounted(async () => {
       <!-- ---- 工具栏 ---- -->
       <div class="mb-4 flex items-center justify-between">
         <h2 class="text-base font-semibold tracking-tight text-gray-800 dark:text-gray-200">
-          License 余额明细
+          租户 License 余额明细
         </h2>
         <Button size="small" :loading="tableLoading" @click="loadAllLicenses">
           <template #icon><ReloadOutlined /></template>
