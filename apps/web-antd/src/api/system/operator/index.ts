@@ -54,3 +54,17 @@ export function operatorImport(file: File) {
     headers: { 'Content-Type': 'multipart/form-data;charset=UTF-8' },
   });
 }
+
+/**
+ * 拉取运营商下拉选项（供 APN 等模块选择运营商）
+ * label 形如「运营商名称(运营商编码)」，value 为运营商 id
+ */
+export async function getOperatorOptions() {
+  const res = await operatorList({ pageNum: 1, pageSize: 1000 });
+  return (res.rows || []).map((item) => ({
+    label: item.operatorCode
+      ? `${item.operatorName}（${item.operatorCode}）`
+      : item.operatorName,
+    value: item.id,
+  }));
+}

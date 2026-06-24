@@ -30,6 +30,12 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 160,
   },
   {
+    title: '运营商编码',
+    field: 'operatorCode',
+    width: 140,
+    align: 'center',
+  },
+  {
     title: '关联码号数',
     field: 'profileCount',
     width: 120,
@@ -71,12 +77,17 @@ export const columns: VxeGridProps['columns'] = [
 export const drawerSchema: FormSchemaGetter = () => [
   {
     component: 'Input',
-    dependencies: {
-      show: () => false,
-      triggerFields: [''],
-    },
     fieldName: 'id',
     label: 'id',
+  },
+  {
+    component: 'Input',
+    fieldName: 'operatorCode',
+    label: '运营商编码',
+    rules: 'required',
+    componentProps: {
+      placeholder: '如 46001',
+    },
   },
   {
     component: 'Input',

@@ -5,14 +5,16 @@ import { useVbenModal } from '@vben/common-ui';
 
 import { Checkbox, Select, Tag } from 'antdv-next';
 
-import { apnByCarrier } from '#/api/system/apn';
+import { apnByOperator } from '#/api/system/apn';
 import type { ApnVO } from '#/api/system/apn/model';
 
 interface SyncConfirmData {
-  /** 运营商编码（必填，用于拉取 APN 列表） */
-  carrierCode: string;
+  /** 运营商ID（必填，用于拉取 APN 列表） */
+  operatorId: number | string;
   /** 运营商名称（仅用于展示，可选） */
-  carrierName?: string;
+  operatorName?: string;
+  /** 运营商编码（仅用于展示，可选） */
+  operatorCode?: string;
   /** 默认 APN ID（可选，用作初始选中值） */
   defaultApnId?: string;
   /** 默认 APN 显示名（可选，用作头部展示） */
@@ -44,10 +46,10 @@ const selectedApn = computed(() =>
 );
 
 async function loadApnList() {
-  if (!data.value?.carrierCode) return;
+  if (!data.value?.operatorId) return;
   loading.value = true;
   try {
-    apnList.value = await apnByCarrier(data.value.carrierCode);
+    apnList.value = await apnByOperator(data.value.operatorId);
     // 默认选中：优先 setData 传入的 defaultApnId，否则取列表中的默认 APN，否则第一个
     if (
       data.value.defaultApnId &&
@@ -115,7 +117,7 @@ function handleConfirm() {
         <div class="mb-2 flex items-center gap-2 text-sm text-gray-500">
           <span>运营商：</span>
           <Tag color="blue">
-            {{ data?.carrierName || data?.carrierCode || '--' }}
+            {{ data?.operatorName || data?.operatorCode || '--' }}
           </Tag>
         </div>
         <div class="text-xs text-gray-500">

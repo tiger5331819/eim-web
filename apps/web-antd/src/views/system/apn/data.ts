@@ -1,6 +1,8 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { getOperatorOptions } from '#/api/system/operator';
+
 /** APN 来源映射 — 与后端 sourceType 字段值对齐 */
 const SOURCE_TYPE_MAP: Record<string, { color: string; text: string }> = {
   MANUAL:   { color: 'blue',   text: '手动录入' },
@@ -40,12 +42,14 @@ export const querySchema: FormSchemaGetter = () => [
     label: 'APN',
   },
   {
-    component: 'Input',
-    fieldName: 'carrierCode',
-    label: '运营商编码',
+    component: 'ApiSelect',
     componentProps: {
-      placeholder: '如 CMCC / CUCC / CTCC',
+      api: getOperatorOptions,
+      placeholder: '请选择运营商',
+      allowClear: true,
     },
+    fieldName: 'operatorId',
+    label: '运营商',
   },
   {
     component: 'Select',
@@ -77,11 +81,11 @@ export const columns: VxeGridProps['columns'] = [
   { title: '适用地区', field: 'local', width: 120 },
   {
     title: '运营商',
-    field: 'carrierName',
-    width: 140,
+    field: 'operatorName',
+    width: 160,
     formatter: ({ row }) => {
-      const code = row.carrierCode ? `（${row.carrierCode}）` : '';
-      return row.carrierName ? `${row.carrierName}${code}` : '--';
+      const code = row.operatorCode ? `（${row.operatorCode}）` : '';
+      return row.operatorName ? `${row.operatorName}${code}` : '--';
     },
   },
   {
@@ -145,19 +149,13 @@ export const modalSchema: FormSchemaGetter = () => [
     rules: 'required',
   },
   {
-    component: 'Input',
-    fieldName: 'carrierCode',
-    label: '运营商编码',
+    component: 'ApiSelect',
+    fieldName: 'operatorId',
+    label: '运营商',
+    rules: 'required',
     componentProps: {
-      placeholder: '如 CMCC / CUCC / CTCC',
-    },
-  },
-  {
-    component: 'Input',
-    fieldName: 'carrierName',
-    label: '运营商名称',
-    componentProps: {
-      placeholder: '如 中国移动 / 中国联通 / 中国电信',
+      api: getOperatorOptions,
+      placeholder: '请选择运营商',
     },
   },
   {

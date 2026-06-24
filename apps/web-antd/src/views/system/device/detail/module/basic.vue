@@ -70,11 +70,12 @@ async function handleEnable(row: any) {
   lastEnabledIccid.value = row.iccid;
   await getList();
 
-  // 弹 APN 同步确认 — 需要 carrierCode
-  if (row.carrierCode || row.issuer || row.providerName) {
+  // 弹 APN 同步确认 — 需要 operatorId（后端 profile 暂未返回 operatorId 时，降级兜底）
+  const operatorId = row.operatorId;
+  if (operatorId) {
     apnSyncApi.setData({
-      carrierCode: row.carrierCode || row.issuer || '',
-      carrierName: row.providerName || row.issuer || '',
+      operatorId,
+      operatorName: row.operatorName || row.operatorCode || row.providerName || row.issuer || '',
       defaultApnId: row.apnId,
       defaultApnName: row.apnName || row.apn,
       bizHint: `ICCID ${row.iccid} 已启用，请确认 APN 配置`,

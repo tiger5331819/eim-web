@@ -26,6 +26,7 @@ const uploading = ref(false);
 
 const tableColumns = [
   { title: '运营商名称', dataIndex: 'operatorName' },
+  { title: '运营商编码', dataIndex: 'operatorCode', customRender: ({ text }: any) => text || '--' },
   { title: '失败原因', dataIndex: 'failReason' },
 ];
 

@@ -8,7 +8,7 @@ enum Api {
   root = '/manager/apn',
   apnList = '/manager/apn/list',
   apnExport = '/manager/apn/export',
-  byCarrier = '/manager/apn/by-carrier',
+  byOperator = '/manager/apn/by-operator',
 }
 
 export function listApn(params?: PageQuery) {
@@ -36,9 +36,9 @@ export function setDefaultApn(id: ID) {
   return alovaInstance.patchWithMsg<void>(`${Api.root}/${id}/default`);
 }
 
-/** 按运营商编码查询 APN 列表（供下号/启用流程使用） */
-export function apnByCarrier(carrierCode: string) {
-  return alovaInstance.get<ApnVO[]>(`${Api.byCarrier}/${carrierCode}`);
+/** 按运营商ID查询启用APN列表（供下号/启用流程使用） */
+export function apnByOperator(operatorId: number | string) {
+  return alovaInstance.get<ApnVO[]>(`${Api.byOperator}/${operatorId}`);
 }
 
 export function apnExport(data: Record<string, any>) {

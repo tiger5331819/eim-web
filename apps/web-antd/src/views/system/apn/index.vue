@@ -93,7 +93,7 @@ function handleMultiDelete() {
 }
 
 async function handleSetDefault(row: ApnVO) {
-  const carrier = row.carrierName || row.carrierCode || '当前运营商';
+  const carrier = row.operatorName || row.operatorCode || '当前运营商';
   window.modal.confirm({
     title: '设为默认 APN',
     content: `确认将「${row.name}」设为 ${carrier} 的默认 APN？同运营商下的其他默认 APN 将被自动取消。`,
@@ -165,7 +165,7 @@ async function handleExport() {
       <template #action="{ row }">
         <Space>
           <action-button
-            v-if="row.isDefault !== '1' && row.carrierCode"
+            v-if="row.isDefault !== '1' && row.operatorId"
             variant="link"
             color="gold"
             @click.stop="handleSetDefault(row)"
