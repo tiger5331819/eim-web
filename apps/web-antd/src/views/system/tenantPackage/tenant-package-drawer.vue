@@ -16,6 +16,7 @@ import {
   packageInfo,
   packageUpdate,
 } from '#/api/system/tenant-package';
+import type { EimTenantPackageBo } from '#/api/system/tenant-package/model';
 import { MenuSelectTable } from '#/components/tree';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
@@ -25,7 +26,7 @@ const emit = defineEmits<{ reload: [] }>();
 
 const isUpdate = ref(false);
 const title = computed(() => {
-  return isUpdate.value ? $t('pages.common.edit') : $t('pages.common.add');
+  return isUpdate.value ? '编辑套餐' : '新增套餐';
 });
 
 const [BasicForm, formApi] = useVbenForm({
@@ -106,10 +107,20 @@ async function handleConfirm() {
     }
     // 这个用于提交
     const menuIds = menuSelectRef.value?.getCheckedKeys?.() ?? [];
-    // formApi.getValues拿到的是一个readonly对象，不能直接修改，需要cloneDeep
+    if (menuIds.length === 0) {
+      window.message.warning('请至少选择一个关联菜单');
+      return;
+    }
     const data = cloneDeep(await formApi.getValues());
     data.menuIds = menuIds;
-    await (isUpdate.value ? packageUpdate(data) : packageAdd(data));
+    if (isUpdate.value) {
+      await packageUpdate(data as EimTenantPackageBo);
+      window.message.success('编辑成功');
+    } else {
+      delete data.packageId;
+      await packageAdd(data as EimTenantPackageBo);
+      window.message.success('新增成功');
+    }
     resetInitialized();
     emit('reload');
     drawerApi.close();

@@ -1,11 +1,5 @@
 /**
- * @description 租户套餐
- * @param packageId id
- * @param packageName 名称
- * @param menuIds 菜单id  格式为[1,2,3] 返回为string 提交为数组
- * @param remark 备注
- * @param menuCheckStrictly 是否关联父节点
- * @param status 状态
+ * @description 租户套餐（旧，保留兼容）
  */
 export interface TenantPackage {
   packageId: string;
@@ -13,5 +7,35 @@ export interface TenantPackage {
   menuIds: number[] | string;
   remark: string;
   menuCheckStrictly: boolean;
+  status: string;
+}
+
+/** eIM 租户套餐列表 VO */
+export interface EimTenantPackageVo {
+  packageId: number;
+  packageName: string;
+  menuIds?: string;
+  remark?: string;
+  menuCheckStrictly?: boolean;
+  status: string;
+  /** 绑定租户数 */
+  tenantCount?: number;
+  createTime?: string;
+  createByName?: string;
+}
+
+/** eIM 租户套餐新增/编辑 BO */
+export interface EimTenantPackageBo {
+  packageId?: number;
+  packageName: string;
+  remark?: string;
+  menuIds?: number[];
+  menuCheckStrictly?: boolean;
+  status?: string;
+}
+
+/** eIM 租户套餐状态切换 BO */
+export interface EimTenantPackageStatusBo {
+  packageId: number;
   status: string;
 }

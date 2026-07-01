@@ -1,9 +1,16 @@
-import type { TenantPackage } from './model';
+import type {
+  EimTenantPackageBo,
+  EimTenantPackageStatusBo,
+  EimTenantPackageVo,
+  TenantPackage,
+} from './model';
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
 import { commonExport } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
+
+// ============ 旧 API（保留兼容） ============
 
 enum Api {
   packageChangeStatus = '/system/tenant/package/changeStatus',
@@ -13,79 +20,73 @@ enum Api {
   root = '/system/tenant/package',
 }
 
-/**
- * 租户套餐分页列表
- * @param params 请求参数
- * @returns 分页列表
- */
-export function packageList(params?: PageQuery) {
+/** 租户套餐分页列表（旧） */
+export function packageListLegacy(params?: PageQuery) {
   return alovaInstance.get<PageResult<TenantPackage>>(Api.packageList, {
     params,
   });
 }
 
-/**
- * 租户套餐下拉框
- * @returns 下拉框
- */
+// ============ eIM 新 API ============
+
+enum EimApi {
+  root = '/manager/tenant/package',
+  list = '/manager/tenant/package/list',
+  selectList = '/manager/tenant/package/selectList',
+  export = '/manager/tenant/package/export',
+  changeStatus = '/manager/tenant/package/changeStatus',
+}
+
+/** eIM: 分页查询套餐列表 */
+export function packageList(params?: PageQuery) {
+  return alovaInstance.get<PageResult<EimTenantPackageVo>>(EimApi.list, {
+    params,
+  });
+}
+
+/** eIM: 查询启用套餐下拉列表 */
 export function packageSelectList() {
-  return alovaInstance.get<TenantPackage[]>(Api.packageSelectList);
+  return alovaInstance.get<EimTenantPackageVo[]>(EimApi.selectList);
 }
 
-/**
- * 租户套餐导出
- * @param data 参数
- * @returns blob
- */
-export function packageExport(data: Partial<TenantPackage>) {
-  return commonExport(Api.packageExport, data);
+/** eIM: 导出套餐列表 */
+export function packageExport(data: Record<string, any>) {
+  return commonExport(EimApi.export, data);
 }
 
-/**
- * 租户套餐信息
- * @param id id
- * @returns 信息
- */
-export function packageInfo(id: ID) {
-  return alovaInstance.get<TenantPackage>(`${Api.root}/${id}`);
+/** eIM: 获取套餐详情 */
+export function packageInfo(packageId: ID) {
+  return alovaInstance.get<EimTenantPackageVo>(
+    `${EimApi.root}/${packageId}`,
+  );
 }
 
-/**
- * 租户套餐新增
- * @param data data
- * @returns void
- */
-export function packageAdd(data: Partial<TenantPackage>) {
-  return alovaInstance.postWithMsg<void>(Api.root, data);
+/** eIM: 新增套餐 */
+export function packageAdd(data: EimTenantPackageBo) {
+  return alovaInstance.postWithMsg<void>(EimApi.root, data, {
+    successMessageMode: 'none',
+  });
 }
 
-/**
- * 租户套餐更新
- * @param data data
- * @returns void
- */
-export function packageUpdate(data: Partial<TenantPackage>) {
-  return alovaInstance.putWithMsg<void>(Api.root, data);
+/** eIM: 修改套餐 */
+export function packageUpdate(data: EimTenantPackageBo) {
+  return alovaInstance.putWithMsg<void>(EimApi.root, data, {
+    successMessageMode: 'none',
+  });
 }
 
-/**
- * 租户套餐状态变更
- * @param data data
- * @returns void
- */
-export function packageChangeStatus(data: Partial<TenantPackage>) {
-  const packageId = {
-    packageId: data.packageId,
-    status: data.status,
-  };
-  return alovaInstance.putWithMsg<void>(Api.packageChangeStatus, packageId);
+/** eIM: 切换套餐状态 */
+export function packageChangeStatus(data: EimTenantPackageStatusBo) {
+  return alovaInstance.putWithMsg<void>(EimApi.changeStatus, data, {
+    successMessageMode: 'none',
+  });
 }
 
-/**
- * 租户套餐移除
- * @param ids ids
- * @returns void
- */
-export function packageRemove(ids: IDS) {
-  return alovaInstance.deleteWithMsg<void>(`${Api.root}/${ids}`);
+/** eIM: 删除套餐 */
+export function packageRemove(packageIds: IDS) {
+  return alovaInstance.deleteWithMsg<void>(
+    `${EimApi.root}/${packageIds}`,
+    undefined,
+    { successMessageMode: 'none' },
+  );
 }

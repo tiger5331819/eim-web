@@ -3,7 +3,6 @@ import { computed, h, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useVbenDrawer } from '@vben/common-ui';
-import { $t } from '@vben/locales';
 import { cloneDeep } from '@vben/utils';
 
 import { Button, Skeleton } from 'antdv-next';
@@ -31,13 +30,13 @@ const isUpdate = ref(false);
 /** 用户是否手动改过用户账号，改过则不再被企业名称联动覆盖 */
 const userTouched = ref(false);
 const title = computed(() => {
-  return isUpdate.value ? $t('pages.common.edit') : $t('pages.common.add');
+  return isUpdate.value ? '编辑租户' : '新增租户';
 });
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {
     formItemClass: 'col-span-2',
-    labelWidth: 100,
+    labelWidth: 110,
     componentProps: {
       class: 'w-full',
     },
@@ -94,11 +93,14 @@ function bindUsernameAutoFill() {
   formApi.updateSchema([
     {
       fieldName: 'username',
-      componentProps: {
+      componentProps: (values: Record<string, any>) => ({
+        disabled: !!values?.id,
+        maxlength: 30,
+        placeholder: '请输入用户账号',
         onChange: () => {
           userTouched.value = true;
         },
-      },
+      }),
     },
     {
       fieldName: 'companyName',
@@ -111,6 +113,35 @@ function bindUsernameAutoFill() {
       },
     },
   ]);
+}
+
+function mapRecordToForm(record: Record<string, any>) {
+  const formData = { ...record };
+  if (record.accountCount === -1) {
+    formData.accountLimitType = 'unlimited';
+  } else {
+    formData.accountLimitType = 'limited';
+    formData.accountCountLimit = record.accountCount;
+  }
+  formData.expireTime = record.expireTime
+    ? dayjs(record.expireTime).format('YYYY-MM-DD')
+    : undefined;
+  return formData;
+}
+
+function mapFormToSubmit(data: Record<string, any>) {
+  const payload = cloneDeep(data);
+  payload.accountCount =
+    payload.accountLimitType === 'unlimited' ? -1 : payload.accountCountLimit;
+  delete payload.accountLimitType;
+  delete payload.accountCountLimit;
+  delete payload.username;
+  if (payload.expireTime) {
+    payload.expireTime = dayjs(payload.expireTime).format(
+      'YYYY-MM-DD 23:59:59',
+    );
+  }
+  return payload;
 }
 
 const { onBeforeClose, markInitialized, resetInitialized } = useBeforeCloseDiff(
@@ -140,12 +171,8 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
         eimTenantInfo(id),
         setupPackageSelect(),
       ]);
-      // 编辑模式 username 字段隐藏，锁定标志位避免误触发
       userTouched.value = true;
-      record.expireTime = record.expireTime
-        ? (dayjs(record.expireTime) as any)
-        : undefined;
-      await formApi.setValues(record);
+      await formApi.setValues(mapRecordToForm(record));
     } else {
       await setupPackageSelect();
       bindUsernameAutoFill();
@@ -166,20 +193,17 @@ async function handleConfirm() {
     if (!valid) {
       return;
     }
-    const data = cloneDeep(await formApi.getValues());
-    // dayjs转string
-    if (data.expireTime) {
-      data.expireTime = dayjs(data.expireTime).format('YYYY-MM-DD HH:mm:ss');
-    }
+    const data = mapFormToSubmit(await formApi.getValues());
     if (isUpdate.value) {
       await eimTenantUpdate(data as EimTenantEditBo);
+      window.message.success('编辑租户成功');
     } else {
       await eimTenantAdd(data as EimTenantAddBo);
+      window.message.success('新增租户成功');
     }
     resetInitialized();
     emit('reload');
     drawerApi.close();
-    // 重新加载租户信息
     tenantStore.initTenant();
   } catch (error) {
     console.error(error);
@@ -201,9 +225,3 @@ async function handleClosed() {
     <BasicForm v-show="!loading" />
   </BasicDrawer>
 </template>
-
-<style lang="scss" scoped>
-:deep(.ant-divider) {
-  margin: 8px 0;
-}
-</style>

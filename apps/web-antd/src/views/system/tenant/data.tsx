@@ -1,21 +1,53 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { EnableStatus } from '@vben/constants';
+import { DictEnum } from '@vben/constants';
 import { getPopupContainer } from '@vben/utils';
 
 import { z } from '#/adapter/form';
+import { getDictOptions } from '#/utils/dict';
+
+const passwordPattern = /^(?![0-9]+$)(?![a-zA-Z]+$)[A-Za-z0-9]{8,20}$/;
+
+const domainPattern =
+  /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
+    componentProps: {
+      placeholder: '请输入租户名称',
+    },
     fieldName: 'companyName',
     label: '租户名称',
+  },
+  {
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      getPopupContainer,
+      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      placeholder: '全部',
+    },
+    fieldName: 'status',
+    label: '租户状态',
+  },
+  {
+    component: 'Input',
+    componentProps: {
+      placeholder: '请输入联系人',
+    },
+    fieldName: 'contactUserName',
+    label: '联系人',
+  },
+  {
+    component: 'RangePicker',
+    fieldName: 'createTime',
+    label: '创建时间',
   },
 ];
 
 export const columns: VxeGridProps['columns'] = [
-  { type: 'checkbox', width: 60 },
   {
     title: '租户编号',
     field: 'tenantId',
@@ -27,41 +59,10 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 160,
   },
   {
-    title: '联系人',
-    field: 'contactUserName',
-    width: 110,
-  },
-  {
-    title: '联系电话',
-    field: 'contactPhone',
-    width: 130,
-  },
-  {
-    title: '用户数',
-    field: 'userCount',
-    width: 100,
-    slots: { default: 'userCount' },
-  },
-  {
-    title: 'License余额',
-    field: 'licenseBalance',
-    width: 120,
-    slots: { default: 'licenseBalance' },
-  },
-  {
-    title: '域名',
+    title: '自定义域名',
     field: 'domain',
-    width: 160,
+    minWidth: 160,
     formatter: ({ cellValue }) => cellValue || '--',
-  },
-  {
-    title: '到期时间',
-    field: 'expireTime',
-    width: 170,
-    formatter: ({ cellValue }) => {
-      if (!cellValue) return '无期限';
-      return cellValue;
-    },
   },
   {
     title: '租户状态',
@@ -70,12 +71,42 @@ export const columns: VxeGridProps['columns'] = [
     slots: { default: 'status' },
   },
   {
+    title: '用户数',
+    field: 'userCount',
+    width: 90,
+  },
+  {
+    title: 'License余额',
+    field: 'licenseBalance',
+    width: 110,
+  },
+  {
+    title: '码号数',
+    field: 'assignedProfileCount',
+    width: 90,
+    formatter: ({ cellValue }) => cellValue ?? 0,
+  },
+  {
+    title: '过期时间',
+    field: 'expireTime',
+    width: 120,
+    formatter: ({ cellValue }) => {
+      if (!cellValue) return '--';
+      return cellValue.slice(0, 10);
+    },
+  },
+  {
+    title: '联系人',
+    field: 'contactUserName',
+    width: 110,
+  },
+  {
     field: 'action',
     fixed: 'right',
     slots: { default: 'action' },
     title: '操作',
     resizable: false,
-    width: 'auto',
+    width: 160,
   },
 ];
 
@@ -91,94 +122,94 @@ export const drawerSchema: FormSchemaGetter = () => [
   },
   {
     component: 'Input',
-    dependencies: {
-      show: () => false,
-      triggerFields: [''],
-    },
-    fieldName: 'tenantId',
-    label: 'tenantId',
-  },
-  {
-    component: 'Divider',
     componentProps: {
-      orientation: 'center',
+      maxlength: 50,
+      placeholder: '请输入租户名称',
     },
-    fieldName: 'divider1',
-    hideLabel: true,
-    renderComponentContent: () => ({
-      default: () => '基本信息',
-    }),
-  },
-  {
-    component: 'Input',
     fieldName: 'companyName',
-    label: '企业名称',
-    rules: 'required',
+    label: '租户名称',
+    rules: z
+      .string()
+      .min(1, { message: '请输入租户名称' })
+      .max(50, { message: '租户名称最长50字符' }),
   },
   {
     component: 'Input',
+    componentProps: {
+      maxlength: 20,
+      placeholder: '请输入联系人',
+    },
     fieldName: 'contactUserName',
     label: '联系人',
-    rules: 'required',
+    rules: z
+      .string()
+      .min(1, { message: '请输入联系人' })
+      .max(20, { message: '联系人最长20字符' }),
   },
   {
     component: 'Input',
+    componentProps: {
+      maxlength: 11,
+      placeholder: '请输入11位手机号',
+    },
     fieldName: 'contactPhone',
     label: '联系电话',
     rules: z
       .string()
-      .regex(/^1[3-9]\d{9}$/, { message: '请输入正确的联系电话' }),
-  },
-  {
-    component: 'Divider',
-    componentProps: {
-      orientation: 'center',
-    },
-    fieldName: 'divider2',
-    hideLabel: true,
-    renderComponentContent: () => ({
-      default: () => '管理员信息',
-    }),
-    dependencies: {
-      if: (values) => !values?.tenantId,
-      triggerFields: ['tenantId'],
-    },
+      .regex(/^\d{11}$/, { message: '请输入11位手机号' }),
   },
   {
     component: 'Input',
+    componentProps: {
+      disabled: true,
+      placeholder: '请输入用户账号',
+    },
+    dependencies: {
+      if: (values) => !!values?.id,
+      triggerFields: ['id'],
+    },
+    fieldName: 'adminAccount',
+    label: '用户账号',
+  },
+  {
+    component: 'Input',
+    componentProps: {
+      maxlength: 30,
+      placeholder: '请输入用户账号',
+    },
+    dependencies: {
+      if: (values) => !values?.id,
+      triggerFields: ['id'],
+    },
     fieldName: 'username',
     label: '用户账号',
-    rules: 'required',
-    dependencies: {
-      if: (values) => !values?.tenantId,
-      triggerFields: ['tenantId'],
-    },
+    rules: z
+      .string()
+      .min(1, { message: '请输入用户账号' })
+      .max(30, { message: '用户账号最长30字符' }),
   },
   {
     component: 'InputPassword',
-    fieldName: 'password',
-    label: '用户密码',
-    rules: 'required',
-    dependencies: {
-      if: (values) => !values?.tenantId,
-      triggerFields: ['tenantId'],
-    },
-  },
-  {
-    component: 'Divider',
     componentProps: {
-      orientation: 'center',
+      placeholder: '请输入密码（8-20位，含字母和数字）',
     },
-    fieldName: 'divider3',
-    hideLabel: true,
-    renderComponentContent: () => ({
-      default: () => '租户设置',
-    }),
+    dependencies: {
+      if: (values) => !values?.id,
+      triggerFields: ['id'],
+    },
+    fieldName: 'password',
+    label: '账户密码',
+    rules: z
+      .string()
+      .regex(passwordPattern, {
+        message: '密码需8-20位，且同时包含字母和数字',
+      }),
   },
   {
     component: 'Select',
     componentProps: {
       getPopupContainer,
+      placeholder: '请选择套餐',
     },
     fieldName: 'packageId',
     label: '租户套餐',
@@ -187,94 +218,104 @@ export const drawerSchema: FormSchemaGetter = () => [
   {
     component: 'DatePicker',
     componentProps: {
-      format: 'YYYY-MM-DD HH:mm:ss',
-      showTime: true,
-      valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      format: 'YYYY-MM-DD',
+      valueFormat: 'YYYY-MM-DD',
       getPopupContainer,
+      placeholder: '请选择过期时间（选填）',
     },
     fieldName: 'expireTime',
-    help: `已经设置过期时间不允许重置为'无期限'\n即在开通时未设置无期限 以后都不允许设置`,
     label: '过期时间',
+  },
+  {
+    component: 'RadioGroup',
+    componentProps: {
+      options: [
+        { label: '不限制', value: 'unlimited' },
+        { label: '限制', value: 'limited' },
+      ],
+    },
+    defaultValue: 'unlimited',
+    fieldName: 'accountLimitType',
+    label: '用户数量限额',
+    rules: 'required',
   },
   {
     component: 'InputNumber',
     componentProps: {
-      min: -1,
+      min: 1,
+      precision: 0,
+      placeholder: '请输入限制数量',
     },
-    defaultValue: -1,
-    fieldName: 'accountCount',
-    help: '-1不限制用户数量',
-    label: '用户数量',
-    renderComponentContent(model) {
-      return {
-        addonBefore: () =>
-          model.accountCount === -1 ? '不限制数量' : '输入数量',
-      };
+    dependencies: {
+      if: (values) => values.accountLimitType === 'limited',
+      rules: (values) => {
+        if (values.accountLimitType === 'limited') {
+          return z
+            .number({ message: '请输入限制数量' })
+            .int({ message: '请输入正整数' })
+            .min(1, { message: '用户数量至少为1' });
+        }
+        return z.any().optional();
+      },
+      triggerFields: ['accountLimitType'],
     },
-    rules: 'required',
+    fieldName: 'accountCountLimit',
+    label: '限制数量',
   },
   {
     component: 'Input',
-    fieldName: 'domain',
-    help: '可填写域名/端口 填写域名如: www.test.com 或者 www.test.com:8080 填写ip:端口如: 127.0.0.1:8080',
-    label: '绑定域名',
-    renderComponentContent() {
-      return {
-        addonBefore: () => 'http(s)://',
-      };
+    componentProps: {
+      maxlength: 30,
+      placeholder: '请输入自定义域名',
     },
+    fieldName: 'domain',
+    label: '自定义域名',
     rules: z
       .string()
-      .refine(
-        (domain) =>
-          !(domain.startsWith('http://') || domain.startsWith('https://')),
-        { message: '请输入正确的域名, 不需要http(s)' },
-      )
-      .optional(),
-  },
-  {
-    component: 'Divider',
-    componentProps: {
-      orientation: 'center',
-    },
-    fieldName: 'divider4',
-    hideLabel: true,
-    renderComponentContent: () => ({
-      default: () => '企业信息',
-    }),
+      .min(1, { message: '请输入自定义域名' })
+      .max(30, { message: '域名最长30字符' })
+      .regex(domainPattern, { message: '请输入合法的域名格式' }),
   },
   {
     component: 'Input',
+    componentProps: {
+      maxlength: 100,
+      placeholder: '请输入企业地址',
+    },
     fieldName: 'address',
     label: '企业地址',
   },
   {
     component: 'Input',
+    componentProps: {
+      maxlength: 30,
+      placeholder: '请输入企业代码',
+    },
     fieldName: 'licenseNumber',
     label: '企业代码',
   },
   {
     component: 'Textarea',
+    componentProps: {
+      maxlength: 500,
+      showCount: true,
+      rows: 3,
+      placeholder: '请输入企业介绍',
+    },
     fieldName: 'intro',
     formItemClass: 'items-start',
     label: '企业介绍',
   },
   {
     component: 'Textarea',
+    componentProps: {
+      maxlength: 200,
+      showCount: true,
+      rows: 2,
+      placeholder: '请输入备注',
+    },
     fieldName: 'remark',
     formItemClass: 'items-start',
     label: '备注',
-  },
-  {
-    component: 'RadioGroup',
-    componentProps: {
-      options: [
-        { label: '启用', value: EnableStatus.Enable },
-        { label: '禁用', value: EnableStatus.Disable },
-      ],
-    },
-    defaultValue: EnableStatus.Enable,
-    fieldName: 'status',
-    label: '租户状态',
   },
 ];

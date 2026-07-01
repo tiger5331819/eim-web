@@ -4,7 +4,7 @@ import type { SwitchProps } from 'antdv-next';
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { TenantPackage } from '#/api/system/tenant-package/model';
+import type { EimTenantPackageVo } from '#/api/system/tenant-package/model';
 
 import { computed } from 'vue';
 
@@ -12,9 +12,9 @@ import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
 import { EnableStatus } from '@vben/constants';
 
-import { Popconfirm, Space } from 'antdv-next';
+import { Popconfirm, Space, Switch, Tooltip } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
   packageChangeStatus,
   packageExport,
@@ -35,22 +35,18 @@ const formOptions: VbenFormProps = {
     },
   },
   schema: querySchema(),
-  wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
 };
 
 const gridOptions: VxeGridProps = {
-  checkboxConfig: {
-    // 高亮
-    highlight: true,
-    // 翻页时保留选中状态
-    reserve: true,
-    // 点击行选中
-    // trigger: 'row',
-  },
   columns,
   height: 'auto',
   keepSource: true,
-  pagerConfig: {},
+  emptyText: '暂无套餐数据',
+  pagerConfig: {
+    pageSize: 10,
+    pageSizes: [10, 20, 50, 100],
+  },
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
@@ -82,121 +78,151 @@ function handleAdd() {
   drawerApi.open();
 }
 
-async function handleEdit(record: TenantPackage) {
+async function handleEdit(record: EimTenantPackageVo) {
   drawerApi.setData({ id: record.packageId });
   drawerApi.open();
 }
 
-async function handleDelete(row: TenantPackage) {
-  await packageRemove([row.packageId]);
-  await tableApi.query();
+function handleDeleteClick(row: EimTenantPackageVo) {
+  if ((row.tenantCount ?? 0) > 0) {
+    window.message.warning('该套餐已绑定租户，无法删除，请先解除绑定关系。');
+  }
 }
 
-function handleMultiDelete() {
-  const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: TenantPackage) => row.packageId);
-  window.modal.confirm({
-    title: '提示',
-    okType: 'danger',
-    content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
-      await packageRemove(ids);
-      await tableApi.query();
-    },
-  });
+async function handleDelete(row: EimTenantPackageVo) {
+  if ((row.tenantCount ?? 0) > 0) {
+    return;
+  }
+  await packageRemove([row.packageId]);
+  window.message.success('删除成功');
+  await tableApi.query();
 }
 
 const { exportBlob, exportLoading, buildExportFileName } =
   useBlobExport(packageExport);
 async function handleExport() {
-  // 构建表单请求参数
   const formValues = await tableApi.formApi.getValues();
-  // 文件名
-  const fileName = buildExportFileName('租户套餐数据');
+  const fileName = buildExportFileName('租户套餐');
   exportBlob({ data: formValues, fileName });
 }
 
-/**
- * 与后台逻辑相同
- * 只有超级管理员能访问租户相关
- */
 const { hasAccessByCodes, hasAccessByRoles } = useAccess();
 
 const isSuperAdmin = computed(() => {
   return hasAccessByRoles(['superadmin']);
 });
 
+function isStatusSwitchDisabled(row: EimTenantPackageVo) {
+  return (row.tenantCount ?? 0) > 0;
+}
+
 async function handleChangeStatus(
   checked: SwitchProps['checked'],
-  row: TenantPackage,
+  row: EimTenantPackageVo,
 ) {
+  if (!checked) {
+    await new Promise<void>((resolve, reject) => {
+      window.modal.confirm({
+        title: '提示',
+        content: '禁用后，新建租户将无法选择该套餐。',
+        onOk: () => resolve(),
+        onCancel: () => reject(new Error('cancel')),
+      });
+    });
+  }
   await packageChangeStatus({
     packageId: row.packageId,
     status: checked ? EnableStatus.Enable : EnableStatus.Disable,
   });
+  window.message.success(checked ? '启用成功' : '禁用成功');
 }
 </script>
 
 <template>
   <Page v-if="isSuperAdmin" :auto-content-height="true">
-    <BasicTable table-title="租户套餐列表">
-      <template #toolbar-tools>
-        <Space>
-          <a-button
-            v-access:code="['system:tenantPackage:export']"
-            :loading="exportLoading"
-            :disabled="exportLoading"
-            @click="handleExport"
-          >
-            {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
-            :disabled="!vxeCheckboxChecked(tableApi)"
-            danger
-            type="primary"
-            v-access:code="['system:tenantPackage:remove']"
-            @click="handleMultiDelete"
-          >
-            {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button
-            type="primary"
-            v-access:code="['system:tenantPackage:add']"
-            @click="handleAdd"
-          >
-            {{ $t('pages.common.add') }}
-          </a-button>
-        </Space>
+    <BasicTable>
+      <template #toolbar-actions>
+        <a-button
+          type="primary"
+          v-access:code="['eim:tenantPackage:add', 'system:tenantPackage:add']"
+          @click="handleAdd"
+        >
+          {{ $t('pages.common.add') }}
+        </a-button>
       </template>
+      <template #toolbar-tools>
+        <a-button
+          v-access:code="['eim:tenantPackage:export', 'system:tenantPackage:export']"
+          :loading="exportLoading"
+          :disabled="exportLoading"
+          @click="handleExport"
+        >
+          {{ $t('pages.common.export') }}
+        </a-button>
+      </template>
+
       <template #status="{ row }">
+        <Tooltip
+          v-if="isStatusSwitchDisabled(row)"
+          title="已绑定租户，无法禁用"
+        >
+          <Switch
+            disabled
+            :checked="row.status === EnableStatus.Enable"
+            checked-children="启用"
+            un-checked-children="禁用"
+          />
+        </Tooltip>
         <ApiSwitch
+          v-else
           :value="row.status === EnableStatus.Enable"
           :api="(checked) => handleChangeStatus(checked, row)"
-          :disabled="!hasAccessByCodes(['system:tenantPackage:edit'])"
+          :disabled="
+            !hasAccessByCodes([
+              'eim:tenantPackage:edit',
+              'system:tenantPackage:edit',
+            ])
+          "
           @reload="tableApi.query()"
         />
       </template>
+
       <template #action="{ row }">
         <Space>
           <action-button
-            v-access:code="['system:tenantPackage:edit']"
+            v-access:code="['eim:tenantPackage:edit', 'system:tenantPackage:edit']"
             @click="handleEdit(row)"
           >
             {{ $t('pages.common.edit') }}
           </action-button>
           <Popconfirm
+            v-if="(row.tenantCount ?? 0) === 0"
             placement="left"
-            title="确认删除？"
+            title="确认删除该套餐吗？删除后不可恢复。"
             @confirm="handleDelete(row)"
           >
             <action-button
               danger
-              v-access:code="['system:tenantPackage:remove']"
+              v-access:code="[
+                'eim:tenantPackage:remove',
+                'system:tenantPackage:remove',
+              ]"
               @click.stop=""
             >
               {{ $t('pages.common.delete') }}
             </action-button>
           </Popconfirm>
+          <action-button
+            v-else
+            danger
+            v-access:code="[
+              'eim:tenantPackage:remove',
+              'system:tenantPackage:remove',
+            ]"
+            @click="handleDeleteClick(row)"
+          >
+            {{ $t('pages.common.delete') }}
+          </action-button>
         </Space>
       </template>
     </BasicTable>

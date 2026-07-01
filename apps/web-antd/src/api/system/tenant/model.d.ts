@@ -34,6 +34,12 @@ export interface EimTenantVo {
   adminAccount: string;
   userCount: number;
   licenseBalance: number;
+  /** 已分配码号数量 */
+  assignedProfileCount?: number;
+  createTime?: string;
+  createByName?: string;
+  /** 是否已过期 */
+  expired?: boolean;
 }
 
 /** eIM 新增租户 BO */
@@ -76,4 +82,16 @@ export interface EimTenantLicenseAdjustBo {
   tenantId: number;
   delta: number;
   remark: string;
+}
+
+/** eIM 租户状态切换 BO */
+export interface EimTenantStatusBo {
+  id: number;
+  status: string;
+}
+
+/** eIM 租户管理员密码重置 BO */
+export interface EimTenantResetPwdBo {
+  id: number;
+  newPassword: string;
 }

@@ -3,6 +3,8 @@ import type {
   EimTenantAddBo,
   EimTenantEditBo,
   EimTenantLicenseAdjustBo,
+  EimTenantResetPwdBo,
+  EimTenantStatusBo,
   EimTenantVo,
 } from './model';
 
@@ -105,7 +107,8 @@ enum EimApi {
   export = '/manager/tenant/export',
   syncPackage = '/manager/tenant/syncPackage',
   licenseAdjust = '/manager/tenant/license-adjust',
-  resetPassword = '/manager/tenant/resetPassword',
+  changeStatus = '/manager/tenant/changeStatus',
+  resetPwd = '/manager/tenant/resetPwd',
 }
 
 /** eIM: 分页查询租户列表 */
@@ -122,12 +125,15 @@ export function eimTenantInfo(id: ID) {
 export function eimTenantAdd(data: EimTenantAddBo) {
   return alovaInstance.postWithMsg<void>(EimApi.root, data, {
     encrypt: true,
+    successMessageMode: 'none',
   });
 }
 
 /** eIM: 修改租户 */
 export function eimTenantUpdate(data: EimTenantEditBo) {
-  return alovaInstance.putWithMsg<void>(EimApi.root, data);
+  return alovaInstance.putWithMsg<void>(EimApi.root, data, {
+    successMessageMode: 'none',
+  });
 }
 
 /** eIM: 删除租户 */
@@ -153,7 +159,17 @@ export function eimTenantLicenseAdjust(data: EimTenantLicenseAdjustBo) {
   return alovaInstance.postWithMsg<void>(EimApi.licenseAdjust, data);
 }
 
-/** eIM: 重置管理员密码 */
-export function eimTenantResetPassword(id: ID) {
-  return alovaInstance.putWithMsg<void>(`${EimApi.resetPassword}/${id}`);
+/** eIM: 切换租户状态 */
+export function eimTenantChangeStatus(data: EimTenantStatusBo) {
+  return alovaInstance.putWithMsg<void>(EimApi.changeStatus, data, {
+    successMessageMode: 'none',
+  });
+}
+
+/** eIM: 重置管理员密码（自定义新密码） */
+export function eimTenantResetPassword(data: EimTenantResetPwdBo) {
+  return alovaInstance.putWithMsg<void>(EimApi.resetPwd, data, {
+    encrypt: true,
+    successMessageMode: 'none',
+  });
 }
