@@ -7,6 +7,8 @@ import type {
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
+import { EnableStatus } from '@vben/constants';
+
 import { commonExport } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
@@ -73,6 +75,19 @@ export function operatorImport(file: File) {
 /** 拉取运营商下拉选项 */
 export async function getOperatorOptions() {
   const res = await operatorList({ pageNum: 1, pageSize: 1000 });
+  return (res.rows || []).map((item) => ({
+    label: item.operatorName,
+    value: item.id,
+  }));
+}
+
+/** 拉取已启用运营商下拉选项（APN 新增表单使用） */
+export async function getEnabledOperatorOptions() {
+  const res = await operatorList({
+    pageNum: 1,
+    pageSize: 1000,
+    status: EnableStatus.Enable,
+  });
   return (res.rows || []).map((item) => ({
     label: item.operatorName,
     value: item.id,

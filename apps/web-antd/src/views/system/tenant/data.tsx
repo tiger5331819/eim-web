@@ -259,7 +259,7 @@ export const drawerSchema: FormSchemaGetter = () => [
       },
       triggerFields: ['accountLimitType'],
     },
-    fieldName: 'accountCountLimit',
+    fieldName: 'accountCount',
     label: '限制数量',
   },
   {

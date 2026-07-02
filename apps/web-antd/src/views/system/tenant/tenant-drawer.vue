@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import type {
+  EimTenantAddBo,
+  EimTenantEditBo,
+} from '#/api/system/tenant/model';
+
 import { computed, h, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -14,10 +19,6 @@ import {
   eimTenantInfo,
   eimTenantUpdate,
 } from '#/api/system/tenant';
-import type {
-  EimTenantAddBo,
-  EimTenantEditBo,
-} from '#/api/system/tenant/model';
 import { packageSelectList } from '#/api/system/tenant-package';
 import { useTenantStore } from '#/store/tenant';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
@@ -27,8 +28,6 @@ import { drawerSchema } from './data';
 const emit = defineEmits<{ reload: [] }>();
 
 const isUpdate = ref(false);
-/** 用户是否手动改过用户账号，改过则不再被企业名称联动覆盖 */
-const userTouched = ref(false);
 const title = computed(() => {
   return isUpdate.value ? '编辑租户' : '新增租户';
 });
@@ -87,41 +86,13 @@ async function setupPackageSelect() {
   ]);
 }
 
-/** 监听企业名称变化：新增模式下，未手动编辑账号时自动预填同名 */
-function bindUsernameAutoFill() {
-  if (isUpdate.value) return;
-  formApi.updateSchema([
-    {
-      fieldName: 'username',
-      componentProps: (values: Record<string, any>) => ({
-        disabled: !!values?.id,
-        maxlength: 30,
-        placeholder: '请输入用户账号',
-        onChange: () => {
-          userTouched.value = true;
-        },
-      }),
-    },
-    {
-      fieldName: 'companyName',
-      componentProps: {
-        onChange: (e: any) => {
-          if (userTouched.value) return;
-          const val = typeof e === 'string' ? e : e?.target?.value;
-          if (val) formApi.setFieldValue('username', val);
-        },
-      },
-    },
-  ]);
-}
-
 function mapRecordToForm(record: Record<string, any>) {
   const formData = { ...record };
   if (record.accountCount === -1) {
     formData.accountLimitType = 'unlimited';
+    delete formData.accountCount;
   } else {
     formData.accountLimitType = 'limited';
-    formData.accountCountLimit = record.accountCount;
   }
   formData.expireTime = record.expireTime
     ? dayjs(record.expireTime).format('YYYY-MM-DD')
@@ -132,10 +103,9 @@ function mapRecordToForm(record: Record<string, any>) {
 function mapFormToSubmit(data: Record<string, any>) {
   const payload = cloneDeep(data);
   payload.accountCount =
-    payload.accountLimitType === 'unlimited' ? -1 : payload.accountCountLimit;
+    payload.accountLimitType === 'unlimited' ? -1 : payload.accountCount;
   delete payload.accountLimitType;
-  delete payload.accountCountLimit;
-  delete payload.username;
+  delete payload.adminAccount;
   if (payload.expireTime) {
     payload.expireTime = dayjs(payload.expireTime).format(
       'YYYY-MM-DD 23:59:59',
@@ -171,11 +141,9 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
         eimTenantInfo(id),
         setupPackageSelect(),
       ]);
-      userTouched.value = true;
       await formApi.setValues(mapRecordToForm(record));
     } else {
       await setupPackageSelect();
-      bindUsernameAutoFill();
     }
 
     await markInitialized();
@@ -193,6 +161,7 @@ async function handleConfirm() {
     if (!valid) {
       return;
     }
+    console.log('values', await formApi.getValues());
     const data = mapFormToSubmit(await formApi.getValues());
     if (isUpdate.value) {
       await eimTenantUpdate(data as EimTenantEditBo);
@@ -214,7 +183,6 @@ async function handleConfirm() {
 
 async function handleClosed() {
   await formApi.resetForm();
-  userTouched.value = false;
   resetInitialized();
 }
 </script>

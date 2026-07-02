@@ -1,22 +1,32 @@
 <script setup lang="ts">
+import type { SwitchProps } from 'antdv-next';
+
 import type { VbenFormProps } from '@vben/common-ui';
+
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { ApnVO } from '#/api/system/apn/model';
 
 import { Page, useVbenModal } from '@vben/common-ui';
+import { EnableStatus } from '@vben/constants';
 
-import { Popconfirm, Space, Tag } from 'antdv-next';
+import { Space } from 'antdv-next';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
-import { apnExport, delApn, listApn, setDefaultApn } from '#/api/system/apn';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  apnChangeStatus,
+  apnExport,
+  listApn,
+  setDefaultApn,
+} from '#/api/system/apn';
+import { ApiSwitch } from '#/components/global';
 import { useBlobExport } from '#/utils/file/export';
 
 import ApnModal from './apn-modal.vue';
-import { columns, getSourceTypeMeta, querySchema } from './data';
+import { columns, querySchema } from './data';
 
 const formOptions: VbenFormProps = {
   commonConfig: {
-    labelWidth: 80,
+    labelWidth: 90,
     componentProps: {
       allowClear: true,
     },
@@ -26,14 +36,14 @@ const formOptions: VbenFormProps = {
 };
 
 const gridOptions: VxeGridProps = {
-  checkboxConfig: {
-    highlight: true,
-    reserve: true,
-  },
   columns,
   height: 'auto',
   keepSource: true,
-  pagerConfig: {},
+  emptyText: '暂无APN配置数据',
+  pagerConfig: {
+    pageSize: 10,
+    pageSizes: [10, 20, 50, 100],
+  },
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
@@ -48,8 +58,6 @@ const gridOptions: VxeGridProps = {
   rowConfig: {
     keyField: 'id',
   },
-  // 默认 APN 行加高亮 class
-  rowClassName: ({ row }) => (row.isDefault === '1' ? 'apn-default-row' : ''),
   id: 'system-apn-index',
 };
 
@@ -57,6 +65,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions,
 });
+
 const [ApnModalComp, modalApi] = useVbenModal({
   connectedComponent: ApnModal,
 });
@@ -71,40 +80,79 @@ async function handleEdit(record: ApnVO) {
   modalApi.open();
 }
 
-async function handleDelete(row: ApnVO) {
-  await delApn(row.id);
-  await tableApi.query();
+function isDefaultApnDisabled(row: ApnVO) {
+  return row.isDefault === '1' || row.status !== EnableStatus.Enable;
 }
 
-function handleMultiDelete() {
-  const rows = tableApi.grid.getCheckboxRecords();
-  const ids = rows.map((row: ApnVO) => row.id);
-  window.modal.confirm({
-    title: '提示',
-    okType: 'danger',
-    content: `确认删除选中的${ids.length}条记录吗？`,
-    onOk: async () => {
-      for (const id of ids) {
-        await delApn(id);
-      }
-      await tableApi.query();
-    },
+async function handleChangeStatus(
+  checked: SwitchProps['checked'],
+  row: ApnVO,
+) {
+  if (!checked) {
+    await new Promise<void>((resolve, reject) => {
+      window.modal.confirm({
+        title: '提示',
+        content: '确认禁用该APN吗？',
+        centered: true,
+        onOk: async () => {
+          try {
+            await apnChangeStatus({
+              id: row.id,
+              status: EnableStatus.Disable,
+            });
+            window.message.success('状态变更成功');
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        },
+        onCancel: () => {
+          reject(new Error('cancel'));
+        },
+      });
+    });
+    return;
+  }
+
+  await apnChangeStatus({
+    id: row.id,
+    status: EnableStatus.Enable,
+  });
+  window.message.success('状态变更成功');
+}
+
+async function handleSetDefault(
+  checked: SwitchProps['checked'],
+  row: ApnVO,
+) {
+  if (!checked) {
+    throw new Error('blocked');
+  }
+
+  const carrier = row.operatorName || '当前运营商';
+  await new Promise<void>((resolve, reject) => {
+    window.modal.confirm({
+      title: '提示',
+      content: `确认将「${row.name || row.apn}」设为 ${carrier} 的默认 APN？当前默认APN将被替换。`,
+      centered: true,
+      onOk: async () => {
+        try {
+          await setDefaultApn(row.id);
+          window.message.success('已设为默认APN');
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      },
+      onCancel: () => {
+        reject(new Error('cancel'));
+      },
+    });
   });
 }
 
-async function handleSetDefault(row: ApnVO) {
-  const carrier = row.operatorName || row.operatorCode || '当前运营商';
-  window.modal.confirm({
-    title: '设为默认 APN',
-    content: `确认将「${row.name}」设为 ${carrier} 的默认 APN？同运营商下的其他默认 APN 将被自动取消。`,
-    onOk: async () => {
-      await setDefaultApn(row.id);
-      await tableApi.query();
-    },
-  });
-}
-
-const { exportBlob, exportLoading, buildExportFileName } = useBlobExport(apnExport);
+const { exportBlob, exportLoading, buildExportFileName } =
+  useBlobExport(apnExport);
 async function handleExport() {
   const formValues = await tableApi.formApi.getValues();
   const fileName = buildExportFileName('APN列表');
@@ -114,94 +162,53 @@ async function handleExport() {
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="APN列表">
+    <BasicTable>
+      <template #toolbar-actions>
+        <a-button type="primary" @click="handleAdd">
+          {{ $t('pages.common.add') }}
+        </a-button>
+      </template>
       <template #toolbar-tools>
-        <Space>
-          <a-button
-            :loading="exportLoading"
-            :disabled="exportLoading"
-            @click="handleExport"
-          >
-            {{ $t('pages.common.export') }}
-          </a-button>
-          <a-button
-            :disabled="!vxeCheckboxChecked(tableApi)"
-            danger
-            type="primary"
-            @click="handleMultiDelete"
-          >
-            {{ $t('pages.common.delete') }}
-          </a-button>
-          <a-button type="primary" @click="handleAdd">
-            {{ $t('pages.common.add') }}
-          </a-button>
-        </Space>
+        <a-button
+          :loading="exportLoading"
+          :disabled="exportLoading"
+          @click="handleExport"
+        >
+          {{ $t('pages.common.export') }}
+        </a-button>
       </template>
 
-      <!-- 是否默认 -->
       <template #isDefault="{ row }">
-        <Tag v-if="row.isDefault === '1'" color="gold">
-          <template #icon>⭐</template>
-          默认
-        </Tag>
-        <span v-else class="text-gray-400">--</span>
+        <ApiSwitch
+          :key="`${row.id}-${row.isDefault}`"
+          :value="row.isDefault === '1'"
+          :api="(checked) => handleSetDefault(checked, row)"
+          :disabled="isDefaultApnDisabled(row)"
+          checked-text="是"
+          un-checked-text="否"
+          @reload="tableApi.query()"
+        />
       </template>
 
-      <!-- 状态 -->
       <template #status="{ row }">
-        <Tag v-if="row.status === '0'" color="green">正常</Tag>
-        <Tag v-else-if="row.status === '1'" color="red">停用</Tag>
-        <span v-else class="text-gray-400">--</span>
+        <ApiSwitch
+          :key="`${row.id}-${row.status}`"
+          :value="row.status === EnableStatus.Enable"
+          :api="(checked) => handleChangeStatus(checked, row)"
+          checked-text="启用"
+          un-checked-text="禁用"
+          @reload="tableApi.query()"
+        />
       </template>
 
-      <!-- 来源 -->
-      <template #sourceType="{ row }">
-        <Tag :color="getSourceTypeMeta(row.sourceType).color">
-          {{ getSourceTypeMeta(row.sourceType).text }}
-        </Tag>
-      </template>
-
-      <!-- 行操作 -->
       <template #action="{ row }">
         <Space>
-          <action-button
-            v-if="row.isDefault !== '1' && row.operatorId"
-            variant="link"
-            color="gold"
-            @click.stop="handleSetDefault(row)"
-          >
-            设为默认
-          </action-button>
           <action-button @click.stop="handleEdit(row)">
             {{ $t('pages.common.edit') }}
           </action-button>
-          <Popconfirm
-            placement="left"
-            title="确认删除？"
-            @confirm="handleDelete(row)"
-          >
-            <action-button danger @click.stop="">
-              {{ $t('pages.common.delete') }}
-            </action-button>
-          </Popconfirm>
         </Space>
       </template>
     </BasicTable>
     <ApnModalComp @reload="tableApi.query()" />
   </Page>
 </template>
-
-<style scoped>
-/* 默认 APN 行高亮：左侧金色边框 + 渐变背景 */
-:deep(.apn-default-row) {
-  background: linear-gradient(
-    90deg,
-    rgba(250, 173, 20, 0.08) 0%,
-    transparent 30%
-  );
-  border-left: 4px solid #faad14;
-}
-:deep(.apn-default-row td:first-child) {
-  border-left: none;
-}
-</style>

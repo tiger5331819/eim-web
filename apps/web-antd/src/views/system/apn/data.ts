@@ -1,22 +1,15 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getOperatorOptions } from '#/api/system/operator';
+import { DictEnum } from '@vben/constants';
+import { getPopupContainer } from '@vben/utils';
 
-/** APN 来源映射 — 与后端 sourceType 字段值对齐 */
-const SOURCE_TYPE_MAP: Record<string, { color: string; text: string }> = {
-  MANUAL:   { color: 'blue',   text: '手动录入' },
-  DP_PLUS:  { color: 'purple', text: 'DP+ 同步' },
-};
-
-export function getSourceTypeMeta(type?: string) {
-  if (!type) return { color: 'default', text: '--' };
-  return SOURCE_TYPE_MAP[type] ?? { color: 'default', text: type };
-}
-
-export const SOURCE_TYPE_OPTIONS = Object.entries(SOURCE_TYPE_MAP).map(
-  ([value, { text }]) => ({ value, label: text }),
-);
+import { z } from '#/adapter/form';
+import {
+  getEnabledOperatorOptions,
+  getOperatorOptions,
+} from '#/api/system/operator';
+import { getDictOptions } from '#/utils/dict';
 
 /** 是否默认 APN 选项 */
 export const IS_DEFAULT_OPTIONS = [
@@ -24,23 +17,7 @@ export const IS_DEFAULT_OPTIONS = [
   { value: '0', label: '否' },
 ];
 
-/** 状态选项 */
-export const STATUS_OPTIONS = [
-  { value: '0', label: '正常' },
-  { value: '1', label: '停用' },
-];
-
 export const querySchema: FormSchemaGetter = () => [
-  {
-    component: 'Input',
-    fieldName: 'name',
-    label: '名称',
-  },
-  {
-    component: 'Input',
-    fieldName: 'apn',
-    label: 'APN',
-  },
   {
     component: 'ApiSelect',
     componentProps: {
@@ -49,49 +26,57 @@ export const querySchema: FormSchemaGetter = () => [
       allowClear: true,
     },
     fieldName: 'operatorId',
-    label: '运营商',
+    label: '所属运营商',
+  },
+  {
+    component: 'Input',
+    componentProps: {
+      placeholder: '请输入APN名称',
+    },
+    fieldName: 'name',
+    label: 'APN名称',
   },
   {
     component: 'Select',
-    fieldName: 'isDefault',
-    label: '是否默认',
     componentProps: {
       allowClear: true,
+      getPopupContainer,
       options: IS_DEFAULT_OPTIONS,
-      placeholder: '请选择',
+      placeholder: '全部',
     },
+    fieldName: 'isDefault',
+    label: '默认APN',
   },
   {
     component: 'Select',
+    componentProps: {
+      allowClear: true,
+      getPopupContainer,
+      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      placeholder: '全部',
+    },
     fieldName: 'status',
     label: '状态',
-    componentProps: {
-      allowClear: true,
-      options: STATUS_OPTIONS,
-      placeholder: '请选择',
-    },
   },
 ];
 
 export const columns: VxeGridProps['columns'] = [
-  { type: 'checkbox', width: 60 },
-  { title: 'APN ID', field: 'id', width: 100 },
-  { title: '名称', field: 'name', minWidth: 120 },
-  { title: 'APN', field: 'apn', minWidth: 120 },
-  { title: '适用地区', field: 'local', width: 120 },
   {
-    title: '运营商',
-    field: 'operatorName',
-    width: 160,
-    formatter: ({ row }) => {
-      const code = row.operatorCode ? `（${row.operatorCode}）` : '';
-      return row.operatorName ? `${row.operatorName}${code}` : '--';
-    },
+    title: 'APN名称',
+    field: 'name',
+    minWidth: 180,
+    formatter: ({ row }) => row.name || row.apn || '--',
   },
   {
-    title: '是否默认',
+    title: '所属运营商',
+    field: 'operatorName',
+    minWidth: 140,
+    formatter: ({ cellValue }) => cellValue || '--',
+  },
+  {
+    title: '默认APN',
     field: 'isDefault',
-    width: 100,
+    width: 110,
     slots: { default: 'isDefault' },
   },
   {
@@ -101,19 +86,24 @@ export const columns: VxeGridProps['columns'] = [
     slots: { default: 'status' },
   },
   {
-    title: '来源',
-    field: 'sourceType',
+    title: '创建人',
+    field: 'createByName',
     width: 110,
-    slots: { default: 'sourceType' },
+    formatter: ({ cellValue }) => cellValue || '--',
   },
-  { title: '创建时间', field: 'creationTime', width: 170 },
+  {
+    title: '创建时间',
+    field: 'createTime',
+    width: 170,
+    formatter: ({ row }) => row.createTime || row.creationTime || '--',
+  },
   {
     field: 'action',
     fixed: 'right',
     slots: { default: 'action' },
     title: '操作',
     resizable: false,
-    width: 200,
+    width: 100,
   },
 ];
 
@@ -121,66 +111,53 @@ export const modalSchema: FormSchemaGetter = () => [
   {
     component: 'Input',
     dependencies: {
-      show(values) {
-        return !values?.id;
-      },
-      triggerFields: ['id'],
+      show: () => false,
+      triggerFields: [''],
     },
     fieldName: 'id',
-    label: 'APN ID',
-    rules: 'required',
-  },
-  {
-    component: 'Input',
-    fieldName: 'name',
-    label: '名称',
-    rules: 'required',
-  },
-  {
-    component: 'Input',
-    fieldName: 'apn',
-    label: 'APN',
-    rules: 'required',
-  },
-  {
-    component: 'Input',
-    fieldName: 'local',
-    label: '适用地区',
-    rules: 'required',
+    label: 'id',
   },
   {
     component: 'ApiSelect',
-    fieldName: 'operatorId',
-    label: '运营商',
-    rules: 'required',
     componentProps: {
-      api: getOperatorOptions,
+      api: getEnabledOperatorOptions,
       placeholder: '请选择运营商',
     },
+    dependencies: {
+      componentProps(values) {
+        return {
+          disabled: !!values?.id,
+        };
+      },
+      triggerFields: ['id'],
+    },
+    fieldName: 'operatorId',
+    label: '所属运营商',
+    rules: 'required',
   },
   {
-    component: 'Switch',
-    fieldName: 'isDefault',
-    label: '设为默认',
-    defaultValue: '0',
+    component: 'Input',
     componentProps: {
-      checkedChildren: '是',
-      unCheckedChildren: '否',
-      checkedValue: '1',
-      unCheckedValue: '0',
+      maxlength: 100,
+      placeholder: '请输入APN名称',
     },
-    help: '同一运营商只能有一个默认 APN，设置时会自动替换原默认',
+    fieldName: 'name',
+    label: 'APN名称',
+    rules: z
+      .string()
+      .min(1, { message: '请输入APN名称' })
+      .max(100, { message: 'APN名称最长100字符' }),
   },
   {
-    component: 'Switch',
-    fieldName: 'status',
-    label: '状态',
-    defaultValue: '0',
+    component: 'Textarea',
     componentProps: {
-      checkedChildren: '正常',
-      unCheckedChildren: '停用',
-      checkedValue: '0',
-      unCheckedValue: '1',
+      maxlength: 200,
+      placeholder: '请输入备注信息',
+      rows: 3,
+      showCount: true,
     },
+    fieldName: 'remark',
+    formItemClass: 'items-start',
+    label: '备注',
   },
 ];

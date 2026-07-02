@@ -1,14 +1,16 @@
-import type { ApnForm, ApnVO } from './model';
+import type { ApnForm, ApnStatusBo, ApnVO } from './model';
+
 import type { ID, PageQuery, PageResult } from '#/api/common';
 
 import { commonExport } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
-  root = '/manager/apn',
-  apnList = '/manager/apn/list',
   apnExport = '/manager/apn/export',
+  apnList = '/manager/apn/list',
   byOperator = '/manager/apn/by-operator',
+  changeStatus = '/manager/apn/changeStatus',
+  root = '/manager/apn',
 }
 
 export function listApn(params?: PageQuery) {
@@ -20,11 +22,22 @@ export function getApn(id: ID) {
 }
 
 export function addApn(data: ApnForm) {
-  return alovaInstance.postWithMsg<void>(Api.root, data);
+  return alovaInstance.postWithMsg<void>(Api.root, data, {
+    successMessageMode: 'none',
+  });
 }
 
 export function updateApn(data: ApnForm) {
-  return alovaInstance.patchWithMsg<void>(`${Api.root}/${data.id}`, data);
+  return alovaInstance.patchWithMsg<void>(`${Api.root}/${data.id}`, data, {
+    successMessageMode: 'none',
+  });
+}
+
+/** 切换 APN 状态（启用/停用） */
+export function apnChangeStatus(data: ApnStatusBo) {
+  return alovaInstance.putWithMsg<void>(Api.changeStatus, data, {
+    successMessageMode: 'none',
+  });
 }
 
 export function delApn(id: ID) {
@@ -33,7 +46,9 @@ export function delApn(id: ID) {
 
 /** 设置默认 APN（同运营商唯一默认） */
 export function setDefaultApn(id: ID) {
-  return alovaInstance.patchWithMsg<void>(`${Api.root}/${id}/default`);
+  return alovaInstance.patchWithMsg<void>(`${Api.root}/${id}/default`, undefined, {
+    successMessageMode: 'none',
+  });
 }
 
 /** 按运营商ID查询启用APN列表（供下号/启用流程使用） */
