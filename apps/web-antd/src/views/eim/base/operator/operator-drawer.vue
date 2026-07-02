@@ -2,11 +2,15 @@
 import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
-import { $t } from '@vben/locales';
 import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
-import { operatorAdd, operatorInfo, operatorUpdate } from '#/api/system/operator';
+import {
+  operatorAdd,
+  operatorInfo,
+  operatorUpdate,
+} from '#/api/system/operator';
+import type { OperatorBo } from '#/api/system/operator/model';
 import { defaultFormValueGetter, useBeforeCloseDiff } from '#/utils/popup';
 
 import { drawerSchema } from './data';
@@ -15,19 +19,20 @@ const emit = defineEmits<{ reload: [] }>();
 
 const isUpdate = ref(false);
 const title = computed(() => {
-  return isUpdate.value ? $t('pages.common.edit') : $t('pages.common.add');
+  return isUpdate.value ? '编辑运营商' : '新增运营商';
 });
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {
     formItemClass: 'col-span-2',
+    labelWidth: 120,
     componentProps: {
       class: 'w-full',
     },
   },
   schema: drawerSchema(),
   showDefaultActions: false,
-  wrapperClass: 'grid-cols-2',
+  wrapperClass: 'grid-cols-1',
 });
 
 const { onBeforeClose, markInitialized, resetInitialized } = useBeforeCloseDiff(
@@ -71,8 +76,16 @@ async function handleConfirm() {
     if (!valid) {
       return;
     }
-    const data = cloneDeep(await formApi.getValues());
-    await (isUpdate.value ? operatorUpdate(data) : operatorAdd(data));
+    const data = cloneDeep(await formApi.getValues()) as OperatorBo;
+    delete data.status;
+    if (isUpdate.value) {
+      await operatorUpdate(data);
+      window.message.success('编辑运营商成功');
+    } else {
+      delete data.id;
+      await operatorAdd(data);
+      window.message.success('新增运营商成功');
+    }
     resetInitialized();
     emit('reload');
     drawerApi.close();

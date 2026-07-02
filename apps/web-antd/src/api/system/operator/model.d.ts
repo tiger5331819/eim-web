@@ -1,32 +1,35 @@
-/** 运营商列表查询 BO */
+/** 运营商新增/编辑 BO */
 export interface OperatorBo {
   id?: number;
-  /** 运营商编码（全局唯一，如 46001） */
-  operatorCode?: string;
-  operatorName?: string;
-  status?: string;
+  operatorName: string;
+  recycleEnabled: boolean;
   remark?: string;
+  status?: string;
+}
+
+/** 运营商状态切换 BO */
+export interface OperatorStatusBo {
+  id: number;
+  status: string;
 }
 
 /** 运营商列表返回 VO */
 export interface OperatorVo {
   id: number;
-  /** 运营商编码（全局唯一） */
-  operatorCode: string;
   operatorName: string;
   status: string;
-  remark: string;
-  createTime: string;
-  /** 关联码号资源数（运行时统计） */
-  profileCount: number;
-  /** 关联 APN 数（运行时统计） */
-  apnCount: number;
+  recycleEnabled: boolean;
+  remark?: string;
+  createTime?: string;
+  createByName?: string;
+  /** 关联码号数 */
+  profileCount?: number;
+  /** 关联 APN 数 */
+  apnCount?: number;
 }
 
 /** 运营商批量导入失败明细 */
 export interface OperatorImportFailItem {
-  /** 运营商编码（后端如未返回则降级为空） */
-  operatorCode?: string;
   operatorName: string;
   failReason: string;
 }

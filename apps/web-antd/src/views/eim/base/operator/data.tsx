@@ -1,56 +1,67 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { EnableStatus } from '@vben/constants';
+import { DictEnum } from '@vben/constants';
+import { getPopupContainer } from '@vben/utils';
+
+import { z } from '#/adapter/form';
+import { getDictOptions } from '#/utils/dict';
 
 export const querySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
+    componentProps: {
+      placeholder: '请输入运营商名称',
+    },
     fieldName: 'operatorName',
     label: '运营商名称',
   },
   {
     component: 'Select',
     componentProps: {
-      options: [
-        { label: '启用', value: EnableStatus.Enable },
-        { label: '禁用', value: EnableStatus.Disable },
-      ],
+      allowClear: true,
+      getPopupContainer,
+      options: getDictOptions(DictEnum.SYS_NORMAL_DISABLE),
+      placeholder: '全部',
     },
     fieldName: 'status',
-    label: '状态',
+    label: '运营商状态',
   },
 ];
 
 export const columns: VxeGridProps['columns'] = [
-  { type: 'checkbox', width: 60 },
+  {
+    title: '运营商ID',
+    field: 'id',
+    width: 100,
+  },
   {
     title: '运营商名称',
     field: 'operatorName',
     minWidth: 160,
   },
   {
-    title: '运营商编码',
-    field: 'operatorCode',
-    width: 140,
-    align: 'center',
+    title: '运营商状态',
+    field: 'status',
+    width: 110,
+    slots: { default: 'status' },
   },
   {
-    title: '关联码号数',
+    title: '码号数',
     field: 'profileCount',
-    width: 120,
-    align: 'center',
+    width: 90,
+    formatter: ({ cellValue }) => cellValue ?? 0,
   },
   {
-    title: '关联APN数',
+    title: 'APN数',
     field: 'apnCount',
-    width: 120,
-    align: 'center',
+    width: 90,
+    formatter: ({ cellValue }) => cellValue ?? 0,
   },
   {
-    title: '备注',
-    field: 'remark',
-    minWidth: 160,
+    title: '创建人',
+    field: 'createByName',
+    width: 110,
     formatter: ({ cellValue }) => cellValue || '--',
   },
   {
@@ -59,56 +70,60 @@ export const columns: VxeGridProps['columns'] = [
     width: 170,
   },
   {
-    title: '状态',
-    field: 'status',
-    width: 100,
-    slots: { default: 'status' },
-  },
-  {
     field: 'action',
     fixed: 'right',
     slots: { default: 'action' },
     title: '操作',
     resizable: false,
-    width: 'auto',
+    width: 140,
   },
 ];
 
 export const drawerSchema: FormSchemaGetter = () => [
   {
     component: 'Input',
+    dependencies: {
+      show: () => false,
+      triggerFields: [''],
+    },
     fieldName: 'id',
     label: 'id',
   },
   {
     component: 'Input',
-    fieldName: 'operatorCode',
-    label: '运营商编码',
-    rules: 'required',
     componentProps: {
-      placeholder: '如 46001',
+      maxlength: 50,
+      placeholder: '请输入运营商名称，最多50字',
     },
-  },
-  {
-    component: 'Input',
     fieldName: 'operatorName',
     label: '运营商名称',
-    rules: 'required',
+    rules: z
+      .string()
+      .min(1, { message: '请输入运营商名称' })
+      .max(50, { message: '运营商名称最长50字符' }),
   },
   {
-    component: 'RadioGroup',
+    component: 'Switch',
     componentProps: {
-      options: [
-        { label: '启用', value: EnableStatus.Enable },
-        { label: '禁用', value: EnableStatus.Disable },
-      ],
+      checkedChildren: '启用',
+      class: 'w-auto',
+      unCheckedChildren: '禁用',
     },
-    defaultValue: EnableStatus.Enable,
-    fieldName: 'status',
-    label: '状态',
+    defaultValue: true,
+    fieldName: 'recycleEnabled',
+    formItemClass: 'items-center',
+    help: '启用后，该运营商下码号被删除后可回收至总池',
+    label: '号码回收开关',
+    rules: 'required',
   },
   {
     component: 'Textarea',
+    componentProps: {
+      maxlength: 200,
+      showCount: true,
+      rows: 3,
+      placeholder: '请输入备注信息',
+    },
     fieldName: 'remark',
     formItemClass: 'items-start',
     label: '备注',
