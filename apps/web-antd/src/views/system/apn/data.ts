@@ -76,25 +76,25 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '默认APN',
     field: 'isDefault',
-    width: 110,
+    minWidth: 110,
     slots: { default: 'isDefault' },
   },
   {
     title: '状态',
     field: 'status',
-    width: 100,
+    minWidth: 100,
     slots: { default: 'status' },
   },
   {
     title: '创建人',
     field: 'createByName',
-    width: 110,
+    minWidth: 110,
     formatter: ({ cellValue }) => cellValue || '--',
   },
   {
     title: '创建时间',
     field: 'createTime',
-    width: 170,
+    minWidth: 170,
     formatter: ({ row }) => row.createTime || row.creationTime || '--',
   },
   {

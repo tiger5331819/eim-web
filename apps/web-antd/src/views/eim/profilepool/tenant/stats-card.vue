@@ -2,7 +2,7 @@
 import { Card, Statistic } from 'antdv-next';
 
 interface StatItem {
-  value: number;
+  value: number | string;
   title: string;
   gradient: string;
 }

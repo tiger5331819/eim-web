@@ -51,7 +51,7 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '租户编号',
     field: 'tenantId',
-    width: 120,
+    minWidth: 120,
   },
   {
     title: '租户名称',
@@ -67,29 +67,29 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '租户状态',
     field: 'status',
-    width: 100,
+    minWidth: 100,
     slots: { default: 'status' },
   },
   {
     title: '用户数',
     field: 'userCount',
-    width: 90,
+    minWidth: 90,
   },
   {
     title: 'License余额',
     field: 'licenseBalance',
-    width: 110,
+    minWidth: 110,
   },
   {
     title: '码号数',
     field: 'assignedProfileCount',
-    width: 90,
+    minWidth: 90,
     formatter: ({ cellValue }) => cellValue ?? 0,
   },
   {
     title: '过期时间',
     field: 'expireTime',
-    width: 120,
+    minWidth: 120,
     formatter: ({ cellValue }) => {
       if (!cellValue) return '--';
       return cellValue.slice(0, 10);
@@ -98,7 +98,7 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '联系人',
     field: 'contactUserName',
-    width: 110,
+    minWidth: 110,
   },
   {
     field: 'action',

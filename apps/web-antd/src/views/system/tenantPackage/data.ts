@@ -44,25 +44,25 @@ export const columns: VxeGridProps['columns'] = [
   {
     title: '绑定租户数',
     field: 'tenantCount',
-    width: 110,
+    minWidth: 110,
     formatter: ({ cellValue }) => cellValue ?? 0,
   },
   {
     title: '套餐状态',
     field: 'status',
-    width: 100,
+    minWidth: 100,
     slots: { default: 'status' },
   },
   {
     title: '创建人',
     field: 'createByName',
-    width: 110,
+    minWidth: 110,
     formatter: ({ cellValue }) => cellValue || '--',
   },
   {
     title: '创建时间',
     field: 'createTime',
-    width: 170,
+    minWidth: 170,
   },
   {
     field: 'action',
