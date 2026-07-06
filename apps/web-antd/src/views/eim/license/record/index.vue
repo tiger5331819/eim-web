@@ -1,53 +1,44 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
-
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { computed, onMounted } from 'vue';
-
-import { useAccess } from '@vben/access';
 import { Page } from '@vben/common-ui';
 
 import { Tag } from 'antdv-next';
+import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { licenseRecordList } from '#/api/system/license';
-import { useTenantStore } from '#/store/tenant';
+import { licenseRecordExport, licenseRecordList } from '#/api/system/license';
+import { useBlobExport } from '#/utils/file/export';
+import { getChangeTypeMeta, mapRecordQuery } from '#/utils/licenseStatus';
 
-import { columns, getChangeTypeMeta, querySchema } from './data';
-
-const { hasAccessByRoles } = useAccess();
-const isAdmin = computed(() => hasAccessByRoles(['superadmin']));
-
-// 确保租户列表已加载（直接访问本页时 store 可能未初始化）
-const tenantStore = useTenantStore();
-onMounted(async () => {
-  if (isAdmin.value && tenantStore.tenantList.length === 0) {
-    await tenantStore.initTenant();
-  }
-});
+import { columns, querySchema } from './data';
 
 const formOptions: VbenFormProps = {
   commonConfig: {
     labelWidth: 80,
     componentProps: { allowClear: true },
   },
-  schema: querySchema(isAdmin.value),
-  wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+  schema: querySchema(),
+  wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
 };
 
 const gridOptions: VxeGridProps = {
   columns,
   height: 'auto',
   keepSource: true,
-  pagerConfig: {},
+  emptyText: '暂无流水记录',
+  pagerConfig: {
+    pageSize: 10,
+    pageSizes: [10, 20, 50, 100],
+  },
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
         return await licenseRecordList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
-          ...formValues,
+          ...mapRecordQuery(formValues),
         });
       },
     },
@@ -56,27 +47,57 @@ const gridOptions: VxeGridProps = {
   id: 'license-record-index',
 };
 
-const [BasicTable] = useVbenVxeGrid({ formOptions, gridOptions });
+const [BasicTable, tableApi] = useVbenVxeGrid({
+  formOptions,
+  gridOptions,
+  separator: false,
+});
+
+const { exportBlob, exportLoading } = useBlobExport(licenseRecordExport);
+
+async function handleExport() {
+  const formValues = await tableApi.formApi.getValues();
+  const fileName = `License流水_${dayjs().format('YYYYMMDD')}.xlsx`;
+  try {
+    await exportBlob({ data: mapRecordQuery(formValues), fileName });
+    window.message.success('导出成功');
+  } catch {
+    window.message.error('当前筛选条件下无数据可导出');
+  }
+}
 </script>
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="License 变更流水">
-      <template #changeType="{ row }">
-        <Tag :color="getChangeTypeMeta(row.changeType).color">
-          {{ getChangeTypeMeta(row.changeType).text }}
-        </Tag>
+    <BasicTable>
+      <template #toolbar-tools>
+        <a-button
+          :disabled="exportLoading"
+          :loading="exportLoading"
+          @click="handleExport"
+        >
+          导出
+        </a-button>
       </template>
+
       <template #changeQuota="{ row }">
         <span
           :class="
-            row.changeQuota > 0
-              ? 'text-emerald-600 font-semibold'
-              : 'text-rose-600 font-semibold'
+            (row.changeQuota ?? 0) > 0
+              ? 'font-semibold text-emerald-600'
+              : 'font-semibold text-rose-600'
           "
         >
-          {{ row.changeQuota > 0 ? '+' : '' }}{{ row.changeQuota }}
+          {{ (row.changeQuota ?? 0) > 0 ? '+' : '' }}{{ row.changeQuota ?? '--' }}
         </span>
+      </template>
+
+      <template #changeType="{ row }">
+        <Tag
+          :color="getChangeTypeMeta(row.changeType, row.changeTypeText).color"
+        >
+          {{ getChangeTypeMeta(row.changeType, row.changeTypeText).text }}
+        </Tag>
       </template>
     </BasicTable>
   </Page>

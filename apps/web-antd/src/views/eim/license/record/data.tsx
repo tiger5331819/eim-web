@@ -1,78 +1,66 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { useTenantStore } from '#/store/tenant';
+import { CHANGE_TYPE_OPTIONS } from '#/utils/licenseStatus';
 
-const CHANGE_TYPE_MAP: Record<string, { color: string; text: string }> = {
-  ADD:      { color: 'blue',    text: '添加' },
-  ADJUST:   { color: 'purple',  text: '调整' },
-  FREEZE:   { color: 'orange',  text: '冻结' },
-  CONFIRM:  { color: 'green',   text: '确认扣减' },
-  RELEASE:  { color: 'cyan',    text: '释放' },
-  EXPIRE:   { color: 'red',     text: '过期' },
-};
-
-export function getChangeTypeMeta(type: string) {
-  return CHANGE_TYPE_MAP[type] ?? { color: 'default', text: type };
-}
-
-export const CHANGE_TYPE_OPTIONS = Object.entries(CHANGE_TYPE_MAP).map(
-  ([value, { text }]) => ({ value, label: text }),
-);
-
-export const querySchema: FormSchemaGetter = (_isAdmin: boolean = true) => {
-  const tenantStore = useTenantStore();
-  const filters: any[] = [];
-  if (_isAdmin) {
-    filters.push({
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        showSearch: true,
-        optionFilterProp: 'label',
-        placeholder: '请选择租户',
-        options: tenantStore.tenantList.map((t) => ({
-          label: t.companyName,
-          value: t.tenantId,
-        })),
-      },
-      fieldName: 'tenantId',
-      label: '租户',
-    });
-  }
-  filters.push({
+export const querySchema: FormSchemaGetter = () => [
+  {
+    component: 'Input',
+    componentProps: { placeholder: '请输入' },
+    fieldName: 'tenantName',
+    label: '租户名称',
+  },
+  {
+    component: 'Input',
+    componentProps: { placeholder: '请输入' },
+    fieldName: 'recordNo',
+    label: '流水号',
+  },
+  {
     component: 'Select',
     componentProps: {
       allowClear: true,
-      placeholder: '请选择变更类型',
       options: CHANGE_TYPE_OPTIONS,
+      placeholder: '请选择',
     },
     fieldName: 'changeType',
-    label: '变更类型',
-  });
-  return filters;
-};
+    label: '变动类型',
+  },
+  {
+    component: 'Input',
+    componentProps: { placeholder: '请输入' },
+    fieldName: 'operatorName',
+    label: '操作人',
+  },
+];
 
 export const columns: VxeGridProps['columns'] = [
-  { title: '序号', type: 'seq', width: 60 },
-  { title: '租户ID', field: 'tenantId', width: 160 },
+  { title: '流水号', field: 'id', minWidth: 150 },
   {
-    title: '变更类型',
+    title: '租户名称',
+    field: 'tenantName',
+    minWidth: 180,
+    formatter: ({ cellValue }) => cellValue || '--',
+  },
+  { title: '变动前额度', field: 'beforeAvailable', minWidth: 110 },
+  {
+    title: '变动数量',
+    field: 'changeQuota',
+    minWidth: 110,
+    slots: { default: 'changeQuota' },
+  },
+  { title: '变动后额度', field: 'afterAvailable', minWidth: 110 },
+  {
+    title: '变动类型',
     field: 'changeType',
-    width: 110,
+    minWidth: 100,
     slots: { default: 'changeType' },
   },
   {
-    title: '变更数量',
-    field: 'changeQuota',
-    width: 110,
-    slots: { default: 'changeQuota' },
+    title: '操作人',
+    field: 'operatorName',
+    minWidth: 110,
+    formatter: ({ cellValue }) => cellValue || '--',
   },
-  { title: '变更前可用', field: 'beforeAvailable', width: 110 },
-  { title: '变更后可用', field: 'afterAvailable', width: 110 },
-  { title: '业务类型', field: 'bizType', width: 100 },
-  { title: '业务ID', field: 'bizId', width: 140 },
-  { title: '操作人', field: 'operatorName', width: 110 },
-  { title: '备注', field: 'remark', minWidth: 160, showOverflow: true },
-  { title: '变更时间', field: 'createTime', width: 170 },
+  { title: '操作时间', field: 'createTime', minWidth: 170 },
 ];

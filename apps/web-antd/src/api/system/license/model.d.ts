@@ -1,78 +1,104 @@
 import type { PageQuery } from '#/api/common';
 
-/** 租户 License 余额视图对象 */
-export interface TenantLicenseVO {
-  id: number;
-  tenantId: string;
-  totalQuota: number;       // 累计添加次数
-  usedQuota: number;        // 已确认扣减次数
-  frozenQuota: number;      // 冻结中次数
-  availableQuota: number;   // 可用次数
-  status: '0' | '1';        // 0 正常 1 停用
+/** 租户 License 余额 */
+export interface TenantLicenseVo {
+  id?: number;
+  tenantId?: string;
+  tenantName?: string;
+  tenantStatus?: string;
+  totalQuota?: number;
+  usedQuota?: number;
+  totalConsumed?: number;
+  frozenQuota?: number;
+  availableQuota?: number;
+  status?: string;
   remark?: string;
+  warnStatus?: boolean;
+  warnLevel?: 'NORMAL' | 'WARN' | 'LOCKED' | string;
+  lastChangeTime?: string;
+  todayConsumed?: number;
+  monthConsumed?: number;
+  lastRechargeTime?: string;
 }
 
-/** License 变更流水视图对象 */
-export interface TenantLicenseRecordVO {
-  id: number;
-  tenantId: string;
-  changeType: string;       // ADD/ADJUST/FREEZE/CONFIRM/RELEASE/EXPIRE
-  changeQuota: number;      // 本次变更数量（正数加 负数减）
-  beforeAvailable: number;
-  afterAvailable: number;
-  bizType?: string;         // 业务类型（如 download）
-  bizId?: string;           // 业务 ID（如 task id）
+/** License 变更流水 */
+export interface TenantLicenseRecordVo {
+  id?: number | string;
+  tenantId?: string;
+  tenantName?: string;
+  changeType?: string;
+  changeTypeText?: string;
+  changeQuota?: number;
+  beforeAvailable?: number;
+  afterAvailable?: number;
+  bizType?: string;
+  bizId?: string;
   operatorId?: number;
   operatorName?: string;
   remark?: string;
-  createTime: string;
+  createTime?: string;
 }
 
-/** License 冻结记录视图对象 */
-export interface TenantLicenseFreezeVO {
-  id: number;
-  tenantId: string;
-  taskId: string;
+/** License 冻结记录 */
+export interface TenantLicenseFreezeVo {
+  id?: number;
+  tenantId?: string;
+  taskId?: string;
   profileId?: string;
   iccid?: string;
-  freezeQuota: number;
-  status: string;           // FROZEN/CONFIRMED/RELEASED/EXPIRED
-  freezeTime: string;
+  freezeQuota?: number;
+  status?: string;
+  freezeTime?: string;
   confirmTime?: string;
   releaseTime?: string;
   expireTime?: string;
   remark?: string;
-  createTime: string;
+  createTime?: string;
 }
 
-/** 添加 License 次数请求体 */
-export interface TenantLicenseAddBO {
+/** 平台 License 管理列表查询 */
+export interface TenantLicenseQuery extends PageQuery {
+  tenantId?: string;
+  tenantName?: string;
+  tenantStatus?: string;
+  warnLevel?: string;
+}
+
+/** 变更流水查询 */
+export interface TenantLicenseRecordQuery extends PageQuery {
+  tenantId?: string;
+  tenantName?: string;
+  recordNo?: string;
+  changeType?: string;
+  operatorName?: string;
+  beginChangeTime?: string;
+  endChangeTime?: string;
+}
+
+/** 冻结记录查询 */
+export interface TenantLicenseFreezeQuery extends PageQuery {
+  tenantId?: string;
+  status?: string;
+}
+
+/** 添加 License */
+export interface TenantLicenseAddBo {
   tenantId: string;
   quota: number;
   remark?: string;
 }
 
-/** 调整 License 次数请求体（管理员） */
-export interface TenantLicenseAdjustBO {
+/** 额度调整 */
+export interface TenantLicenseAdjustBo {
   tenantId: string;
-  delta: number;            // 正数增加，负数扣减
-  remark: string;
+  adjustType: 'RECHARGE' | 'DEDUCT';
+  quota: number;
+  reason: string;
+  remark?: string;
 }
 
-/** 切换 License 状态请求体 */
-export interface TenantLicenseStatusBO {
+/** 切换 License 状态 */
+export interface TenantLicenseStatusBo {
   tenantId: string;
   status: '0' | '1';
-}
-
-/** 变更流水查询参数 */
-export interface TenantLicenseRecordQuery extends PageQuery {
-  tenantId?: string;
-  changeType?: string;
-}
-
-/** 冻结记录查询参数 */
-export interface TenantLicenseFreezeQuery extends PageQuery {
-  tenantId?: string;
-  status?: string;
 }
