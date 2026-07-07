@@ -4,16 +4,17 @@ import type {
   TenantPoolQuery,
   TenantPoolVo,
 } from './model';
+
 import type { PageResult } from '#/api/common';
 
 import { commonExport } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
-  list = '/manager/profile/tenant-pool/list',
-  export = '/manager/profile/tenant-pool/export',
-  detail = '/manager/profile/tenant-pool/detail',
-  detailExport = '/manager/profile/tenant-pool/detail/export',
+  detail = '/manager/profile/pool/tenant/detail',
+  detailExport = '/manager/profile/pool/tenant/detail/export',
+  export = '/manager/profile/pool/tenant/export',
+  list = '/manager/profile/pool/tenant/list',
 }
 
 /** 租户池列表 */
