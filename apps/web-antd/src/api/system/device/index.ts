@@ -1,26 +1,72 @@
-import type { AllocationAndDownload, DeviceQuery } from './model';
+import type {
+  AllocationAndDownload,
+  DeviceDetailVo,
+  DeviceLedgerVo,
+  DeviceProfileRecordQuery,
+  DeviceProfileRecordVo,
+  DeviceQuery,
+  DeviceSimpleDownloadBo,
+} from './model';
 import type { ID, PageResult } from '#/api/common';
 
+import { commonExport } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
   deviceList = '/manager/device/list',
+  deviceExport = '/manager/device/export',
   deviceRoot = '/manager/device',
   eimProfile = '/eimProfile',
   batchDownload = '/manager/device/batch/profileDownload',
   profileBatch = '/manager/profile/productionBatch',
+  profileRecordList = '/log/list',
+  profileExport = '/profile/export',
 }
 
 export function deviceList(params?: DeviceQuery) {
-  return alovaInstance.get<PageResult<any>>(Api.deviceList, { params });
+  return alovaInstance.get<PageResult<DeviceLedgerVo>>(Api.deviceList, {
+    params,
+  });
+}
+
+/** 导出设备台账 */
+export function deviceExport(data: Record<string, any>) {
+  return commonExport(Api.deviceExport, data);
 }
 
 export function deviceDetail(eid: ID) {
-  return alovaInstance.get<any>(`${Api.deviceRoot}/${eid}`);
+  return alovaInstance.get<DeviceDetailVo>(`${Api.deviceRoot}/${eid}`);
 }
 
 export function updateDetail(eid: ID) {
-  return alovaInstance.post<any>(`${Api.deviceRoot}/${eid}/profile/list`);
+  return alovaInstance.post<DeviceDetailVo>(
+    `${Api.deviceRoot}/${eid}/profile/list`,
+  );
+}
+
+/** 极简下载码号 */
+export function deviceSimpleDownload(eid: ID, data: DeviceSimpleDownloadBo) {
+  return alovaInstance.postWithMsg<string>(
+    `${Api.deviceRoot}/${eid}/simpleDownload`,
+    { ...data, eid },
+    { successMessageMode: 'none' },
+  );
+}
+
+/** 查询码号操作记录 */
+export function deviceProfileRecordList(
+  eid: ID,
+  params?: DeviceProfileRecordQuery,
+) {
+  return alovaInstance.get<PageResult<DeviceProfileRecordVo>>(
+    `${Api.deviceRoot}/${eid}${Api.profileRecordList}`,
+    { params },
+  );
+}
+
+/** 导出设备码号列表 */
+export function deviceProfileExport(eid: ID, data: Record<string, any> = {}) {
+  return commonExport(`${Api.deviceRoot}/${eid}${Api.profileExport}`, data);
 }
 
 export function deviceName(eid: ID, data: { name: string }) {
@@ -28,23 +74,32 @@ export function deviceName(eid: ID, data: { name: string }) {
 }
 
 export function companyName(eid: ID, data: { name: string }) {
-  return alovaInstance.post<void>(`${Api.deviceRoot}/${eid}/companyName`, data);
+  return alovaInstance.post<void>(
+    `${Api.deviceRoot}/${eid}/companyName`,
+    data,
+  );
 }
 
 export function toEnable(eid: ID, iccid: string) {
-  return alovaInstance.patch<void>(`${Api.deviceRoot}/${eid}/profile/${iccid}/enable`);
+  return alovaInstance.patch<void>(
+    `${Api.deviceRoot}/${eid}/profile/${iccid}/enable`,
+  );
 }
 
 export function toDisable(eid: ID, iccid: string) {
-  return alovaInstance.patch<void>(`${Api.deviceRoot}/${eid}/profile/${iccid}/disable`);
+  return alovaInstance.patch<void>(
+    `${Api.deviceRoot}/${eid}/profile/${iccid}/disable`,
+  );
 }
 
 export function toDelete(eid: ID, iccid: string) {
-  return alovaInstance.deleteWithMsg<void>(`${Api.deviceRoot}/${eid}/profile/${iccid}`);
+  return alovaInstance.deleteWithMsg<void>(
+    `${Api.deviceRoot}/${eid}/profile/${iccid}`,
+  );
 }
 
-export function operationLog(eid: ID, params?: any) {
-  return alovaInstance.get<PageResult<any>>(`${Api.deviceRoot}/${eid}/log/list`, { params });
+export function operationLog(eid: ID, params?: DeviceProfileRecordQuery) {
+  return deviceProfileRecordList(eid, params);
 }
 
 export function eimList(eid: ID) {
@@ -60,15 +115,23 @@ export function eimAdd(eid: ID, data: any) {
 }
 
 export function eimEdit(eid: ID, eimId: string, data: any) {
-  return alovaInstance.patchWithMsg<void>(`${Api.deviceRoot}/${eid}/eim/${eimId}`, data);
+  return alovaInstance.patchWithMsg<void>(
+    `${Api.deviceRoot}/${eid}/eim/${eimId}`,
+    data,
+  );
 }
 
 export function eimChange(eid: ID, eimId: string, data: any) {
-  return alovaInstance.post<void>(`${Api.deviceRoot}/${eid}/eim/${eimId}/change`, data);
+  return alovaInstance.post<void>(
+    `${Api.deviceRoot}/${eid}/eim/${eimId}/change`,
+    data,
+  );
 }
 
 export function eimDelete(eid: ID, eimId: string) {
-  return alovaInstance.deleteWithMsg<void>(`${Api.deviceRoot}/${eid}/eim/${eimId}`);
+  return alovaInstance.deleteWithMsg<void>(
+    `${Api.deviceRoot}/${eid}/eim/${eimId}`,
+  );
 }
 
 export function updateEim(eid: ID) {
@@ -80,11 +143,16 @@ export function eimDownload(eid: ID) {
 }
 
 export function dpDownload(eid: ID) {
-  return alovaInstance.post<any>(`${Api.deviceRoot}/${eid}/dp/profileDownload`);
+  return alovaInstance.post<any>(
+    `${Api.deviceRoot}/${eid}/dp/profileDownload`,
+  );
 }
 
 export function toDownload(eid: ID, data: any) {
-  return alovaInstance.post<any>(`${Api.deviceRoot}/${eid}/profileDownload`, data);
+  return alovaInstance.post<any>(
+    `${Api.deviceRoot}/${eid}/profileDownload`,
+    data,
+  );
 }
 
 export function idDownload(eid: ID, id: ID) {
@@ -92,11 +160,15 @@ export function idDownload(eid: ID, id: ID) {
 }
 
 export function toResult(eid: ID) {
-  return alovaInstance.get<any>(`${Api.deviceRoot}/${eid}/profileDownload/result`);
+  return alovaInstance.get<any>(
+    `${Api.deviceRoot}/${eid}/profileDownload/result`,
+  );
 }
 
 export function updateProfileApn(eid: ID, iccid: string, apnId: ID) {
-  return alovaInstance.patchWithMsg<void>(`${Api.deviceRoot}/${eid}/profile/${iccid}/apn/${apnId}`);
+  return alovaInstance.patchWithMsg<void>(
+    `${Api.deviceRoot}/${eid}/profile/${iccid}/apn/${apnId}`,
+  );
 }
 
 export function eimProfile() {
@@ -108,7 +180,9 @@ export function batchListByProjectId(projectId: string) {
 }
 
 export function countByBatchId(productionBatch: string) {
-  return alovaInstance.get<any>(`/manager/profile/canBeAssignCount/${productionBatch}`);
+  return alovaInstance.get<any>(
+    `/manager/profile/canBeAssignCount/${productionBatch}`,
+  );
 }
 
 export function batchAllocationAndDownload(data: AllocationAndDownload) {
