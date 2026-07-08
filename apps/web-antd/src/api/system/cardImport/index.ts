@@ -1,6 +1,6 @@
 import type { AllocationForm, CardImportQuery } from './model';
-import type { PageResult } from '#/api/common';
 
+import { inventoryList } from '#/api/system/inventory';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
@@ -15,8 +15,9 @@ enum Api {
   tenantList = '/system/tenant/list',
 }
 
+/** @deprecated 请使用 inventoryList */
 export function cardImportList(params?: CardImportQuery) {
-  return alovaInstance.get<PageResult<any>>(Api.cardImportList, { params });
+  return inventoryList(params as any);
 }
 
 export function providerList() {
@@ -54,3 +55,5 @@ export function cardProviderList() {
 export function tenantList() {
   return alovaInstance.get<any>(Api.tenantList);
 }
+
+export * from '../inventory';

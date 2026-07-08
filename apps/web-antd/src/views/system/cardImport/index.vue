@@ -1,145 +1,234 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
-
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import type { EuiccInventoryVo } from '#/api/system/inventory/model';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 
-import { Space, Tag } from 'antdv-next';
+import {
+  DownloadOutlined,
+  HistoryOutlined,
+  UploadOutlined,
+} from '@antdv-next/icons';
+import { Popconfirm, Space, Tag } from 'antdv-next';
+import dayjs from 'dayjs';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
-import { cardImportList } from '#/api/system/cardImport';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  inventoryDelete,
+  inventoryExport,
+  inventoryList,
+  inventoryRecycleOne,
+} from '#/api/system/inventory';
+import { useBlobExport } from '#/utils/file/export';
+import {
+  canAssign,
+  canRecycle,
+  getAssignedMeta,
+  mapInventoryQuery,
+} from '#/utils/inventoryStatus';
 
-import AllocationModal from './allocation-modal.vue';
-import BatchImportModal from './batch-import-modal.vue';
-import { columns, querySchema } from './data';
-import SingleAddModal from './single-add-modal.vue';
+import AddModal from './add-modal.vue';
+import AssignImportModal from './assign-import-modal.vue';
+import AssignModal from './assign-modal.vue';
+import {
+  columns as baseColumns,
+  inventoryFieldMappingTime,
+  querySchema,
+} from './data';
+import DeleteImportModal from './delete-import-modal.vue';
+import ImportLogDrawer from './import-log-drawer.vue';
+import ImportModal from './import-modal.vue';
+import RecycleBatchModal from './recycle-batch-modal.vue';
 
 const formOptions: VbenFormProps = {
-  commonConfig: { labelWidth: 88, componentProps: { allowClear: true } },
+  commonConfig: {
+    labelWidth: 88,
+    componentProps: { allowClear: true },
+  },
   schema: querySchema(),
   wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-  fieldMappingTime: [
-    [
-      'creationTime',
-      ['startCreationTime', 'endCreationTime'],
-      ['YYYY-MM-DDT00:00:00.000', 'YYYY-MM-DDT23:59:59.999'],
-    ],
-  ],
+  fieldMappingTime: [...inventoryFieldMappingTime],
 };
 
 const gridOptions: VxeGridProps = {
-  checkboxConfig: { highlight: true, reserve: true },
-  columns,
+  columns: baseColumns,
   height: 'auto',
   keepSource: true,
-  pagerConfig: {},
+  emptyText: '暂无库存数据',
+  pagerConfig: {
+    pageSize: 10,
+    pageSizes: [10, 20, 50, 100],
+  },
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await cardImportList({
+        return await inventoryList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
-          ...formValues,
+          ...mapInventoryQuery(formValues),
         });
       },
     },
   },
-  rowConfig: { keyField: 'eid' },
-  id: 'system-cardImport-index',
+  rowConfig: { keyField: 'id' },
+  id: 'system-inventory-index',
 };
 
-const [BasicTable, tableApi] = useVbenVxeGrid({ formOptions, gridOptions });
-const [AllocationModalComp, allocationApi] = useVbenModal({
-  connectedComponent: AllocationModal,
-});
-const [BatchImportModalComp, importApi] = useVbenModal({
-  connectedComponent: BatchImportModal,
-});
-const [SingleAddModalComp, singleAddApi] = useVbenModal({
-  connectedComponent: SingleAddModal,
+const [BasicTable, tableApi] = useVbenVxeGrid({
+  formOptions,
+  gridOptions,
+  separator: false,
 });
 
-function handleAllocation(row?: any) {
-  allocationApi.setData({ productionBatch: row?.productionBatch });
-  allocationApi.open();
+function handleReload() {
+  tableApi.query();
 }
 
-function handleBatchAllocation() {
-  const rows = tableApi.grid.getCheckboxRecords();
-  if (rows.length === 0) {
-    window.message.warning('请先勾选要分配的卡');
-    return;
+const [AddModalComp, addModalApi] = useVbenModal({
+  connectedComponent: AddModal,
+});
+const [ImportModalComp, importModalApi] = useVbenModal({
+  connectedComponent: ImportModal,
+});
+const [ImportLogDrawerComp, importLogDrawerApi] = useVbenDrawer({
+  connectedComponent: ImportLogDrawer,
+});
+const [AssignModalComp, assignModalApi] = useVbenModal({
+  connectedComponent: AssignModal,
+});
+const [AssignImportModalComp, assignImportModalApi] = useVbenModal({
+  connectedComponent: AssignImportModal,
+});
+const [DeleteImportModalComp, deleteImportModalApi] = useVbenModal({
+  connectedComponent: DeleteImportModal,
+});
+const [RecycleBatchModalComp, recycleBatchModalApi] = useVbenModal({
+  connectedComponent: RecycleBatchModal,
+});
+
+const { exportBlob, exportLoading } = useBlobExport(inventoryExport);
+
+function handleAdd() {
+  addModalApi.open();
+}
+
+function handleImport() {
+  importModalApi.open();
+}
+
+function handleImportLog() {
+  importLogDrawerApi.open();
+}
+
+function handleBatchAssign() {
+  assignImportModalApi.open();
+}
+
+function handleBatchRecycle() {
+  recycleBatchModalApi.open();
+}
+
+function handleBatchDelete() {
+  deleteImportModalApi.open();
+}
+
+async function handleExport() {
+  const formValues = await tableApi.formApi.getValues();
+  const fileName = `库存台账_${dayjs().format('YYYYMMDD')}.xlsx`;
+  try {
+    await exportBlob({
+      data: mapInventoryQuery(formValues),
+      fileName,
+    });
+    window.message.success('导出成功');
+  } catch {
+    window.message.error('当前筛选条件下无数据可导出');
   }
-  const firstBatch = rows[0].productionBatch;
-  const allSameBatch = rows.every(
-    (r: any) => r.productionBatch === firstBatch,
-  );
-  if (!allSameBatch) {
-    window.message.warning('批量分配的卡必须属于同一生产批次');
-    return;
-  }
-  allocationApi.setData({ productionBatch: firstBatch });
-  allocationApi.open();
 }
 
-function handleBatchImport() {
-  importApi.open();
+function handleRowAssign(row: EuiccInventoryVo) {
+  assignModalApi.setData({ inventoryId: row.id });
+  assignModalApi.open();
 }
 
-function handleSingleAdd() {
-  singleAddApi.open();
+async function handleRowDelete(row: EuiccInventoryVo) {
+  await inventoryDelete(row.id!);
+  window.message.success('删除成功');
+  handleReload();
 }
 
-function handleDownloadTemplate() {
-  window.open(
-    `${import.meta.env.VITE_GLOB_API_URL}/manager/seed/importTemplate`,
-  );
+async function handleRowRecycle(row: EuiccInventoryVo) {
+  await inventoryRecycleOne(row.id!);
+  window.message.success('回收成功');
+  handleReload();
 }
+
 </script>
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="库存管理">
-      <template #toolbar-tools>
+    <BasicTable>
+      <template #toolbar-actions>
         <Space>
-          <a-button @click="handleDownloadTemplate">下载导入模板</a-button>
-          <a-button type="primary" @click="handleBatchImport">
+          <a-button type="primary" @click="handleAdd">新增</a-button>
+          <a-button @click="handleImport">
+            <UploadOutlined />
             批量导入
           </a-button>
-          <a-button
-            :disabled="!vxeCheckboxChecked(tableApi)"
-            @click="handleBatchAllocation"
-          >
-            批量分配
+          <a-button @click="handleImportLog">
+            <HistoryOutlined />
+            入库记录
           </a-button>
-          <a-button type="primary" @click="handleAllocation()">
-            按批次分配
-          </a-button>
-          <a-button type="primary" @click="handleSingleAdd">单卡添加</a-button>
+          <a-button @click="handleBatchAssign">批量分配</a-button>
+          <a-button @click="handleBatchRecycle">批量回收</a-button>
+          <a-button @click="handleBatchDelete">批量删除</a-button>
         </Space>
       </template>
 
-      <template #companyName="{ row }">
-        <Tag v-if="row.companyName" color="blue">{{ row.companyName }}</Tag>
-        <span v-else class="text-gray-400">未分配</span>
+      <template #toolbar-tools>
+        <a-button
+          :disabled="exportLoading"
+          :loading="exportLoading"
+          @click="handleExport"
+        >
+          <DownloadOutlined />
+          导出
+        </a-button>
+      </template>
+
+      <template #assigned="{ row }">
+        <Tag :color="getAssignedMeta(row.assigned, row.assignedText).color">
+          {{ getAssignedMeta(row.assigned, row.assignedText).text }}
+        </Tag>
       </template>
 
       <template #action="{ row }">
-        <Space>
-          <a-button
-            v-if="!row.companyName"
-            type="link"
-            size="small"
-            @click.stop="handleAllocation(row)"
+        <Space v-if="canAssign(row)">
+          <Popconfirm
+            title="确认删除该库存记录？删除后不可恢复。"
+            @confirm="handleRowDelete(row)"
           >
-            分配
-          </a-button>
+            <action-button danger @click.stop>删除</action-button>
+          </Popconfirm>
+          <action-button @click.stop="handleRowAssign(row)">分配</action-button>
         </Space>
+        <Popconfirm
+          v-else-if="canRecycle(row)"
+          title="确认回收该设备吗？回收后将清除租户归属，可重新分配。"
+          @confirm="handleRowRecycle(row)"
+        >
+          <action-button @click.stop>回收</action-button>
+        </Popconfirm>
       </template>
     </BasicTable>
-    <AllocationModalComp @reload="tableApi.query()" />
-    <BatchImportModalComp @reload="tableApi.query()" />
-    <SingleAddModalComp @reload="tableApi.query()" />
+
+    <AddModalComp @reload="handleReload" />
+    <ImportModalComp @reload="handleReload" />
+    <ImportLogDrawerComp />
+    <AssignModalComp @reload="handleReload" />
+    <AssignImportModalComp @reload="handleReload" />
+    <DeleteImportModalComp @reload="handleReload" />
+    <RecycleBatchModalComp @reload="handleReload" />
   </Page>
 </template>
