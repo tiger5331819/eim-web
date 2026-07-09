@@ -1,0 +1,295 @@
+<script setup lang="ts">
+import type { DeviceDetailVo, DeviceProfileVo } from '#/api/system/device/model';
+
+import { computed, ref, watch } from 'vue';
+
+import { useVbenModal } from '@vben/common-ui';
+
+import { DownloadOutlined } from '@antdv-next/icons';
+import { Popconfirm, Space, Switch, Table } from 'antdv-next';
+
+import { useVbenForm } from '#/adapter/form';
+import {
+  deviceProfileExport,
+  toDelete,
+  toDisable,
+  updateDetail,
+} from '#/api/system/device';
+import { useBlobExport } from '#/utils/file/export';
+import {
+  formatEmpty,
+  isProfileEnabled,
+} from '#/utils/deviceLedgerStatus';
+
+import DownloadProfileModal from './download-profile-modal.vue';
+import EnableProfileModal from './enable-profile-modal.vue';
+import { resolveProfileOperatorId } from './profile-modal-utils';
+import UpdateApnModal from './update-apn-modal.vue';
+import { profileInfoFilterSchema } from './data';
+
+const props = defineProps<{
+  detail?: DeviceDetailVo | null;
+  eid: string;
+}>();
+
+const emit = defineEmits<{ reload: [] }>();
+
+const profileList = ref<DeviceProfileVo[]>([]);
+const filteredList = ref<DeviceProfileVo[]>([]);
+const syncing = ref(false);
+
+const [FilterForm, filterFormApi] = useVbenForm({
+  compact: true,
+  layout: 'inline',
+  commonConfig: {
+    labelWidth: 72,
+    componentProps: {
+      allowClear: true,
+      class: 'w-[180px]',
+    },
+    formItemClass: 'mb-0 items-center',
+  },
+  schema: profileInfoFilterSchema(),
+  wrapperClass: 'flex flex-wrap items-center gap-x-4 gap-y-2',
+  actionLayout: 'inline',
+  actionWrapperClass: 'ml-auto shrink-0',
+  submitButtonOptions: { content: '查询' },
+  resetButtonOptions: { content: '重置' },
+  handleSubmit: applyFilter,
+  handleReset: async () => {
+    await filterFormApi.resetForm();
+    await applyFilter();
+  },
+});
+
+const [DownloadModalComp, downloadModalApi] = useVbenModal({
+  connectedComponent: DownloadProfileModal,
+});
+const [EnableModalComp, enableModalApi] = useVbenModal({
+  connectedComponent: EnableProfileModal,
+});
+const [UpdateApnModalComp, updateApnModalApi] = useVbenModal({
+  connectedComponent: UpdateApnModal,
+});
+
+const { exportBlob, exportLoading } = useBlobExport((data) =>
+  deviceProfileExport(props.eid, data),
+);
+
+const tableColumns = computed(() => [
+  {
+    title: '运营商',
+    dataIndex: 'operatorName',
+    customRender: ({ record }: { record: DeviceProfileVo }) =>
+      formatEmpty(record.operatorName || record.issuer || record.providerName),
+  },
+  { title: 'ICCID', dataIndex: 'iccid' },
+  {
+    title: 'APN',
+    dataIndex: 'apn',
+    customRender: ({ record }: { record: DeviceProfileVo }) =>
+      formatEmpty(record.apn || record.apnName),
+  },
+  { title: '状态', key: 'state', width: 100 },
+  { title: '操作', key: 'action', width: 160 },
+]);
+
+watch(
+  () => props.detail?.profileList,
+  async (list) => {
+    profileList.value = (list || []).map((item) => ({
+      ...item,
+      state: item.state ?? '0',
+    }));
+    await applyFilter();
+  },
+  { immediate: true },
+);
+
+async function applyFilter() {
+  const values = await filterFormApi.getValues();
+  filteredList.value = profileList.value.filter((item) => {
+    const operatorMatch =
+      !values.operatorId ||
+      String(item.operatorId ?? '') === String(values.operatorId);
+    const iccidMatch =
+      !values.iccid ||
+      String(item.iccid || '')
+        .toLowerCase()
+        .includes(String(values.iccid).toLowerCase());
+    const apnMatch =
+      !values.apn ||
+      String(item.apn || item.apnName || '')
+        .toLowerCase()
+        .includes(String(values.apn).toLowerCase());
+    return operatorMatch && iccidMatch && apnMatch;
+  });
+}
+
+async function handleSync() {
+  if (!props.eid) return;
+  syncing.value = true;
+  try {
+    await updateDetail(props.eid);
+    emit('reload');
+    window.message.success('同步成功');
+  } catch (error) {
+    console.error(error);
+  } finally {
+    syncing.value = false;
+  }
+}
+
+function handleDownload() {
+  downloadModalApi.setData({ eid: props.eid });
+  downloadModalApi.open();
+}
+
+async function handleExport() {
+  const values = await filterFormApi.getValues();
+  try {
+    await exportBlob({ data: values, fileName: '码号信息.xlsx' });
+    window.message.success('导出成功');
+  } catch {
+    window.message.error('当前筛选条件下无数据可导出');
+  }
+}
+
+function buildProfileModalData(row: DeviceProfileVo) {
+  return {
+    eid: props.eid,
+    iccid: row.iccid,
+    operatorId: row.operatorId,
+    apnId: row.apnId,
+    apn: row.apn,
+    apnName: row.apnName,
+  };
+}
+
+async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
+  if (checked) {
+    const operatorId = await resolveProfileOperatorId(row);
+    if (!operatorId) {
+      window.message.warning('无法识别码号所属运营商，请先同步数据');
+      emit('reload');
+      return;
+    }
+    enableModalApi.setData({
+      ...buildProfileModalData(row),
+      operatorId,
+    });
+    enableModalApi.open();
+    return;
+  }
+  window.modal.confirm({
+    title: '提示',
+    content: '确定禁用该码号？',
+    centered: true,
+    onOk: async () => {
+      await toDisable(props.eid, row.iccid!);
+      window.message.success('操作成功');
+      emit('reload');
+    },
+    onCancel: () => emit('reload'),
+  });
+}
+
+async function handleUpdateApn(row: DeviceProfileVo) {
+  const operatorId = await resolveProfileOperatorId(row);
+  if (!operatorId) {
+    window.message.warning('无法识别码号所属运营商，请先同步数据');
+    return;
+  }
+  updateApnModalApi.setData({
+    ...buildProfileModalData(row),
+    operatorId,
+  });
+  updateApnModalApi.open();
+}
+
+async function handleDelete(row: DeviceProfileVo) {
+  if (isProfileEnabled(row.state)) {
+    window.message.warning('启用状态的码号不可删除，请先停用');
+    return;
+  }
+  await toDelete(props.eid, row.iccid!);
+  window.message.success('删除成功');
+  emit('reload');
+}
+
+function handleChildReload() {
+  emit('reload');
+}
+</script>
+
+<template>
+  <div>
+    <div class="device-profile-filter mb-3">
+      <FilterForm />
+    </div>
+
+    <div class="mb-3 flex items-center justify-between">
+      <Space>
+        <a-button type="primary" @click="handleDownload">下载码号</a-button>
+        <a-button :loading="syncing" @click="handleSync">同步数据</a-button>
+      </Space>
+      <a-button
+        :disabled="exportLoading"
+        :loading="exportLoading"
+        @click="handleExport"
+      >
+        <DownloadOutlined />
+        导出
+      </a-button>
+    </div>
+
+    <Table
+      :columns="tableColumns"
+      :data-source="filteredList"
+      :pagination="false"
+      :locale="{ emptyText: '暂无已绑定的码号数据' }"
+      row-key="iccid"
+      size="middle"
+    >
+      <template #bodyCell="{ column, record }">
+        <template v-if="column.key === 'state'">
+          <Switch
+            :checked="isProfileEnabled(record.state)"
+            checked-children="启用"
+            un-checked-children="停用"
+            @change="(checked) => handleProfileSwitch(!!checked, record)"
+          />
+        </template>
+        <template v-else-if="column.key === 'action'">
+          <Space>
+            <action-button @click.stop="handleUpdateApn(record)">
+              更新APN
+            </action-button>
+            <Popconfirm
+              placement="left"
+              title="确认删除该码号？删除后将从设备中移除，且码号不可恢复。"
+              @confirm="handleDelete(record)"
+            >
+              <action-button danger @click.stop="">删除</action-button>
+            </Popconfirm>
+          </Space>
+        </template>
+      </template>
+    </Table>
+
+    <DownloadModalComp @reload="handleChildReload" />
+    <EnableModalComp @reload="handleChildReload" />
+    <UpdateApnModalComp @reload="handleChildReload" />
+  </div>
+</template>
+
+<style scoped>
+.device-profile-filter :deep(.pb-2),
+.device-profile-filter :deep(.pb-4) {
+  padding-bottom: 0;
+}
+
+.device-profile-filter :deep(.flex-auto) {
+  width: auto;
+}
+</style>

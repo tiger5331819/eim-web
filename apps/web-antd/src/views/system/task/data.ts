@@ -1,51 +1,118 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getDictOptions } from '#/utils/dict';
-import { renderDict } from '#/utils/render';
-
-const SOURCE_MAP: Record<string, { color: string; text: string }> = {
-  MANUAL: { color: 'blue', text: '手动' },
-  BATCH: { color: 'purple', text: '批量' },
-  OPENAPI: { color: 'cyan', text: 'OpenAPI' },
-};
-
-export function getTaskSourceMeta(s?: string) {
-  if (!s) return { color: 'default', text: '--' };
-  return SOURCE_MAP[s] ?? { color: 'default', text: s };
-}
+import { getLedgerTenantOptions } from '#/api/system/profile-ledger';
+import {
+  DOWNLOAD_TASK_PROGRESS_OPTIONS,
+  DOWNLOAD_TASK_STATE_OPTIONS,
+  formatDownloadField,
+} from '#/utils/downloadTaskStatus';
 
 export const querySchema: FormSchemaGetter = () => [
   {
-    component: 'Select',
-    componentProps: { options: getDictOptions('sys_task_status') },
-    fieldName: 'state',
-    label: '任务状态',
+    component: 'Input',
+    componentProps: { placeholder: '请输入下载ID' },
+    fieldName: 'id',
+    label: '下载ID',
   },
-  { component: 'Input', fieldName: 'operatorUser', label: '操作人' },
-  { component: 'RangePicker', fieldName: 'creationTime', label: '操作时间' },
+  {
+    component: 'ApiSelect',
+    componentProps: {
+      allowClear: true,
+      api: getLedgerTenantOptions,
+      placeholder: '全部',
+      showSearch: true,
+      optionFilterProp: 'label',
+    },
+    fieldName: 'tenantId',
+    label: '租户',
+  },
+  {
+    component: 'Input',
+    componentProps: { placeholder: '请输入ICCID' },
+    fieldName: 'iccid',
+    label: 'ICCID',
+  },
+  {
+    component: 'Input',
+    componentProps: { placeholder: '请输入EID' },
+    fieldName: 'eid',
+    label: 'EID',
+  },
+  {
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      options: DOWNLOAD_TASK_PROGRESS_OPTIONS,
+      placeholder: '全部',
+    },
+    fieldName: 'downloadRate',
+    label: '进度',
+  },
+  {
+    component: 'Select',
+    componentProps: {
+      allowClear: true,
+      options: DOWNLOAD_TASK_STATE_OPTIONS,
+      placeholder: '全部',
+    },
+    fieldName: 'state',
+    label: '状态',
+  },
+  {
+    component: 'Input',
+    componentProps: { placeholder: '请输入操作人' },
+    fieldName: 'operatorUser',
+    label: '操作人',
+  },
+  {
+    component: 'RangePicker',
+    fieldName: 'operateTime',
+    label: '操作时间',
+  },
 ];
 
 export const columns: VxeGridProps['columns'] = [
-  { type: 'checkbox', width: 60 },
-  { title: 'ICCID', field: 'iccid', minWidth: 180 },
-  { title: 'EID', field: 'eid', minWidth: 240 },
+  { title: '下载ID', field: 'id', minWidth: 100 },
   {
-    title: '操作类型',
-    field: 'source',
-    width: 100,
-    slots: { default: 'source' },
+    title: '租户',
+    field: 'tenantName',
+    minWidth: 160,
+    formatter: ({ cellValue }) => formatDownloadField(cellValue),
   },
-  { title: '进度', field: 'downloadRate', width: 80 },
-  { title: '创建时间', field: 'creationTime', width: 170 },
+  { title: 'ICCID', field: 'iccid', minWidth: 190 },
+  { title: 'EID', field: 'eid', minWidth: 200 },
+  {
+    title: '进度',
+    field: 'downloadRate',
+    minWidth: 90,
+    slots: { default: 'progress' },
+  },
   {
     title: '状态',
     field: 'state',
-    width: 100,
-    slots: {
-      default: ({ row }) => renderDict(row.state, 'sys_task_status'),
-    },
+    minWidth: 100,
+    slots: { default: 'state' },
   },
-  { title: '操作时间', field: 'operatorTime', width: 170 },
-  { title: '操作人', field: 'operatorUser', width: 110 },
+  {
+    title: '操作人',
+    field: 'operatorUser',
+    minWidth: 120,
+    formatter: ({ cellValue }) => formatDownloadField(cellValue),
+  },
+  {
+    title: '操作时间',
+    field: 'operatorTime',
+    minWidth: 170,
+    formatter: ({ row, cellValue }) =>
+      formatDownloadField(cellValue ?? row.creationTime),
+  },
 ];
+
+export const fieldMappingTime = [
+  [
+    'operateTime',
+    ['startCreationTime', 'endCreationTime'],
+    ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
+  ],
+] as [string, [string, string], [string, string]][];

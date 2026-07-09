@@ -5,104 +5,98 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Page } from '@vben/common-ui';
 
-import { Space, Tag } from 'antdv-next';
+import { DownloadOutlined } from '@antdv-next/icons';
+import { Tag } from 'antdv-next';
+import dayjs from 'dayjs';
 
-import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
-import { commonExport } from '#/api/helper';
-import { cancelTask, taskList } from '#/api/system/task';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import {
+  downloadTaskExport,
+  downloadTaskList,
+} from '#/api/system/task';
 import { useBlobExport } from '#/utils/file/export';
+import {
+  formatDownloadProgress,
+  getDownloadTaskStateMeta,
+  mapDownloadTaskQuery,
+} from '#/utils/downloadTaskStatus';
 
-import { columns, getTaskSourceMeta, querySchema } from './data';
+import { columns, fieldMappingTime, querySchema } from './data';
 
 const formOptions: VbenFormProps = {
-  commonConfig: { labelWidth: 80, componentProps: { allowClear: true } },
+  commonConfig: {
+    labelWidth: 80,
+    componentProps: { allowClear: true },
+  },
   schema: querySchema(),
-  wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
-  fieldMappingTime: [
-    [
-      'creationTime',
-      ['startCreationTime', 'endCreationTime'],
-      ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
-    ],
-  ],
+  wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  fieldMappingTime: [...fieldMappingTime],
 };
 
 const gridOptions: VxeGridProps = {
-  checkboxConfig: {
-    highlight: true,
-    reserve: true,
-    checkMethod: ({ row }) => row.state === 0 || row.state === '0',
-  },
   columns,
   height: 'auto',
   keepSource: true,
-  pagerConfig: {},
+  emptyText: '暂无下载任务数据',
+  pagerConfig: {
+    pageSize: 10,
+    pageSizes: [10, 20, 50, 100],
+  },
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await taskList({
+        return await downloadTaskList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
-          ...formValues,
+          ...mapDownloadTaskQuery(formValues),
         });
       },
     },
   },
   rowConfig: { keyField: 'id' },
-  id: 'system-task-index',
+  id: 'system-download-task-index',
 };
 
 const [BasicTable, tableApi] = useVbenVxeGrid({ formOptions, gridOptions });
 
-async function handleCancelTask() {
-  const rows = tableApi.grid.getCheckboxRecords();
-  if (!rows.length) {
-    window.message.warning('请选择要取消的任务');
-    return;
-  }
-  const ids = rows.map((row: any) => row.id);
-  await cancelTask(ids);
-  await tableApi.query();
-}
+const { exportBlob, exportLoading } = useBlobExport(downloadTaskExport);
 
-// 导出
-function taskExport(data: Record<string, any>) {
-  return commonExport('/manager/device/task/export', data);
-}
-const { exportBlob, exportLoading, buildExportFileName } =
-  useBlobExport(taskExport);
 async function handleExport() {
   const formValues = await tableApi.formApi.getValues();
-  const fileName = buildExportFileName('任务列表');
-  exportBlob({ data: formValues, fileName });
+  const fileName = `下载台账_${dayjs().format('YYYYMMDD')}.xlsx`;
+  try {
+    await exportBlob({
+      data: mapDownloadTaskQuery(formValues),
+      fileName,
+    });
+    window.message.success('导出成功');
+  } catch {
+    window.message.error('当前筛选条件下无数据可导出');
+  }
 }
 </script>
 
 <template>
   <Page :auto-content-height="true">
-    <BasicTable table-title="任务列表">
+    <BasicTable>
       <template #toolbar-tools>
-        <Space>
-          <a-button
-            :loading="exportLoading"
-            :disabled="exportLoading"
-            @click="handleExport"
-          >
-            导出
-          </a-button>
-          <a-button
-            :disabled="!vxeCheckboxChecked(tableApi)"
-            type="primary"
-            danger
-            @click="handleCancelTask"
-          >
-            取消任务
-          </a-button>
-        </Space>
+        <a-button
+          :disabled="exportLoading"
+          :loading="exportLoading"
+          @click="handleExport"
+        >
+          <DownloadOutlined />
+          导出
+        </a-button>
       </template>
-      <template #source="{ row }">
-        <Tag :color="getTaskSourceMeta(row.source).color">
-          {{ getTaskSourceMeta(row.source).text }}
+
+      <template #progress="{ row }">
+        {{ formatDownloadProgress(row.state, row.downloadRate) }}
+      </template>
+
+      <template #state="{ row }">
+        <Tag :color="getDownloadTaskStateMeta(row.state, row.stateText).color">
+          {{ getDownloadTaskStateMeta(row.state, row.stateText).text }}
         </Tag>
       </template>
     </BasicTable>
