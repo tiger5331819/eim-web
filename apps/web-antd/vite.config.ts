@@ -25,7 +25,8 @@ export default defineConfig(async () => {
       },
       server: {
         proxy: {
-          '/api': {
+          // 必须用 /api/（带尾斜杠），否则会误匹配前端路由 /api-interface、/api-management、/api-log
+          '/api/': {
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/api/, ''),
             // mock代理目标地址
