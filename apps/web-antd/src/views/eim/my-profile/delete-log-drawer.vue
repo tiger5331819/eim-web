@@ -2,6 +2,8 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { nextTick } from 'vue';
+
 import { useVbenDrawer } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -24,7 +26,7 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   columns: deletedColumns,
-  height: 480,
+  height: 'auto',
   keepSource: true,
   emptyText: '暂无删除记录',
   pagerConfig: {
@@ -65,9 +67,10 @@ async function handleExport() {
 
 const [BasicDrawer] = useVbenDrawer({
   title: '删除记录',
+  contentClass: 'flex min-h-0 flex-1 flex-col overflow-hidden',
   onOpenChange: (isOpen) => {
     if (isOpen) {
-      tableApi.query();
+      void nextTick(() => tableApi.reload());
     }
   },
 });
@@ -75,7 +78,8 @@ const [BasicDrawer] = useVbenDrawer({
 
 <template>
   <BasicDrawer class="w-[960px]">
-    <BasicTable>
+    <div class="flex h-full min-h-0 flex-col">
+      <BasicTable>
       <template #toolbar-tools>
         <a-button
           :disabled="exportLoading"
@@ -85,6 +89,7 @@ const [BasicDrawer] = useVbenDrawer({
           导出
         </a-button>
       </template>
-    </BasicTable>
+      </BasicTable>
+    </div>
   </BasicDrawer>
 </template>

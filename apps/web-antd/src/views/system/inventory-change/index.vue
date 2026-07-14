@@ -48,8 +48,8 @@ async function handleTabChange(key: number | string) {
 
 <style scoped>
 .inventory-change-tabs :deep(.ant-tabs-nav) {
-  margin-bottom: 8px;
   flex-shrink: 0;
+  margin-bottom: 8px;
 }
 
 .inventory-change-tabs :deep(.ant-tabs-content-holder) {

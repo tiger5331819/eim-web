@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
@@ -30,7 +30,7 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   columns: drawerRecordColumns,
-  height: 480,
+  height: 'auto',
   keepSource: true,
   emptyText: '暂无流水记录',
   toolbarConfig: {
@@ -83,6 +83,7 @@ async function handleExport() {
 }
 
 const [BasicDrawer, drawerApi] = useVbenDrawer({
+  contentClass: 'flex min-h-0 flex-1 flex-col overflow-hidden',
   onOpenChange: (isOpen) => {
     if (!isOpen) return;
     const data = drawerApi.getData() as {
@@ -91,7 +92,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     };
     tenantId.value = data.tenantId ?? '';
     tenantName.value = data.tenantName ?? '';
-    tableApi.query();
+    void nextTick(() => tableApi.reload());
   },
   onClosed: () => {
     tenantId.value = '';
@@ -105,7 +106,8 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     class="w-[960px]"
     :title="`${tenantName || ''} - 额度变动流水`"
   >
-    <BasicTable>
+    <div class="flex h-full min-h-0 flex-col">
+      <BasicTable>
       <template #toolbar-tools>
         <a-button
           :disabled="exportLoading"
@@ -135,6 +137,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           {{ getChangeTypeMeta(row.changeType, row.changeTypeText).text }}
         </Tag>
       </template>
-    </BasicTable>
+      </BasicTable>
+    </div>
   </BasicDrawer>
 </template>

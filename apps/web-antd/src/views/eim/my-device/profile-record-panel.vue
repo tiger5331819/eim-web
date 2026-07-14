@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 import { Tag } from 'antdv-next';
 
@@ -34,7 +34,7 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   columns: profileRecordColumns,
-  height: 360,
+  height: 520,
   keepSource: true,
   emptyText: '暂无码号记录',
   toolbarConfig: {
@@ -73,7 +73,7 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
 function query() {
   if (!props.eid) return;
   ready.value = true;
-  tableApi.query();
+  void nextTick(() => tableApi.reload());
 }
 
 defineExpose({ query });

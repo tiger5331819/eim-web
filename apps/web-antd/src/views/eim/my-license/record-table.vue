@@ -31,7 +31,7 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   columns: recordColumns,
-  height: 480,
+  height: 'auto',
   keepSource: true,
   emptyText: '暂无变动记录',
   toolbarConfig: {

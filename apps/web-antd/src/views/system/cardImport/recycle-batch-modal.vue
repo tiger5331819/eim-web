@@ -3,7 +3,7 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { InventoryRecycleRecordVo } from '#/api/system/inventory/model';
 
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { cloneDeep } from '@vben/utils';
@@ -36,7 +36,7 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   columns: recycleRecordColumns,
-  height: 360,
+  height: 520,
   keepSource: true,
   emptyText: '暂无分配记录',
   toolbarConfig: {
@@ -153,7 +153,7 @@ const [BasicModal, modalApi] = useVbenModal({
     if (!isOpen) return;
     step.value = 1;
     selectedRecord.value = null;
-    tableApi.query();
+    void nextTick(() => tableApi.reload());
   },
   onClosed() {
     step.value = 1;
@@ -236,7 +236,9 @@ async function handleConfirm() {
 
 <template>
   <BasicModal :title="modalTitle" class="w-[760px]">
-    <BasicTable v-if="step === 1" />
+    <div v-if="step === 1" class="min-h-[560px]">
+      <BasicTable />
+    </div>
 
     <ConfirmForm v-else />
 

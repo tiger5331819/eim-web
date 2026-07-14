@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
@@ -35,7 +35,7 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   columns: snapshotColumns,
-  height: 480,
+  height: 'auto',
   keepSource: true,
   emptyText: '暂无码号数据',
   toolbarConfig: {
@@ -89,11 +89,12 @@ async function handleExport() {
 }
 
 const [BasicDrawer, drawerApi] = useVbenDrawer({
+  contentClass: 'flex min-h-0 flex-1 flex-col overflow-hidden',
   onOpenChange(isOpen) {
     if (!isOpen) return;
     const data = drawerApi.getData() as { changeNo?: string };
     changeNo.value = data?.changeNo ?? '';
-    tableApi.query();
+    void nextTick(() => tableApi.reload());
   },
   onClosed() {
     changeNo.value = '';
@@ -103,15 +104,17 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
 
 <template>
   <BasicDrawer class="w-[1100px]" :title="drawerTitle">
-    <div class="flex flex-col gap-4">
+    <div class="flex h-full min-h-0 flex-col gap-4">
       <Alert
+        class="shrink-0"
         :closable="false"
         show-icon
         type="info"
         message="以下为本次变动操作前的码号快照数据，展示的是变动发生时各码号的即时状态。"
       />
 
-      <BasicTable>
+      <div class="flex min-h-0 flex-1 flex-col">
+        <BasicTable>
         <template #toolbar-tools>
           <a-button
             :disabled="exportLoading"
@@ -130,7 +133,8 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
             {{ getCodeStatusMeta(row.codeStatus, row.codeStatusText).text }}
           </Tag>
         </template>
-      </BasicTable>
+        </BasicTable>
+      </div>
     </div>
   </BasicDrawer>
 </template>

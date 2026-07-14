@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
@@ -41,7 +41,7 @@ const formOptions: VbenFormProps = {
 
 const gridOptions: VxeGridProps = {
   columns: importLogColumns,
-  height: 480,
+  height: 'auto',
   keepSource: true,
   emptyText: '暂无导入记录',
   toolbarConfig: {
@@ -96,9 +96,10 @@ async function handleDownloadDetail(row: {
 
 const [BasicDrawer] = useVbenDrawer({
   title: '入库记录',
+  contentClass: 'flex min-h-0 flex-1 flex-col overflow-hidden',
   onOpenChange(isOpen) {
     if (isOpen) {
-      tableApi.query();
+      void nextTick(() => tableApi.reload());
     }
   },
 });
@@ -106,23 +107,25 @@ const [BasicDrawer] = useVbenDrawer({
 
 <template>
   <BasicDrawer class="w-[960px]">
-    <BasicTable>
-      <template #importStatus="{ row }">
-        <Tag :color="getImportStatusMeta(row.status, row.statusText).color">
-          {{ getImportStatusMeta(row.status, row.statusText).text }}
-        </Tag>
-      </template>
+    <div class="flex h-full min-h-0 flex-col">
+      <BasicTable>
+        <template #importStatus="{ row }">
+          <Tag :color="getImportStatusMeta(row.status, row.statusText).color">
+            {{ getImportStatusMeta(row.status, row.statusText).text }}
+          </Tag>
+        </template>
 
-      <template #action="{ row }">
-        <action-button
-          v-if="canDownloadImportDetail(row.status)"
-          :disabled="detailLoading"
-          @click.stop="handleDownloadDetail(row)"
-        >
-          下载明细
-        </action-button>
-        <span v-else class="text-foreground/45">--</span>
-      </template>
-    </BasicTable>
+        <template #action="{ row }">
+          <action-button
+            v-if="canDownloadImportDetail(row.status)"
+            :disabled="detailLoading"
+            @click.stop="handleDownloadDetail(row)"
+          >
+            下载明细
+          </action-button>
+          <span v-else class="text-foreground/45">--</span>
+        </template>
+      </BasicTable>
+    </div>
   </BasicDrawer>
 </template>

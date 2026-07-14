@@ -64,7 +64,7 @@ const sourceGridOptions: VxeGridProps = {
     checkMethod: ({ row }) => row.poolStatus === 'ASSIGNED',
   },
   columns: sourceColumns,
-  height: 480,
+  height: 520,
   keepSource: true,
   pagerConfig: { pageSize: 20 },
   proxyConfig: {
