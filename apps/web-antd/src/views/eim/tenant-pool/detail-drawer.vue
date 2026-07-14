@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { computed, nextTick, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
@@ -108,7 +108,9 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     };
     tenantId.value = data?.tenantId ?? '';
     tenantName.value = data?.tenantName ?? '';
-    void nextTick(() => tableApi.reload());
+  },
+  onOpened() {
+    void tableApi.reload();
   },
 });
 </script>

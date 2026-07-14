@@ -3,7 +3,7 @@ import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { InventoryRecycleRecordVo } from '#/api/system/inventory/model';
 
-import { computed, nextTick, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 import { cloneDeep } from '@vben/utils';
@@ -153,7 +153,11 @@ const [BasicModal, modalApi] = useVbenModal({
     if (!isOpen) return;
     step.value = 1;
     selectedRecord.value = null;
-    void nextTick(() => tableApi.reload());
+  },
+  onOpened() {
+    if (step.value === 1) {
+      void tableApi.reload();
+    }
   },
   onClosed() {
     step.value = 1;

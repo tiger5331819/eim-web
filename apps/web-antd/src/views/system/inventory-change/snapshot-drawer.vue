@@ -95,6 +95,8 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     if (!isOpen) return;
     const data = drawerApi.getData() as { changeNo?: string };
     changeNo.value = data?.changeNo ?? '';
+  },
+  onOpened() {
     void nextTick(async () => {
       await tableApi.formApi?.resetForm();
       await tableApi.reload();

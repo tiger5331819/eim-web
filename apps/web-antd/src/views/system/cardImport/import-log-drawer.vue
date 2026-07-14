@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { nextTick, ref } from 'vue';
+import { ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
@@ -97,10 +97,8 @@ async function handleDownloadDetail(row: {
 const [BasicDrawer] = useVbenDrawer({
   title: '入库记录',
   contentClass: 'flex min-h-0 flex-1 flex-col overflow-hidden',
-  onOpenChange(isOpen) {
-    if (isOpen) {
-      void nextTick(() => tableApi.reload());
-    }
+  onOpened() {
+    void tableApi.reload();
   },
 });
 </script>

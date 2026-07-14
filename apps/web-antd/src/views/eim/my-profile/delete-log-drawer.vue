@@ -2,8 +2,6 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { nextTick } from 'vue';
-
 import { useVbenDrawer } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -68,10 +66,8 @@ async function handleExport() {
 const [BasicDrawer] = useVbenDrawer({
   title: '删除记录',
   contentClass: 'flex min-h-0 flex-1 flex-col overflow-hidden',
-  onOpenChange: (isOpen) => {
-    if (isOpen) {
-      void nextTick(() => tableApi.reload());
-    }
+  onOpened() {
+    void tableApi.reload();
   },
 });
 </script>
