@@ -6,7 +6,6 @@ import { getOperatorOptions } from '#/api/system/operator';
 import {
   CODE_STATUS_OPTIONS,
   formatDownloadField,
-  formatTenantName,
   IMPORT_STATUS_OPTIONS,
   POOL_ENTRY_STATUS_OPTIONS,
 } from '#/utils/profileLedgerStatus';
@@ -133,7 +132,7 @@ export const columns: VxeGridProps['columns'] = [
     title: '租户',
     field: 'tenantName',
     minWidth: 140,
-    formatter: ({ row }) => formatTenantName(row.poolStatus, row.tenantName),
+    slots: { default: 'tenantName' },
   },
   {
     title: '导入批次',

@@ -26,6 +26,7 @@ import {
   canPoolIn,
   canPoolOut,
   canRecycle,
+  formatTenantName,
   getCodeStatusMeta,
   getPoolEntryStatusMeta,
   mapLedgerQuery,
@@ -39,7 +40,7 @@ import {
 } from './data';
 import ImportLogDrawer from './import-log-drawer.vue';
 import ImportModal from './import-modal.vue';
-import PoolInModal from './pool-in-modal.vue';
+import PoolInModal, { type PoolInReloadPayload } from './pool-in-modal.vue';
 import PoolOutModal from './pool-out-modal.vue';
 import RecycleModal from './recycle-modal.vue';
 
@@ -75,7 +76,6 @@ const gridOptions = computed<VxeGridProps>(() => {
     checkboxAll: updateSelectedCount,
   },
   height: 'auto',
-  keepSource: true,
   emptyText: '暂无总池数据',
   pagerConfig: {
     pageSize: 10,
@@ -140,8 +140,39 @@ const recycleMenuItems = [
   { key: 'batch', label: '按数量自动' },
 ];
 
-function handleReload() {
-  tableApi.query();
+async function handleReload(payload?: PoolInReloadPayload) {
+  await tableApi.reload();
+
+  if (payload?.tenantName) {
+    const fullData =
+      (tableApi.grid?.getTableData?.().fullData as ProfileLedgerVo[]) ?? [];
+
+    if (payload.mode === 'row' && payload.profileId) {
+      const row =
+        (tableApi.grid?.getRowById?.(payload.profileId) as
+          | ProfileLedgerVo
+          | undefined) ??
+        fullData.find((item) => String(item.id) === String(payload.profileId));
+
+      if (row) {
+        row.poolStatus = 'POOLED';
+        row.poolStatusText = '已入池';
+        row.tenantId = payload.tenantId;
+        row.tenantName = payload.tenantName;
+      }
+    } else if (payload.mode === 'batch') {
+      fullData.forEach((row) => {
+        if (
+          row.poolStatus?.toUpperCase() === 'POOLED' &&
+          !row.tenantName
+        ) {
+          row.tenantId = payload.tenantId;
+          row.tenantName = payload.tenantName;
+        }
+      });
+    }
+  }
+
   if (selectMode.value) {
     tableApi.grid?.clearCheckboxRow?.();
     updateSelectedCount();
@@ -294,6 +325,10 @@ async function handleRowDelete(row: ProfileLedgerVo) {
           <DownloadOutlined />
           导出
         </a-button>
+      </template>
+
+      <template #tenantName="{ row }">
+        {{ formatTenantName(row.poolStatus, row.tenantName) }}
       </template>
 
       <template #codeStatus="{ row }">

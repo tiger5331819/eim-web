@@ -56,7 +56,11 @@ const [BasicForm, formApi] = useVbenForm({
         options: [],
         style: { width: '100%' },
         popupMatchSelectWidth: false,
-        dropdownStyle: { minWidth: '200px' },
+        styles: {
+          popup: {
+            root: { minWidth: '200px' },
+          },
+        },
         onChange: () => loadAvailableCount(),
       },
     },

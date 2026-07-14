@@ -13,7 +13,16 @@ import {
 } from '#/api/system/profile-ledger';
 import { getOperatorOptions } from '#/api/system/operator';
 
-const emit = defineEmits<{ reload: [] }>();
+const emit = defineEmits<{
+  reload: [payload?: PoolInReloadPayload];
+}>();
+
+export type PoolInReloadPayload = {
+  mode: 'batch' | 'row';
+  profileId?: number | string;
+  tenantId?: string;
+  tenantName?: string;
+};
 
 const mode = ref<'batch' | 'row'>('batch');
 const profileId = ref<number | string>('');
@@ -53,7 +62,11 @@ const [BasicForm, formApi] = useVbenForm({
         options: [],
         style: { width: '100%' },
         popupMatchSelectWidth: false,
-        dropdownStyle: { minWidth: '200px' },
+        styles: {
+          popup: {
+            root: { minWidth: '200px' },
+          },
+        },
         onChange: () => loadAvailableCount(),
       },
     },
@@ -184,12 +197,22 @@ async function handleConfirm() {
       return;
     }
 
+    const tenantName =
+      tenantOptions.value.find((item) => item.value === values.tenantId)
+        ?.label ?? values.tenantId;
+
     if (mode.value === 'row') {
       await profileLedgerPoolInOne(profileId.value, {
         tenantId: values.tenantId,
         remark: values.remark,
       });
       window.message.success('入池成功');
+      emit('reload', {
+        mode: 'row',
+        profileId: profileId.value,
+        tenantId: values.tenantId,
+        tenantName,
+      });
     } else {
       const count = await profileLedgerPoolIn({
         tenantId: values.tenantId,
@@ -197,15 +220,16 @@ async function handleConfirm() {
         size: values.size,
         remark: values.remark,
       });
-      const tenantName =
-        tenantOptions.value.find((item) => item.value === values.tenantId)
-          ?.label ?? values.tenantId;
       window.message.success(
         `成功入池 ${count ?? values.size} 个码号至${tenantName}`,
       );
+      emit('reload', {
+        mode: 'batch',
+        tenantId: values.tenantId,
+        tenantName,
+      });
     }
 
-    emit('reload');
     modalApi.close();
   } catch (error) {
     console.error(error);

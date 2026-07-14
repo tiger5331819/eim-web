@@ -49,7 +49,11 @@ const [BasicForm, formApi] = useVbenForm({
         optionFilterProp: 'label',
         style: { width: '100%' },
         popupMatchSelectWidth: false,
-        dropdownStyle: { minWidth: '200px' },
+        styles: {
+          popup: {
+            root: { minWidth: '200px' },
+          },
+        },
       },
       fieldName: 'operatorId',
       label: '运营商',
