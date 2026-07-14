@@ -40,7 +40,27 @@ export const fieldMappingTime: [
     ['beginCreateTime', 'endCreateTime'],
     ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
   ],
+  [
+    'responseTimeRange',
+    ['beginResponseTime', 'endResponseTime'],
+    ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
+  ],
 ];
+
+/** 响应时间：优先用接口字段，否则用请求时间+耗时推算 */
+export function formatResponseTime(row: {
+  responseTime?: string;
+  createTime?: string;
+  costTime?: number;
+}) {
+  if (row.responseTime) return row.responseTime;
+  if (!row.createTime || row.costTime == null) return '--';
+  const time = new Date(row.createTime.replace(/-/g, '/')).getTime();
+  if (Number.isNaN(time)) return '--';
+  const date = new Date(time + Number(row.costTime || 0));
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
 
 export const platformQuerySchema: FormSchemaGetter = () => [
   { component: 'Input', fieldName: 'traceId', label: 'TraceId' },
@@ -58,6 +78,11 @@ export const platformQuerySchema: FormSchemaGetter = () => [
     },
   },
   { component: 'RangePicker', fieldName: 'createTime', label: '请求时间' },
+  {
+    component: 'RangePicker',
+    fieldName: 'responseTimeRange',
+    label: '响应时间',
+  },
   { component: 'Input', fieldName: 'statusCode', label: '响应状态码' },
   {
     component: 'Select',
@@ -88,6 +113,11 @@ export const tenantQuerySchema: FormSchemaGetter = () => [
     },
   },
   { component: 'RangePicker', fieldName: 'createTime', label: '请求时间' },
+  {
+    component: 'RangePicker',
+    fieldName: 'responseTimeRange',
+    label: '响应时间',
+  },
   { component: 'Input', fieldName: 'statusCode', label: '响应状态码' },
   {
     component: 'Select',
@@ -132,6 +162,12 @@ export const platformColumns: VxeGridProps['columns'] = [
   },
   { title: '请求IP', field: 'requestIp', width: 130 },
   { title: '请求时间', field: 'createTime', width: 170 },
+  {
+    title: '响应时间',
+    field: 'responseTime',
+    width: 170,
+    formatter: ({ row }) => formatResponseTime(row),
+  },
   { title: '接口耗时', field: 'costTime', width: 100, align: 'right' },
   {
     title: '请求状态',
@@ -165,6 +201,12 @@ export const tenantColumns: VxeGridProps['columns'] = [
   },
   { title: '请求IP', field: 'requestIp', width: 130 },
   { title: '请求时间', field: 'createTime', width: 170 },
+  {
+    title: '响应时间',
+    field: 'responseTime',
+    width: 170,
+    formatter: ({ row }) => formatResponseTime(row),
+  },
   { title: '接口耗时', field: 'costTime', width: 100, align: 'right' },
   {
     title: '请求状态',

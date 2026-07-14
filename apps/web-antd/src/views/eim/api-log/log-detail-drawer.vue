@@ -8,7 +8,7 @@ import { Descriptions, DescriptionsItem, Tag } from 'antdv-next';
 import { apiLogDetail } from '#/api/system/api-log';
 import type { ApiLogVO } from '#/api/system/api-log/model';
 
-import { getMethodColor } from './data';
+import { formatResponseTime, getMethodColor } from './data';
 
 const loading = ref(false);
 const log = ref<ApiLogVO | null>(null);
@@ -82,6 +82,14 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
         </DescriptionsItem>
         <DescriptionsItem label="调用时间">
           {{ log.createTime || '--' }}
+        </DescriptionsItem>
+        <DescriptionsItem label="响应时间">
+          {{
+            log.responseTime ||
+            (log.createTime && log.costTime != null
+              ? formatResponseTime(log)
+              : '--')
+          }}
         </DescriptionsItem>
         <DescriptionsItem v-if="log.deviceEid" label="设备EID" :span="2">
           {{ log.deviceEid }}

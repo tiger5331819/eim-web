@@ -34,6 +34,8 @@ export interface ApiLogQuery extends PageQuery {
   requestMethod?: string;
   beginCreateTime?: string;
   endCreateTime?: string;
+  beginResponseTime?: string;
+  endResponseTime?: string;
   statusCode?: number | string;
   success?: boolean | string | number;
   deviceEid?: string;
