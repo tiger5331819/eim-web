@@ -74,6 +74,12 @@ export interface DeviceSimpleDownloadBo {
   syncApn?: boolean;
 }
 
+/** IPA 触发配置文件下载（/manager/device/{eid}/profileDownload） */
+export interface ProfileDownloadTriggerBo {
+  /** Profile下载参数 */
+  trigger: string;
+}
+
 export interface DeviceProfileRecordQuery {
   pageNum?: number;
   pageSize?: number;

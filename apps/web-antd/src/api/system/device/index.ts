@@ -6,6 +6,7 @@ import type {
   DeviceProfileRecordVo,
   DeviceQuery,
   DeviceSimpleDownloadBo,
+  ProfileDownloadTriggerBo,
 } from './model';
 import type { ID, PageResult } from '#/api/common';
 
@@ -148,11 +149,21 @@ export function dpDownload(eid: ID) {
   );
 }
 
-export function toDownload(eid: ID, data: any) {
-  return alovaInstance.post<any>(
+/** IPA 触发配置文件下载（识别并下载资源） */
+export function deviceProfileDownload(
+  eid: ID,
+  data: ProfileDownloadTriggerBo,
+) {
+  return alovaInstance.postWithMsg<void>(
     `${Api.deviceRoot}/${eid}/profileDownload`,
     data,
+    { successMessageMode: 'none' },
   );
+}
+
+/** @deprecated 请使用 deviceProfileDownload */
+export function toDownload(eid: ID, data: ProfileDownloadTriggerBo) {
+  return deviceProfileDownload(eid, data);
 }
 
 export function idDownload(eid: ID, id: ID) {

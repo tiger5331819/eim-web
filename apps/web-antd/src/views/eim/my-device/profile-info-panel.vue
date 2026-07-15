@@ -5,8 +5,8 @@ import { computed, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { DownloadOutlined } from '@antdv-next/icons';
-import { Popconfirm, Space, Switch, Table } from 'antdv-next';
+import { DownloadOutlined, DownOutlined } from '@antdv-next/icons';
+import { Dropdown, Popconfirm, Space, Switch, Table } from 'antdv-next';
 
 import { useVbenForm } from '#/adapter/form';
 import {
@@ -21,6 +21,7 @@ import {
   isProfileEnabled,
 } from '#/utils/deviceLedgerStatus';
 
+import DownloadBusinessModal from './download-business-modal.vue';
 import DownloadProfileModal from './download-profile-modal.vue';
 import EnableProfileModal from './enable-profile-modal.vue';
 import { resolveProfileOperatorId } from './profile-modal-utils';
@@ -37,6 +38,11 @@ const emit = defineEmits<{ reload: [] }>();
 const profileList = ref<DeviceProfileVo[]>([]);
 const filteredList = ref<DeviceProfileVo[]>([]);
 const syncing = ref(false);
+
+const downloadMenuItems = [
+  { key: 'profile', label: '下载码号' },
+  { key: 'business', label: '下载业务号' },
+];
 
 const [FilterForm, filterFormApi] = useVbenForm({
   compact: true,
@@ -64,6 +70,9 @@ const [FilterForm, filterFormApi] = useVbenForm({
 
 const [DownloadModalComp, downloadModalApi] = useVbenModal({
   connectedComponent: DownloadProfileModal,
+});
+const [DownloadBusinessModalComp, downloadBusinessModalApi] = useVbenModal({
+  connectedComponent: DownloadBusinessModal,
 });
 const [EnableModalComp, enableModalApi] = useVbenModal({
   connectedComponent: EnableProfileModal,
@@ -143,6 +152,21 @@ async function handleSync() {
 function handleDownload() {
   downloadModalApi.setData({ eid: props.eid });
   downloadModalApi.open();
+}
+
+function handleDownloadMenu({ key }: { key: string | number }) {
+  if (key === 'profile') {
+    handleDownload();
+    return;
+  }
+  if (key === 'business') {
+    if (!props.eid) {
+      window.message.warning('缺少设备 EID');
+      return;
+    }
+    downloadBusinessModalApi.setData({ eid: props.eid });
+    downloadBusinessModalApi.open();
+  }
 }
 
 async function handleExport() {
@@ -230,7 +254,17 @@ function handleChildReload() {
 
     <div class="mb-3 flex items-center justify-between">
       <Space>
-        <a-button type="primary" @click="handleDownload">下载码号</a-button>
+        <Dropdown
+          :menu="{
+            items: downloadMenuItems,
+            onClick: handleDownloadMenu,
+          }"
+        >
+          <a-button type="primary">
+            下载码号
+            <DownOutlined />
+          </a-button>
+        </Dropdown>
         <a-button :loading="syncing" @click="handleSync">同步数据</a-button>
       </Space>
       <a-button
@@ -278,6 +312,7 @@ function handleChildReload() {
     </Table>
 
     <DownloadModalComp @reload="handleChildReload" />
+    <DownloadBusinessModalComp @reload="handleChildReload" />
     <EnableModalComp @reload="handleChildReload" />
     <UpdateApnModalComp @reload="handleChildReload" />
   </div>

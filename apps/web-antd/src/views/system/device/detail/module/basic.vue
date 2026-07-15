@@ -4,7 +4,7 @@ import { onMounted, ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 
 import { Card, Popconfirm, Space, Switch, Table } from 'antdv-next';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 import {
   deviceDetail,
@@ -18,10 +18,10 @@ import { useDeviceStore } from '#/store/device';
 import { renderDict } from '#/utils/render';
 import ApnSyncConfirmModal from '#/views/system/apn/components/apn-sync-confirm-modal.vue';
 
+import DownloadBusinessModal from '../../download-business-modal.vue';
 import ApnModal from './apn-modal.vue';
 
 const route = useRoute();
-const router = useRouter();
 const deviceStore = useDeviceStore();
 const loading = ref(true);
 const detailData = ref<any>({});
@@ -36,6 +36,10 @@ const [ApnModalComp, apnApi] = useVbenModal({ connectedComponent: ApnModal });
 
 const [ApnSyncModalComp, apnSyncApi] = useVbenModal({
   connectedComponent: ApnSyncConfirmModal,
+});
+
+const [DownloadBusinessModalComp, downloadBusinessModalApi] = useVbenModal({
+  connectedComponent: DownloadBusinessModal,
 });
 
 async function getList() {
@@ -98,7 +102,12 @@ async function handleDelete(row: any) {
 
 function handleAdd() {
   const eid = getEid();
-  router.push({ path: '/system/device/add', query: { id: eid } });
+  if (!eid) {
+    window.message.warning('缺少设备 EID');
+    return;
+  }
+  downloadBusinessModalApi.setData({ eid });
+  downloadBusinessModalApi.open();
 }
 
 function handleEditApn(row: any) {
@@ -207,5 +216,6 @@ onMounted(() => {
     </Card>
     <ApnModalComp @reload="getList()" />
     <ApnSyncModalComp @confirm="handleApnSyncConfirm" />
+    <DownloadBusinessModalComp @reload="getList()" />
   </div>
 </template>

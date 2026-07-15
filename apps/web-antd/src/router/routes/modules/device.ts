@@ -12,16 +12,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    name: 'DeviceAdd',
-    path: '/system/device/add',
-    component: () => import('#/views/system/device/detail/add.vue'),
-    meta: {
-      hideInMenu: true,
-      title: '下载业务号',
-      activePath: '/system/device',
-    },
-  },
-  {
     name: 'DeviceDownload',
     path: '/system/device/download',
     component: () => import('#/views/system/device/download/index.vue'),
