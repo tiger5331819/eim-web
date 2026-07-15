@@ -2,7 +2,6 @@ import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { getLedgerTenantOptions } from '#/api/system/profile-ledger';
-import { formatTargetSourceTenant } from '#/utils/inventoryChangeStatus';
 import {
   ASSIGNED_STATUS_OPTIONS,
   CARD_VENDOR_OPTIONS,
@@ -272,14 +271,20 @@ export const recycleRecordColumns: VxeGridProps['columns'] = [
     title: '租户',
     field: 'tenantName',
     minWidth: 160,
-    formatter: ({ row }) => formatTargetSourceTenant(row),
+    formatter: ({ cellValue }) => formatInventoryField(cellValue),
   },
   {
     title: '分配数量',
-    field: 'changeCount',
+    field: 'totalCount',
     minWidth: 100,
     formatter: ({ cellValue }) =>
       cellValue === undefined || cellValue === null ? '--' : cellValue,
+  },
+  {
+    title: '可回收数量',
+    field: 'recyclableCount',
+    minWidth: 110,
+    slots: { default: 'recyclableCount' },
   },
   {
     title: '操作时间',

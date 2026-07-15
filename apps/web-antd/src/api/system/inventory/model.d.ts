@@ -64,6 +64,26 @@ export interface EuiccRecycleBo {
   remark?: string;
 }
 
+/** 批量回收-分配记录（/manager/inventory/assign/records） */
+export interface EuiccAssignRecordVo {
+  changeNo?: string;
+  /** 源租户 ID（回收提交必填；文档 VO 可能未声明） */
+  tenantId?: string;
+  tenantName?: string;
+  /** 分配数量 */
+  totalCount?: number;
+  /** 可回收数量 */
+  recyclableCount?: number;
+  operateTime?: string;
+}
+
+/** 分配记录查询 */
+export interface EuiccAssignRecordQuery {
+  /** 租户 ID（文档要求必填，实际支持不传查全部） */
+  tenantId?: string;
+  changeNo?: string;
+}
+
 /** 入库记录 */
 export interface EuiccInventoryImportLogVo {
   id?: ID;

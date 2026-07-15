@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { InventoryChangeLogVo } from '#/api/system/inventory-change/model';
+import type { EuiccAssignRecordVo } from '#/api/system/inventory/model';
 
 import { computed, ref } from 'vue';
 
@@ -11,19 +11,19 @@ import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { inventoryChangeLogList } from '#/api/system/inventory-change';
-import { inventoryRecycleBatch } from '#/api/system/inventory';
 import {
-  formatTargetSourceTenant,
-  getInventoryChangeTypeMeta,
-} from '#/utils/inventoryChangeStatus';
+  inventoryAssignRecordList,
+  inventoryRecycleBatch,
+} from '#/api/system/inventory';
 
 import { recycleRecordColumns, recycleRecordQuerySchema } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
 
 const step = ref<1 | 2>(1);
-const selectedRecord = ref<InventoryChangeLogVo | null>(null);
+const selectedRecord = ref<EuiccAssignRecordVo | null>(null);
+/** 查询时选中的租户，提交回收时兜底使用 */
+const queryTenantId = ref<string>();
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -33,19 +33,6 @@ const formOptions: VbenFormProps = {
   schema: recycleRecordQuerySchema(),
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
 };
-
-function resolveTenantId(row: InventoryChangeLogVo) {
-  return row.tenantId || row.targetTenantId || row.sourceTenantId;
-}
-
-function resolveRecyclableCount(row: InventoryChangeLogVo) {
-  return row.changeCount ?? 0;
-}
-
-function isAssignableRecycleRow(row: InventoryChangeLogVo) {
-  const meta = getInventoryChangeTypeMeta(row.changeType, row.changeTypeText);
-  return meta.text === '分配' && resolveRecyclableCount(row) > 0;
-}
 
 const gridOptions: VxeGridProps = {
   columns: recycleRecordColumns,
@@ -66,19 +53,28 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await inventoryChangeLogList({
-          pageNum: page.currentPage,
-          pageSize: page.pageSize,
-          // 批量回收仅可选「分配」类变动
-          changeType: 'ASSIGN',
-          ...formValues,
-        });
+        queryTenantId.value = formValues.tenantId || undefined;
+        // 接口返回 List（非分页），前端切片
+        const list =
+          (await inventoryAssignRecordList({
+            tenantId: formValues.tenantId || undefined,
+            changeNo: formValues.changeNo || undefined,
+          })) ?? [];
+        const keyword = String(formValues.changeNo || '').trim();
+        const filtered = keyword
+          ? list.filter((item) => item.changeNo?.includes(keyword))
+          : list;
+        const start = (page.currentPage - 1) * page.pageSize;
+        return {
+          rows: filtered.slice(start, start + page.pageSize),
+          total: filtered.length,
+        };
       },
     },
   },
   radioConfig: {
-    checkMethod: ({ row }: { row: InventoryChangeLogVo }) =>
-      isAssignableRecycleRow(row),
+    checkMethod: ({ row }: { row: EuiccAssignRecordVo }) =>
+      (row.recyclableCount ?? 0) > 0,
     highlight: true,
     strict: true,
   },
@@ -92,8 +88,8 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   separator: false,
 });
 
-const recyclableCount = computed(() =>
-  selectedRecord.value ? resolveRecyclableCount(selectedRecord.value) : 0,
+const recyclableCount = computed(
+  () => selectedRecord.value?.recyclableCount ?? 0,
 );
 
 const [ConfirmForm, confirmFormApi] = useVbenForm({
@@ -164,6 +160,7 @@ const [BasicModal, modalApi] = useVbenModal({
     if (!isOpen) return;
     step.value = 1;
     selectedRecord.value = null;
+    queryTenantId.value = undefined;
   },
   onOpened() {
     if (step.value === 1) {
@@ -173,6 +170,7 @@ const [BasicModal, modalApi] = useVbenModal({
   onClosed() {
     step.value = 1;
     selectedRecord.value = null;
+    queryTenantId.value = undefined;
     confirmFormApi.resetForm();
   },
 });
@@ -181,27 +179,34 @@ const modalTitle = computed(() =>
   step.value === 1 ? '选择分配记录' : '确认回收',
 );
 
+function resolveTenantId(row: EuiccAssignRecordVo) {
+  return row.tenantId || queryTenantId.value;
+}
+
 function handleNext() {
   const row = tableApi.grid?.getRadioRecord?.() as
-    | InventoryChangeLogVo
+    | EuiccAssignRecordVo
     | undefined;
-  if (!row?.changeNo || !resolveTenantId(row)) {
+  if (!row?.changeNo) {
     window.message.warning('请选择一条分配记录');
     return;
   }
-  if (!isAssignableRecycleRow(row)) {
-    window.message.warning('该批次不可回收，请返回重新选择');
+  if (!resolveTenantId(row)) {
+    window.message.warning('请先筛选租户后再选择分配记录');
+    return;
+  }
+  if ((row.recyclableCount ?? 0) <= 0) {
+    window.message.warning('该批次已无设备可回收，请返回重新选择');
     return;
   }
   selectedRecord.value = row;
   step.value = 2;
-  const count = resolveRecyclableCount(row);
   confirmFormApi.setValues({
     changeNo: row.changeNo,
-    tenantName: formatTargetSourceTenant(row),
-    assignCount: count,
+    tenantName: row.tenantName || '--',
+    assignCount: row.totalCount ?? '--',
     operateTime: row.operateTime || '--',
-    recyclableCountDisplay: count,
+    recyclableCountDisplay: row.recyclableCount ?? 0,
     size: 1,
   });
 }
@@ -257,7 +262,13 @@ async function handleConfirm() {
 <template>
   <BasicModal :title="modalTitle" class="w-[760px]">
     <div v-show="step === 1" class="min-h-[560px]">
-      <BasicTable />
+      <BasicTable>
+        <template #recyclableCount="{ row }">
+          <span :class="(row.recyclableCount ?? 0) <= 0 ? 'text-red-500' : ''">
+            {{ row.recyclableCount ?? '--' }}
+          </span>
+        </template>
+      </BasicTable>
     </div>
 
     <ConfirmForm v-show="step === 2" />

@@ -1,6 +1,8 @@
 import type {
   EuiccAssignBatchBo,
   EuiccAssignOneBo,
+  EuiccAssignRecordQuery,
+  EuiccAssignRecordVo,
   EuiccInventoryAddBo,
   EuiccInventoryImportLogQuery,
   EuiccInventoryImportLogVo,
@@ -27,6 +29,7 @@ enum Api {
   assignImport = '/manager/inventory/assign/import',
   assignImportTemplate = '/manager/inventory/assign/import/template',
   assignableCount = '/manager/inventory/assignable/count',
+  assignRecords = '/manager/inventory/assign/records',
   recycleOne = '/manager/inventory/recycle',
   recycleBatch = '/manager/inventory/recycle/batch',
   deleteImport = '/manager/inventory/delete/import',
@@ -156,6 +159,11 @@ export function inventoryRecycleBatch(data: EuiccRecycleBo) {
   return alovaInstance.postWithMsg<void>(Api.recycleBatch, data, {
     successMessageMode: 'none',
   });
+}
+
+/** 查询可批量回收的分配记录 */
+export function inventoryAssignRecordList(params?: EuiccAssignRecordQuery) {
+  return alovaInstance.get<EuiccAssignRecordVo[]>(Api.assignRecords, { params });
 }
 
 /** 批量删除（文件导入） */
