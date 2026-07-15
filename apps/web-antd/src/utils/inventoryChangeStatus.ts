@@ -1,5 +1,3 @@
-import type { InventoryChangeLogVo } from '#/api/system/inventory-change/model';
-
 /** 变动类型映射：分配=青 / 回收=橙 / 删除=红 */
 const CHANGE_TYPE_MAP: Record<string, { color: string; text: string }> = {
   ASSIGN: { color: 'cyan', text: '分配' },
@@ -64,17 +62,4 @@ export function mapInventoryChangeDetailQuery(
 
 export function formatInventoryField(value?: string) {
   return value?.trim() ? value : '--';
-}
-
-export function formatTargetSourceTenant(row: InventoryChangeLogVo) {
-  const meta = getInventoryChangeTypeMeta(row.changeType, row.changeTypeText);
-  if (meta.text === '删除') return '--';
-  if (row.tenantName?.trim()) return row.tenantName;
-  if (meta.text === '分配') {
-    return formatInventoryField(row.targetTenantName);
-  }
-  if (meta.text === '回收') {
-    return formatInventoryField(row.sourceTenantName);
-  }
-  return formatInventoryField(row.tenantName);
 }

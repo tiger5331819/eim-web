@@ -4,7 +4,6 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { getLedgerTenantOptions } from '#/api/system/profile-ledger';
 import {
   formatInventoryField,
-  formatTargetSourceTenant,
   INVENTORY_CHANGE_TYPE_OPTIONS,
 } from '#/utils/inventoryChangeStatus';
 
@@ -66,9 +65,9 @@ export const logColumns: VxeGridProps['columns'] = [
   },
   {
     title: '目标/源租户',
-    field: 'tenantName',
+    field: 'changeTenantName',
     minWidth: 160,
-    formatter: ({ row }) => formatTargetSourceTenant(row),
+    formatter: ({ cellValue }) => formatInventoryField(cellValue),
   },
   {
     title: '备注',
@@ -226,7 +225,7 @@ export const detailColumns: VxeGridProps['columns'] = [
   },
   {
     title: '租户名称',
-    field: 'tenantName',
+    field: 'changeTenantName',
     minWidth: 160,
     formatter: ({ cellValue }) => formatInventoryField(cellValue),
   },

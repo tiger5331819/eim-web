@@ -12,6 +12,8 @@ export interface InventoryChangeLogVo {
   changeCount?: number;
   tenantId?: string;
   tenantName?: string;
+  /** 目标/源租户名称 */
+  changeTenantName?: string;
   targetTenantId?: string;
   targetTenantName?: string;
   sourceTenantId?: string;
@@ -44,6 +46,7 @@ export interface InventoryChangeSnapshotVo {
   cardVendor?: string;
   tenantId?: string;
   tenantName?: string;
+  changeTenantName?: string;
   operateTime?: string;
 }
 

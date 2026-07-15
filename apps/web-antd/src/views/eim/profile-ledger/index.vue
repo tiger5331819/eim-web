@@ -73,35 +73,35 @@ const gridOptions = computed<VxeGridProps>(() => {
           strict: true,
         }
       : undefined,
-  gridEvents: {
-    checkboxChange: updateSelectedCount,
-    checkboxAll: updateSelectedCount,
-  },
-  height: 'auto',
-  emptyText: '暂无总池数据',
-  pagerConfig: {
-    pageSize: 10,
-    pageSizes: [10, 20, 50, 100],
-  },
-  proxyConfig: {
-    ajax: {
-      query: async ({ page }, formValues = {}) => {
-        return await profileLedgerList({
-          pageNum: page.currentPage,
-          pageSize: page.pageSize,
-          ...mapLedgerQuery(formValues),
-        });
+    height: 'auto',
+    emptyText: '暂无总池数据',
+    pagerConfig: {
+      pageSize: 10,
+      pageSizes: [10, 20, 50, 100],
+    },
+    proxyConfig: {
+      ajax: {
+        query: async ({ page }, formValues = {}) => {
+          return await profileLedgerList({
+            pageNum: page.currentPage,
+            pageSize: page.pageSize,
+            ...mapLedgerQuery(formValues),
+          });
+        },
       },
     },
-  },
-  rowConfig: { keyField: 'id' },
-  id: 'profile-ledger-index',
+    rowConfig: { keyField: 'id' },
+    id: 'profile-ledger-index',
   };
 });
 
 const [BasicTable, tableApi] = useVbenVxeGrid({
   formOptions,
   gridOptions: gridOptions.value,
+  gridEvents: {
+    checkboxChange: updateSelectedCount,
+    checkboxAll: updateSelectedCount,
+  },
   separator: false,
 });
 
@@ -109,11 +109,14 @@ watch(selectMode, async () => {
   await tableApi.setGridOptions(gridOptions.value);
   await nextTick();
   tableApi.grid?.clearCheckboxRow?.();
+  tableApi.grid?.clearCheckboxReserve?.();
   updateSelectedCount();
 });
 
 function updateSelectedCount() {
-  selectedCount.value = tableApi.grid?.getCheckboxRecords?.()?.length ?? 0;
+  const records = tableApi.grid?.getCheckboxRecords?.() ?? [];
+  const reserveRecords = tableApi.grid?.getCheckboxReserveRecords?.() ?? [];
+  selectedCount.value = records.length + reserveRecords.length;
 }
 
 const [AddModalComp, addModalApi] = useVbenModal({
@@ -147,6 +150,7 @@ async function handleReload() {
 
   if (selectMode.value) {
     tableApi.grid?.clearCheckboxRow?.();
+    tableApi.grid?.clearCheckboxReserve?.();
     updateSelectedCount();
   }
 }
@@ -184,11 +188,14 @@ function handleRecycleMenu(info: { key: string }) {
 function handleCancelSelect() {
   selectMode.value = false;
   tableApi.grid?.clearCheckboxRow?.();
+  tableApi.grid?.clearCheckboxReserve?.();
   updateSelectedCount();
 }
 
 function handleConfirmSelect() {
-  const rows = tableApi.grid?.getCheckboxRecords?.() ?? [];
+  const records = tableApi.grid?.getCheckboxRecords?.() ?? [];
+  const reserveRecords = tableApi.grid?.getCheckboxReserveRecords?.() ?? [];
+  const rows = [...records, ...reserveRecords];
   const recyclableRows = rows.filter((row: ProfileLedgerVo) => canRecycle(row));
   if (recyclableRows.length === 0) {
     window.message.warning('请先勾选可回收的码号');
