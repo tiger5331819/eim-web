@@ -97,7 +97,7 @@ export const snapshotQuerySchema: FormSchemaGetter = () => [
   {
     component: 'Input',
     componentProps: { placeholder: '请输入快照号' },
-    fieldName: 'snapshotId',
+    fieldName: 'changeNo',
     label: '快照号',
   },
   {
@@ -137,7 +137,7 @@ export const snapshotQuerySchema: FormSchemaGetter = () => [
 ];
 
 export const snapshotColumns: VxeGridProps['columns'] = [
-  { title: '快照号', field: 'id', minWidth: 90 },
+  { title: '快照号', field: 'changeNo', minWidth: 90 },
   {
     title: '导入批次',
     field: 'productionBatch',

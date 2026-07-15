@@ -55,8 +55,9 @@ const gridOptions: VxeGridProps = {
         return await profileChangeSnapshotList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
-          changeNo: changeNo.value,
           ...formValues,
+          // 抽屉由变动记录打开，始终以当前变动编号为准
+          changeNo: changeNo.value,
         });
       },
     },
@@ -79,8 +80,8 @@ async function handleExport() {
   try {
     await exportBlob({
       data: {
-        changeNo: changeNo.value,
         ...formValues,
+        changeNo: changeNo.value,
       },
       fileName,
     });
