@@ -129,11 +129,22 @@ async function handleSetDefault(
     throw new Error('blocked');
   }
 
-  const carrier = row.operatorName || '当前运营商';
+  const nextName = row.name || row.apn || '--';
+  const tableData = (tableApi.grid?.getData?.() ?? []) as ApnVO[];
+  const currentDefault = tableData.find(
+    (item) =>
+      item.isDefault === '1' &&
+      String(item.operatorId) === String(row.operatorId) &&
+      String(item.id) !== String(row.id),
+  );
+  const currentName = currentDefault
+    ? currentDefault.name || currentDefault.apn || '--'
+    : '无';
+
   await new Promise<void>((resolve, reject) => {
     window.modal.confirm({
-      title: '提示',
-      content: `确认将「${row.name || row.apn}」设为 ${carrier} 的默认 APN？当前默认APN将被替换。`,
+      title: '确认将该APN设为默认吗？',
+      content: `当前的默认APN为「${currentName}」，确认后将替换为「${nextName}」。`,
       centered: true,
       onOk: async () => {
         try {
