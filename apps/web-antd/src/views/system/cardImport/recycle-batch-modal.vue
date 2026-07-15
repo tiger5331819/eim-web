@@ -49,6 +49,8 @@ const gridOptions: VxeGridProps = {
     pageSizes: [10, 20, 50],
   },
   proxyConfig: {
+    // 由 onOpened 触发加载，避免与全局 autoLoad 重复请求
+    autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
         return await inventoryRecycleRecordList({
@@ -240,11 +242,11 @@ async function handleConfirm() {
 
 <template>
   <BasicModal :title="modalTitle" class="w-[760px]">
-    <div v-if="step === 1" class="min-h-[560px]">
+    <div v-show="step === 1" class="min-h-[560px]">
       <BasicTable />
     </div>
 
-    <ConfirmForm v-else />
+    <ConfirmForm v-show="step === 2" />
 
     <template #footer>
       <a-button @click="modalApi.close()">取消</a-button>

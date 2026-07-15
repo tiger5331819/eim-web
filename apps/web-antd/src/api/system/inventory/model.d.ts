@@ -90,7 +90,7 @@ export interface EuiccInventoryImportLogQuery extends PageQuery {
   endEndTime?: string;
 }
 
-/** 批量回收-分配记录（待后端接口完善字段） */
+/** 批量回收-分配记录（/manager/inventory/change） */
 export interface InventoryRecycleRecordVo {
   changeNo?: string;
   tenantId?: string;

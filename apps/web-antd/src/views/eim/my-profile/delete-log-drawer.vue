@@ -32,6 +32,8 @@ const gridOptions: VxeGridProps = {
     pageSizes: [10, 20, 50, 100],
   },
   proxyConfig: {
+    // 由 onOpened 触发加载，避免与全局 autoLoad 重复请求
+    autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
         return await myProfileDeletedList({

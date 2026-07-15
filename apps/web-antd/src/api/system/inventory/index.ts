@@ -31,6 +31,7 @@ enum Api {
   assignableCount = '/manager/inventory/assignable/count',
   recycleOne = '/manager/inventory/recycle',
   recycleBatch = '/manager/inventory/recycle/batch',
+  recycleRecords = '/manager/inventory/change',
   deleteImport = '/manager/inventory/delete/import',
 }
 
@@ -162,9 +163,10 @@ export function inventoryRecycleBatch(data: EuiccRecycleBo) {
 
 /** 查询可批量回收的分配记录 */
 export function inventoryRecycleRecordList(params?: InventoryRecycleRecordQuery) {
-  return alovaInstance.get<PageResult<InventoryRecycleRecordVo>>(Api.list, {
-    params,
-  });
+  return alovaInstance.get<PageResult<InventoryRecycleRecordVo>>(
+    Api.recycleRecords,
+    { params },
+  );
 }
 
 /** 批量删除（文件导入） */

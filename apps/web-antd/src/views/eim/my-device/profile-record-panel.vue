@@ -47,6 +47,8 @@ const gridOptions: VxeGridProps = {
     pageSizes: [10, 20, 50],
   },
   proxyConfig: {
+    // 由外部 query() 触发加载，避免与全局 autoLoad 重复请求
+    autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
         if (!props.eid) {
