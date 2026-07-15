@@ -17,6 +17,7 @@ import {
   SUPERADMIN_ROLE_ID,
   SUPERADMIN_ROLE_KEY,
 } from '@vben/constants';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -228,6 +229,7 @@ async function handleChangeStatus(checked: SwitchProps['checked'], row: Role) {
               分配
             </action-button>
             <Popconfirm
+              :get-popup-container="getVxePopupContainer"
               placement="left"
               title="确认删除？"
               @confirm="handleDelete(row)"

@@ -6,7 +6,7 @@ import type { DictType } from '#/api/system/dict/dict-type-model';
 import { h, ref, shallowRef, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
-import { cn } from '@vben/utils';
+import { cn, getVxePopupContainer } from '@vben/utils';
 
 import {
   DeleteOutlined,
@@ -242,6 +242,7 @@ watch(searchValue, (value) => {
                 @click.stop="handleEdit(item)"
               />
               <Popconfirm
+                :get-popup-container="getVxePopupContainer"
                 placement="left"
                 :title="`确认删除 [${item.dictName}]?`"
                 @confirm="handleDelete(item)"

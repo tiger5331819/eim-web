@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Recordable } from '@vben/types';
 
+import { getVxePopupContainer } from '@vben/utils';
+
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Popconfirm } from 'antdv-next';
@@ -54,6 +56,7 @@ async function handleForceOffline(row: Recordable<any>) {
     <BasicTable table-title="我的在线设备">
       <template #action="{ row }">
         <Popconfirm
+          :get-popup-container="getVxePopupContainer"
           :title="`确认强制下线[${row.userName}]?`"
           placement="left"
           @confirm="handleForceOffline(row)"

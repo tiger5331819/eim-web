@@ -7,6 +7,7 @@ import type { OnlineUser } from '#/api/monitor/online/model';
 import { ref } from 'vue';
 
 import { Page } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm } from 'antdv-next';
 import { slice } from 'lodash-es';
@@ -88,6 +89,7 @@ async function handleForceOffline(row: OnlineUser) {
       </template>
       <template #action="{ row }">
         <Popconfirm
+          :get-popup-container="getVxePopupContainer"
           :title="`确认强制下线[${row.userName}]?`"
           placement="left"
           @confirm="handleForceOffline(row)"

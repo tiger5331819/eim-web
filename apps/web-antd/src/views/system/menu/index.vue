@@ -9,7 +9,7 @@ import { computed, ref } from 'vue';
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
 import { $t } from '@vben/locales';
-import { eachTree, listToTree, treeToList } from '@vben/utils';
+import { eachTree, getVxePopupContainer, listToTree, treeToList } from '@vben/utils';
 
 import { Popconfirm, Space, Switch, Tooltip } from 'antdv-next';
 
@@ -240,6 +240,7 @@ const isAdmin = computed(() => {
             {{ $t('pages.common.add') }}
           </action-button>
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             :title="removeConfirmTitle(row)"
             @confirm="handleDelete(row)"

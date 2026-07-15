@@ -7,6 +7,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { nextTick } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -135,6 +136,7 @@ function collapseAll() {
             {{ $t('pages.common.add') }}
           </action-button>
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"

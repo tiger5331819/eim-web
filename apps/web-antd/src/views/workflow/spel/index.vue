@@ -5,6 +5,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { Spel } from '#/api/workflow/spel/model';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -124,6 +125,7 @@ function handleMultiDelete() {
             {{ $t('pages.common.edit') }}
           </action-button>
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"

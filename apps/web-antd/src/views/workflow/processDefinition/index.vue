@@ -12,6 +12,7 @@ import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { $t } from '@vben/locales';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, RadioGroup, Space } from 'antdv-next';
 
@@ -339,6 +340,7 @@ function handleCategorySelect(keys: string[]) {
                 编辑信息
               </a-button>
               <Popconfirm
+                :get-popup-container="getVxePopupContainer"
                 placement="left"
                 title="确认删除？"
                 @confirm="handleDelete(row)"
@@ -357,6 +359,7 @@ function handleCategorySelect(keys: string[]) {
                 {{ row.isPublish ? '查看流程' : '设计流程' }}
               </a-button>
               <Popconfirm
+                :get-popup-container="getVxePopupContainer"
                 :title="`确认发布流程[${row.flowName}]?`"
                 placement="left"
                 @confirm="handlePublish(row)"
@@ -370,6 +373,7 @@ function handleCategorySelect(keys: string[]) {
             </div>
             <div>
               <Popconfirm
+                :get-popup-container="getVxePopupContainer"
                 :title="`确认复制流程[${row.flowName}]?`"
                 placement="left"
                 @confirm="handleCopy(row)"

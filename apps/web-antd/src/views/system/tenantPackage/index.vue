@@ -11,6 +11,7 @@ import { computed } from 'vue';
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
 import { EnableStatus } from '@vben/constants';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space, Switch, Tooltip } from 'antdv-next';
 
@@ -197,6 +198,7 @@ async function handleChangeStatus(
           </action-button>
           <Popconfirm
             v-if="(row.tenantCount ?? 0) === 0"
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除该套餐吗？删除后不可恢复。"
             @confirm="handleDelete(row)"

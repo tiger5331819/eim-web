@@ -13,6 +13,7 @@ import { useAppConfig } from '@vben/hooks';
 import { $t } from '@vben/locales';
 import { stringify } from '@vben/request';
 import { useAccessStore } from '@vben/stores';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Image, Popconfirm, Space, Spin, Switch, Tooltip } from 'antdv-next';
 
@@ -296,6 +297,7 @@ const [UploadTestModal, uploadTestApi] = useVbenModal({
             {{ $t('pages.common.download') }}
           </action-button>
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"

@@ -5,6 +5,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { onMounted, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space, Tag } from 'antdv-next';
 
@@ -175,6 +176,7 @@ onMounted(() => loadStats());
               row.poolStatus === 'DOWNLOADED' ||
               row.poolStatus === 'RECYCLEABLE'
             "
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认回收？"
             @confirm="handleRecycle(row)"

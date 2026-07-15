@@ -13,6 +13,7 @@ import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
 import { EnableStatus, SUPERADMIN_USER_ID } from '@vben/constants';
 import { $t } from '@vben/locales';
 import { preferences } from '@vben/preferences';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Avatar, Dropdown, Popconfirm, Space } from 'antdv-next';
 
@@ -293,6 +294,7 @@ function handleDeptReload() {
                 {{ $t('pages.common.edit') }}
               </action-button>
               <Popconfirm
+                :get-popup-container="getVxePopupContainer"
                 placement="left"
                 title="确认删除？"
                 @confirm="handleDelete(row)"

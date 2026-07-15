@@ -6,6 +6,7 @@ import type { LeaveForm } from './api/model';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -197,6 +198,7 @@ function handleInfo(row: Required<LeaveForm>) {
           {{ $t('pages.common.edit') }}
         </a-button>
         <Popconfirm
+          :get-popup-container="getVxePopupContainer"
           placement="left"
           title="确认撤销？"
           :disabled="!['waiting'].includes(row.status)"
@@ -214,6 +216,7 @@ function handleInfo(row: Required<LeaveForm>) {
           </a-button>
         </Popconfirm>
         <Popconfirm
+          :get-popup-container="getVxePopupContainer"
           placement="left"
           title="确认删除？"
           :disabled="!['draft', 'cancel', 'back'].includes(row.status)"

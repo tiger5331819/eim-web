@@ -8,6 +8,7 @@ import type { DictData } from '#/api/system/dict/dict-data-model';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -182,6 +183,7 @@ onBeforeUnmount(() => {
           <!-- 这里数据会不一致 必须加key标识 -->
           <Popconfirm
             :key="row.dictCode"
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"

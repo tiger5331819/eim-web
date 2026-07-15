@@ -7,6 +7,7 @@ import type { Post } from '#/api/system/post/model';
 import { ref } from 'vue';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -181,6 +182,7 @@ function handleDeptSelect(keys: string[]) {
             {{ $t('pages.common.edit') }}
           </action-button>
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"

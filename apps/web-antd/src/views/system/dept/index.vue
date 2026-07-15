@@ -7,7 +7,7 @@ import type { Dept } from '#/api/system/dept/model';
 import { nextTick } from 'vue';
 
 import { Page, useVbenDrawer } from '@vben/common-ui';
-import { eachTree } from '@vben/utils';
+import { eachTree, getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -163,6 +163,7 @@ function setExpandOrCollapse(expand: boolean) {
             {{ $t('pages.common.add') }}
           </action-button>
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"

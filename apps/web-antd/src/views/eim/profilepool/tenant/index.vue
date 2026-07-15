@@ -5,6 +5,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { computed, onMounted, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Card, Popconfirm, Space, Tag } from 'antdv-next';
 
@@ -151,6 +152,7 @@ onMounted(async () => {
               row.poolStatus === 'DOWNLOADED' ||
               row.poolStatus === 'RECYCLEABLE'
             "
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认回收？"
             @confirm="handleRecycle(row)"

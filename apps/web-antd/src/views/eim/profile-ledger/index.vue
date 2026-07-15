@@ -7,6 +7,7 @@ import type { ProfileLedgerVo } from '#/api/system/profile-ledger/model';
 import { computed, nextTick, ref, watch } from 'vue';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { DownloadOutlined, DownOutlined, HistoryOutlined, UploadOutlined } from '@antdv-next/icons';
 import { Dropdown, Popconfirm, Space, Tag } from 'antdv-next';
@@ -338,6 +339,7 @@ async function handleRowDelete(row: ProfileLedgerVo) {
           </action-button>
           <Popconfirm
             v-if="canPoolOut(row)"
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认将该码号出池吗？"
             :description="`码号：${row.accode} / ${row.iccid}，出池后将退回总池、清除租户归属，可再次入池。`"
@@ -347,6 +349,7 @@ async function handleRowDelete(row: ProfileLedgerVo) {
           </Popconfirm>
           <Popconfirm
             v-if="canRecycle(row)"
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认回收该码号吗？"
             :description="`码号：${row.accode} / ${row.iccid}，回收后将退回总池并转为空闲，可再次入池。`"
@@ -356,6 +359,7 @@ async function handleRowDelete(row: ProfileLedgerVo) {
           </Popconfirm>
           <Popconfirm
             v-if="canDelete(row)"
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除该码号吗？"
             description="删除后不可恢复。"

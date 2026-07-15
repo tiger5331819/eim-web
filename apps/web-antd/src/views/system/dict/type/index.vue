@@ -7,6 +7,7 @@ import type { DictType } from '#/api/system/dict/dict-type-model';
 import { ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -183,6 +184,7 @@ async function handleExport() {
             {{ $t('pages.common.edit') }}
           </action-button>
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"

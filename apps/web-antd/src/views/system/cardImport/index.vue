@@ -4,6 +4,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { EuiccInventoryVo } from '#/api/system/inventory/model';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
+import { getVxePopupContainer } from '@vben/utils';
 
 import {
   DownloadOutlined,
@@ -206,6 +207,7 @@ async function handleRowRecycle(row: EuiccInventoryVo) {
       <template #action="{ row }">
         <Space v-if="canAssign(row)">
           <Popconfirm
+            :get-popup-container="getVxePopupContainer"
             title="确认删除该库存记录？删除后不可恢复。"
             @confirm="handleRowDelete(row)"
           >
@@ -215,6 +217,7 @@ async function handleRowRecycle(row: EuiccInventoryVo) {
         </Space>
         <Popconfirm
           v-else-if="canRecycle(row)"
+          :get-popup-container="getVxePopupContainer"
           title="确认回收该设备吗？回收后将清除租户归属，可重新分配。"
           @confirm="handleRowRecycle(row)"
         >

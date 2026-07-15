@@ -9,6 +9,7 @@ import type { OperatorVo } from '#/api/system/operator/model';
 import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { EnableStatus } from '@vben/constants';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -174,6 +175,7 @@ async function handleChangeStatus(
           </action-button>
           <Popconfirm
             v-if="!hasRelatedResources(row)"
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除该运营商吗？删除后不可恢复。"
             @confirm="handleDelete(row)"

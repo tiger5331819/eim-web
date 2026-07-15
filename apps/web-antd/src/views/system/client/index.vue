@@ -9,6 +9,7 @@ import type { Client } from '#/api/system/client/model';
 import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { DEFAULT_CLIENT_ID, EnableStatus } from '@vben/constants';
+import { getVxePopupContainer } from '@vben/utils';
 
 import { Popconfirm, Space } from 'antdv-next';
 
@@ -182,6 +183,7 @@ async function handleChangeStatus(
           </action-button>
           <Popconfirm
             :disabled="row.id === 1"
+            :get-popup-container="getVxePopupContainer"
             placement="left"
             title="确认删除？"
             @confirm="handleDelete(row)"
