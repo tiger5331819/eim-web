@@ -190,15 +190,18 @@ export async function getLedgerTenantOptions() {
   }));
 }
 
-/** 已启用租户下拉 */
+/** 已启用且未过期租户下拉（入池等业务选择） */
 export async function getLedgerEnabledTenantOptions() {
   const res = await eimTenantList({
     pageNum: 1,
     pageSize: 1000,
     status: EnableStatus.Enable,
+    expired: false,
   });
-  return (res.rows || []).map((item) => ({
-    label: item.companyName,
-    value: item.tenantId,
-  }));
+  return (res.rows || [])
+    .filter((item) => item.expired !== true)
+    .map((item) => ({
+      label: item.companyName,
+      value: item.tenantId,
+    }));
 }
