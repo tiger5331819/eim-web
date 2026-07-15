@@ -4,7 +4,6 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { getOperatorOptions } from '#/api/system/operator';
 import { getLedgerEnabledTenantOptions } from '#/api/system/profile-ledger';
 import {
-  formatActivationField,
   formatEmpty,
   getCreateTime,
   getDeviceApn,
@@ -120,15 +119,13 @@ export const columns: VxeGridProps['columns'] = [
     title: 'IMEI',
     field: 'imei',
     minWidth: 150,
-    formatter: ({ row }) =>
-      formatActivationField(row.activationTime, row.imei),
+    slots: { default: 'imei' },
   },
   {
     title: '设备SN',
     field: 'deviceSn',
     minWidth: 140,
-    formatter: ({ row }) =>
-      formatActivationField(row.activationTime, row.deviceSn || row.name),
+    slots: { default: 'deviceSn' },
   },
   {
     title: '激活时间',

@@ -2,10 +2,7 @@ import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import { getOperatorOptions } from '#/api/system/operator';
-import {
-  CODE_STATUS_OPTIONS,
-  formatDownloadField,
-} from '#/utils/profileLedgerStatus';
+import { CODE_STATUS_OPTIONS } from '#/utils/profileLedgerStatus';
 import { formatTenantPoolName } from '#/utils/tenantPoolStatus';
 
 export const querySchema: FormSchemaGetter = () => [
@@ -162,8 +159,7 @@ export const detailColumns: VxeGridProps['columns'] = [
     title: '下载时间',
     field: 'downloadedTime',
     minWidth: 170,
-    formatter: ({ row }) =>
-      formatDownloadField(row.codeStatus, row.downloadedTime),
+    slots: { default: 'downloadedTime' },
   },
   {
     title: '创建人',

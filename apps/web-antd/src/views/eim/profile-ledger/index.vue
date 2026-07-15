@@ -26,6 +26,7 @@ import {
   canPoolIn,
   canPoolOut,
   canRecycle,
+  formatDownloadField,
   formatTenantName,
   getCodeStatusMeta,
   getPoolEntryStatusMeta,
@@ -299,6 +300,14 @@ async function handleRowDelete(row: ProfileLedgerVo) {
 
       <template #tenantName="{ row }">
         {{ formatTenantName(row.poolStatus, row.tenantName) }}
+      </template>
+
+      <template #downloadUser="{ row }">
+        {{ formatDownloadField(row.codeStatus, row.downloadUser) }}
+      </template>
+
+      <template #downloadedTime="{ row }">
+        {{ formatDownloadField(row.codeStatus, row.downloadedTime) }}
       </template>
 
       <template #codeStatus="{ row }">

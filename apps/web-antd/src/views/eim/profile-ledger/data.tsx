@@ -5,7 +5,6 @@ import { getLedgerTenantOptions } from '#/api/system/profile-ledger';
 import { getOperatorOptions } from '#/api/system/operator';
 import {
   CODE_STATUS_OPTIONS,
-  formatDownloadField,
   IMPORT_STATUS_OPTIONS,
   POOL_ENTRY_STATUS_OPTIONS,
 } from '#/utils/profileLedgerStatus';
@@ -166,15 +165,13 @@ export const columns: VxeGridProps['columns'] = [
     title: '下载人',
     field: 'downloadUser',
     minWidth: 110,
-    formatter: ({ row }) =>
-      formatDownloadField(row.codeStatus, row.downloadUser),
+    slots: { default: 'downloadUser' },
   },
   {
     title: '下载时间',
     field: 'downloadedTime',
     minWidth: 170,
-    formatter: ({ row }) =>
-      formatDownloadField(row.codeStatus, row.downloadedTime),
+    slots: { default: 'downloadedTime' },
   },
   {
     title: '入池状态',

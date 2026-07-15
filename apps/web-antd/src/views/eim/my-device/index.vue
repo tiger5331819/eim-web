@@ -13,6 +13,7 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { deviceExport, deviceList } from '#/api/system/device';
 import { useBlobExport } from '#/utils/file/export';
 import {
+  formatActivationField,
   getOnlineStatusMeta,
   mapDeviceLedgerQuery,
 } from '#/utils/deviceLedgerStatus';
@@ -108,6 +109,16 @@ async function handleExport() {
         <Tag :color="getOnlineStatusMeta(row).color">
           {{ getOnlineStatusMeta(row).text }}
         </Tag>
+      </template>
+
+      <template #imei="{ row }">
+        {{ formatActivationField(row.activationTime, row.imei) }}
+      </template>
+
+      <template #deviceSn="{ row }">
+        {{
+          formatActivationField(row.activationTime, row.deviceSn || row.name)
+        }}
       </template>
 
       <template #action="{ row }">

@@ -17,7 +17,11 @@ import {
 } from '#/api/system/my-profile';
 import type { MyProfileStatsVo } from '#/api/system/my-profile/model';
 import { useBlobExport } from '#/utils/file/export';
-import { getMyProfileStatusMeta } from '#/utils/myProfileStatus';
+import {
+  formatBoundEid,
+  formatDownloadTime,
+  getMyProfileStatusMeta,
+} from '#/utils/myProfileStatus';
 
 import StatsCard from './stats-card.vue';
 import { buildStatsItems, columns, querySchema } from './data';
@@ -125,6 +129,14 @@ onMounted(() => {
         >
           {{ getMyProfileStatusMeta(row.status, row.statusText).text }}
         </Tag>
+      </template>
+
+      <template #eid="{ row }">
+        {{ formatBoundEid(row.status, row.eid) }}
+      </template>
+
+      <template #downloadedTime="{ row }">
+        {{ formatDownloadTime(row.status, row.downloadedTime) }}
       </template>
     </BasicTable>
 

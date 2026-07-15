@@ -16,7 +16,7 @@ import {
   tenantPoolDetailList,
 } from '#/api/system/tenant-pool';
 import { useBlobExport } from '#/utils/file/export';
-import { getCodeStatusMeta } from '#/utils/profileLedgerStatus';
+import { getCodeStatusMeta, formatDownloadField } from '#/utils/profileLedgerStatus';
 import { formatTenantPoolName } from '#/utils/tenantPoolStatus';
 
 import {
@@ -138,6 +138,10 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
         >
           {{ getCodeStatusMeta(row.codeStatus, row.codeStatusText).text }}
         </Tag>
+      </template>
+
+      <template #downloadedTime="{ row }">
+        {{ formatDownloadField(row.codeStatus, row.downloadedTime) }}
       </template>
       </BasicTable>
     </div>

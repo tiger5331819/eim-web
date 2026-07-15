@@ -3,11 +3,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { MyProfileStatsVo } from '#/api/system/my-profile/model';
 
 import { getOperatorOptions } from '#/api/system/operator';
-import {
-  formatBoundEid,
-  formatDownloadTime,
-  MY_PROFILE_STATUS_OPTIONS,
-} from '#/utils/myProfileStatus';
+import { MY_PROFILE_STATUS_OPTIONS } from '#/utils/myProfileStatus';
 
 export const querySchema: FormSchemaGetter = () => [
   {
@@ -83,14 +79,13 @@ export const columns: VxeGridProps['columns'] = [
     title: '绑定EID',
     field: 'eid',
     minWidth: 180,
-    formatter: ({ row }) => formatBoundEid(row.status, row.eid),
+    slots: { default: 'eid' },
   },
   {
     title: '下载时间',
     field: 'downloadedTime',
     width: 170,
-    formatter: ({ row }) =>
-      formatDownloadTime(row.status, row.downloadedTime),
+    slots: { default: 'downloadedTime' },
   },
   { title: '创建时间', field: 'createTime', width: 170 },
 ];
