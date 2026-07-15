@@ -47,6 +47,8 @@ export interface InventoryChangeSnapshotVo {
   tenantId?: string;
   tenantName?: string;
   changeTenantName?: string;
+  /** 操作时间（接口字段 updateTime） */
+  updateTime?: string;
   operateTime?: string;
 }
 

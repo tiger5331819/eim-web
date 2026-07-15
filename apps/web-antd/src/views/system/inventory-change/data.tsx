@@ -231,7 +231,7 @@ export const detailColumns: VxeGridProps['columns'] = [
   },
   {
     title: '操作时间',
-    field: 'operateTime',
+    field: 'updateTime',
     minWidth: 170,
     formatter: ({ cellValue }) => formatInventoryField(cellValue),
   },
