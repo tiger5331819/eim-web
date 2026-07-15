@@ -29,16 +29,16 @@ async function handleTabChange(key: number | string) {
   >
     <Tabs
       v-model:active-key="activeTab"
-      class="profile-change-tabs flex min-h-0 flex-1 flex-col"
+      class="profile-change-tabs flex min-h-0 w-full flex-1 flex-col"
       @change="handleTabChange"
     >
       <TabPane key="log" tab="变动台账" class="h-full">
-        <div class="h-full min-h-0">
+        <div class="h-full min-h-0 w-full">
           <LogTable />
         </div>
       </TabPane>
       <TabPane key="detail" tab="变动明细" class="h-full">
-        <div v-if="detailLoaded" class="h-full min-h-0">
+        <div v-if="detailLoaded" class="h-full min-h-0 w-full">
           <DetailTable ref="detailTableRef" />
         </div>
       </TabPane>
@@ -47,13 +47,19 @@ async function handleTabChange(key: number | string) {
 </template>
 
 <style scoped>
+.profile-change-tabs {
+  width: 100%;
+}
+
 .profile-change-tabs :deep(.ant-tabs-nav) {
   flex-shrink: 0;
+  width: 100%;
   margin-bottom: 8px;
 }
 
 .profile-change-tabs :deep(.ant-tabs-content-holder) {
   flex: 1;
+  width: 100%;
   min-height: 0;
   overflow: hidden;
 }
@@ -61,6 +67,7 @@ async function handleTabChange(key: number | string) {
 .profile-change-tabs :deep(.ant-tabs-content),
 .profile-change-tabs :deep(.ant-tabs-tabpane) {
   height: 100%;
+  width: 100%;
 }
 
 .profile-change-tabs :deep(.ant-tabs-tabpane-active) {

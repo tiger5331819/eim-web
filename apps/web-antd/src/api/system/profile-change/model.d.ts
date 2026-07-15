@@ -31,6 +31,8 @@ export interface ProfileChangeLogQuery extends PageQuery {
 /** 变动快照 / 变动明细 */
 export interface ProfileChangeSnapshotVo {
   id?: number | string;
+  /** 快照号（变动编号-序号） */
+  snapshotNo?: string;
   changeNo?: string;
   changeType?: ProfileChangeType | string;
   changeTypeText?: string;
@@ -53,7 +55,8 @@ export interface ProfileChangeSnapshotVo {
 /** 变动快照 / 变动明细查询 */
 export interface ProfileChangeSnapshotQuery extends PageQuery {
   changeNo?: string;
-  snapshotId?: number | string;
+  /** 快照号 */
+  snapshotNo?: string;
   accode?: string;
   iccid?: string;
   msisdn?: string;

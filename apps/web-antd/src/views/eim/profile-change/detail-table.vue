@@ -79,43 +79,46 @@ defineExpose({ query: () => tableApi.query() });
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
+  <div class="flex h-full min-h-0 flex-col gap-4">
     <Alert
+      class="shrink-0"
       :closable="false"
       show-icon
       type="info"
       message="以下为全部变动操作对应的码号快照数据，展示的是变动发生时各码号的即时状态。"
     />
 
-    <BasicTable>
-      <template #toolbar-tools>
-        <a-button
-          :disabled="exportLoading"
-          :loading="exportLoading"
-          @click="handleExport"
-        >
-          <DownloadOutlined />
-          导出
-        </a-button>
-      </template>
+    <div class="min-h-0 flex-1 overflow-hidden">
+      <BasicTable>
+        <template #toolbar-tools>
+          <a-button
+            :disabled="exportLoading"
+            :loading="exportLoading"
+            @click="handleExport"
+          >
+            <DownloadOutlined />
+            导出
+          </a-button>
+        </template>
 
-      <template #changeType="{ row }">
-        <Tag
-          :color="
-            getChangeTypeMeta(row.changeType, row.changeTypeText).color
-          "
-        >
-          {{ getChangeTypeMeta(row.changeType, row.changeTypeText).text }}
-        </Tag>
-      </template>
+        <template #changeType="{ row }">
+          <Tag
+            :color="
+              getChangeTypeMeta(row.changeType, row.changeTypeText).color
+            "
+          >
+            {{ getChangeTypeMeta(row.changeType, row.changeTypeText).text }}
+          </Tag>
+        </template>
 
-      <template #codeStatus="{ row }">
-        <Tag
-          :color="getCodeStatusMeta(row.codeStatus, row.codeStatusText).color"
-        >
-          {{ getCodeStatusMeta(row.codeStatus, row.codeStatusText).text }}
-        </Tag>
-      </template>
-    </BasicTable>
+        <template #codeStatus="{ row }">
+          <Tag
+            :color="getCodeStatusMeta(row.codeStatus, row.codeStatusText).color"
+          >
+            {{ getCodeStatusMeta(row.codeStatus, row.codeStatusText).text }}
+          </Tag>
+        </template>
+      </BasicTable>
+    </div>
   </div>
 </template>
