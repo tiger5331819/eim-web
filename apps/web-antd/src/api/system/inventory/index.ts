@@ -33,6 +33,7 @@ enum Api {
   recycleOne = '/manager/inventory/recycle',
   recycleBatch = '/manager/inventory/recycle/batch',
   deleteImport = '/manager/inventory/delete/import',
+  deleteImportTemplate = '/manager/inventory/delete/import/template',
 }
 
 /** 查询库存列表 */
@@ -174,4 +175,16 @@ export function inventoryDeleteImport(file: File) {
     headers: { 'Content-Type': 'multipart/form-data;charset=UTF-8' },
     successMessageMode: 'none',
   });
+}
+
+/** 下载批量删除模板 */
+export function inventoryDeleteImportTemplate() {
+  return alovaInstance.post<Blob>(
+    Api.deleteImportTemplate,
+    {},
+    {
+      isTransformResponse: false,
+      responseType: 'blob',
+    },
+  );
 }

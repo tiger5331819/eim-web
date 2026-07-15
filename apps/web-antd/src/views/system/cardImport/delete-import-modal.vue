@@ -5,15 +5,23 @@ import { ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { InboxOutlined } from '@antdv-next/icons';
+import { DownloadOutlined, InboxOutlined } from '@antdv-next/icons';
 import { Alert, Upload } from 'antdv-next';
 
-import { inventoryDeleteImport } from '#/api/system/inventory';
+import {
+  inventoryDeleteImport,
+  inventoryDeleteImportTemplate,
+} from '#/api/system/inventory';
+import { useBlobExport } from '#/utils/file/export';
 
 const emit = defineEmits<{ reload: [] }>();
 
 const UploadDragger = Upload.Dragger;
 const fileList = ref<UploadFile[]>([]);
+
+const { exportBlob, exportLoading } = useBlobExport(
+  inventoryDeleteImportTemplate,
+);
 
 const [BasicModal, modalApi] = useVbenModal({
   fullscreenButton: false,
@@ -22,6 +30,10 @@ const [BasicModal, modalApi] = useVbenModal({
     fileList.value = [];
   },
 });
+
+async function handleDownloadTemplate() {
+  await exportBlob({ data: {}, fileName: 'eUICC批量删除模板.xlsx' });
+}
 
 async function handleSubmit() {
   try {
@@ -57,6 +69,18 @@ async function handleSubmit() {
         </ul>
       </template>
     </Alert>
+    <div class="mb-2">
+      <a-button
+        type="link"
+        class="h-auto px-0"
+        :loading="exportLoading"
+        :disabled="exportLoading"
+        @click="handleDownloadTemplate"
+      >
+        <DownloadOutlined />
+        下载模板
+      </a-button>
+    </div>
     <UploadDragger
       v-model:file-list="fileList"
       class="import-upload-dragger"

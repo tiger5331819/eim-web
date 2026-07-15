@@ -69,9 +69,9 @@ const alovaInstance = createAlova({
   baseURL: apiURL,
   /**
    * 请求超时时间 单位毫秒
-   * @default 10s
+   * @default 60s
    */
-  timeout: 10_000,
+  timeout: 60_000,
   statesHook: VueHook,
   requestAdapter: axiosRequestAdapter(),
   // 响应缓存让你可以更好地多次利用服务端数据，而不需要每次请求时都发送请求获取数据。GET 请求将默认设置 5 分钟的内存缓存时间，如果你不需要可以通过以下方式关闭当前请求的缓存。

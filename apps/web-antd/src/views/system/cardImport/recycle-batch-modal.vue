@@ -22,8 +22,6 @@ const emit = defineEmits<{ reload: [] }>();
 
 const step = ref<1 | 2>(1);
 const selectedRecord = ref<EuiccAssignRecordVo | null>(null);
-/** 查询时选中的租户，提交回收时兜底使用 */
-const queryTenantId = ref<string>();
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -53,21 +51,19 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        queryTenantId.value = formValues.tenantId || undefined;
-        // 接口返回 List（非分页），前端切片
-        const list =
-          (await inventoryAssignRecordList({
-            tenantId: formValues.tenantId || undefined,
-            changeNo: formValues.changeNo || undefined,
-          })) ?? [];
-        const keyword = String(formValues.changeNo || '').trim();
-        const filtered = keyword
-          ? list.filter((item) => item.changeNo?.includes(keyword))
-          : list;
+        const params: { changeNo?: string; tenantId?: string } = {};
+        const changeNo = String(formValues.changeNo || '').trim();
+        if (changeNo) {
+          params.changeNo = changeNo;
+        }
+        if (formValues.tenantId) {
+          params.tenantId = formValues.tenantId;
+        }
+        const list = (await inventoryAssignRecordList(params)) ?? [];
         const start = (page.currentPage - 1) * page.pageSize;
         return {
-          rows: filtered.slice(start, start + page.pageSize),
-          total: filtered.length,
+          rows: list.slice(start, start + page.pageSize),
+          total: list.length,
         };
       },
     },
@@ -160,7 +156,6 @@ const [BasicModal, modalApi] = useVbenModal({
     if (!isOpen) return;
     step.value = 1;
     selectedRecord.value = null;
-    queryTenantId.value = undefined;
   },
   onOpened() {
     if (step.value === 1) {
@@ -170,7 +165,6 @@ const [BasicModal, modalApi] = useVbenModal({
   onClosed() {
     step.value = 1;
     selectedRecord.value = null;
-    queryTenantId.value = undefined;
     confirmFormApi.resetForm();
   },
 });
@@ -179,20 +173,12 @@ const modalTitle = computed(() =>
   step.value === 1 ? '选择分配记录' : '确认回收',
 );
 
-function resolveTenantId(row: EuiccAssignRecordVo) {
-  return row.tenantId || queryTenantId.value;
-}
-
 function handleNext() {
   const row = tableApi.grid?.getRadioRecord?.() as
     | EuiccAssignRecordVo
     | undefined;
   if (!row?.changeNo) {
     window.message.warning('请选择一条分配记录');
-    return;
-  }
-  if (!resolveTenantId(row)) {
-    window.message.warning('请先筛选租户后再选择分配记录');
     return;
   }
   if ((row.recyclableCount ?? 0) <= 0) {
@@ -228,7 +214,7 @@ async function handleConfirm() {
 
     const values = cloneDeep(await confirmFormApi.getValues());
     const max = recyclableCount.value;
-    const tenantId = resolveTenantId(selectedRecord.value);
+    const tenantId = selectedRecord.value.tenantId;
     if (!tenantId) {
       window.message.warning('缺少租户信息，无法回收');
       return;

@@ -79,7 +79,6 @@ export interface EuiccAssignRecordVo {
 
 /** 分配记录查询 */
 export interface EuiccAssignRecordQuery {
-  /** 租户 ID（文档要求必填，实际支持不传查全部） */
   tenantId?: string;
   changeNo?: string;
 }
