@@ -10,42 +10,16 @@ export function getPopupContainer(node?: HTMLElement): HTMLElement {
 }
 
 /**
- * VxeTable 专用弹窗挂载节点（固定列内 Popconfirm / Dropdown 等）
- * 参考：https://gitee.com/dapppp/ruoyi-plus-vben5/issues/IB1DM3
+ * VxeTable 操作列弹层挂载节点（Popconfirm / Dropdown 等）
+ *
+ * 中移项目（ant-design-vue）会挂到固定列容器，避免被遮挡。
+ * 本仓库使用 antdv-next，弹层本身已支持滚动跟随；若再挂到
+ * `.vxe-table--fixed-*` 容器，会出现确认框坐标偏移。
+ * 因此统一挂到 body，调用方式仍与中移保持一致：
+ * `:get-popup-container="getVxePopupContainer"`
+ *
+ * @see https://gitee.com/dapppp/ruoyi-plus-vben5/issues/IB1DM3
  */
-export function getVxePopupContainer(
-  node?: HTMLElement,
-  tableId?: string,
-): HTMLElement {
-  if (!node) return document.body;
-
-  const isInFixedColumn =
-    node.closest('.vxe-table--fixed-wrapper') ||
-    node.closest('.vxe-table--fixed-left-wrapper') ||
-    node.closest('.vxe-table--fixed-right-wrapper');
-
-  if (isInFixedColumn) {
-    const tableContainer =
-      node.closest('.vxe-table--fixed-wrapper') ||
-      node.closest('.vxe-table--fixed-left-wrapper') ||
-      node.closest('.vxe-table--fixed-right-wrapper');
-
-    if (tableId && tableContainer) {
-      const specificTable = tableContainer.closest(
-        `[data-table-id="${tableId}"]`,
-      );
-      if (specificTable) {
-        return specificTable as HTMLElement;
-      }
-    }
-
-    return tableContainer as HTMLElement;
-  }
-
-  const fixedHeightElement = node.closest('td.col--cs-height');
-  if (fixedHeightElement) {
-    (fixedHeightElement as HTMLTableCellElement).style.overflow = 'visible';
-  }
-
-  return (node.parentNode as HTMLElement) || document.body;
+export function getVxePopupContainer(_node?: HTMLElement): HTMLElement {
+  return document.body;
 }
