@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { VbenFormProps } from '@vben/common-ui';
+
 import type { VxeGridProps } from '#/adapter/vxe-table';
-import type { InventoryRecycleRecordVo } from '#/api/system/inventory/model';
+import type { InventoryChangeLogVo } from '#/api/system/inventory-change/model';
 
 import { computed, ref } from 'vue';
 
@@ -10,20 +11,19 @@ import { cloneDeep } from '@vben/utils';
 
 import { useVbenForm } from '#/adapter/form';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { inventoryChangeLogList } from '#/api/system/inventory-change';
+import { inventoryRecycleBatch } from '#/api/system/inventory';
 import {
-  inventoryRecycleBatch,
-  inventoryRecycleRecordList,
-} from '#/api/system/inventory';
+  formatTargetSourceTenant,
+  getInventoryChangeTypeMeta,
+} from '#/utils/inventoryChangeStatus';
 
-import {
-  recycleRecordColumns,
-  recycleRecordQuerySchema,
-} from './data';
+import { recycleRecordColumns, recycleRecordQuerySchema } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
 
 const step = ref<1 | 2>(1);
-const selectedRecord = ref<InventoryRecycleRecordVo | null>(null);
+const selectedRecord = ref<InventoryChangeLogVo | null>(null);
 
 const formOptions: VbenFormProps = {
   commonConfig: {
@@ -33,6 +33,19 @@ const formOptions: VbenFormProps = {
   schema: recycleRecordQuerySchema(),
   wrapperClass: 'grid-cols-1 md:grid-cols-2',
 };
+
+function resolveTenantId(row: InventoryChangeLogVo) {
+  return row.tenantId || row.targetTenantId || row.sourceTenantId;
+}
+
+function resolveRecyclableCount(row: InventoryChangeLogVo) {
+  return row.changeCount ?? 0;
+}
+
+function isAssignableRecycleRow(row: InventoryChangeLogVo) {
+  const meta = getInventoryChangeTypeMeta(row.changeType, row.changeTypeText);
+  return meta.text === '分配' && resolveRecyclableCount(row) > 0;
+}
 
 const gridOptions: VxeGridProps = {
   columns: recycleRecordColumns,
@@ -53,17 +66,19 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await inventoryRecycleRecordList({
+        return await inventoryChangeLogList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
+          // 批量回收仅可选「分配」类变动
+          changeType: 'ASSIGN',
           ...formValues,
         });
       },
     },
   },
   radioConfig: {
-    checkMethod: ({ row }: { row: InventoryRecycleRecordVo }) =>
-      (row.recyclableCount ?? 0) > 0,
+    checkMethod: ({ row }: { row: InventoryChangeLogVo }) =>
+      isAssignableRecycleRow(row),
     highlight: true,
     strict: true,
   },
@@ -77,8 +92,8 @@ const [BasicTable, tableApi] = useVbenVxeGrid({
   separator: false,
 });
 
-const recyclableCount = computed(
-  () => selectedRecord.value?.recyclableCount ?? 0,
+const recyclableCount = computed(() =>
+  selectedRecord.value ? resolveRecyclableCount(selectedRecord.value) : 0,
 );
 
 const [ConfirmForm, confirmFormApi] = useVbenForm({
@@ -106,12 +121,6 @@ const [ConfirmForm, confirmFormApi] = useVbenForm({
       component: 'Input',
       fieldName: 'operateTime',
       label: '操作时间',
-      componentProps: { disabled: true },
-    },
-    {
-      component: 'Input',
-      fieldName: 'nonRecyclableCount',
-      label: '不可回收',
       componentProps: { disabled: true },
     },
     {
@@ -174,25 +183,25 @@ const modalTitle = computed(() =>
 
 function handleNext() {
   const row = tableApi.grid?.getRadioRecord?.() as
-    | InventoryRecycleRecordVo
+    | InventoryChangeLogVo
     | undefined;
-  if (!row?.changeNo || !row.tenantId) {
+  if (!row?.changeNo || !resolveTenantId(row)) {
     window.message.warning('请选择一条分配记录');
     return;
   }
-  if ((row.recyclableCount ?? 0) <= 0) {
-    window.message.warning('该批次已无设备可回收，请返回重新选择');
+  if (!isAssignableRecycleRow(row)) {
+    window.message.warning('该批次不可回收，请返回重新选择');
     return;
   }
   selectedRecord.value = row;
   step.value = 2;
+  const count = resolveRecyclableCount(row);
   confirmFormApi.setValues({
     changeNo: row.changeNo,
-    tenantName: row.tenantName || '--',
-    assignCount: row.assignCount ?? '--',
+    tenantName: formatTargetSourceTenant(row),
+    assignCount: count,
     operateTime: row.operateTime || '--',
-    nonRecyclableCount: row.nonRecyclableCount ?? 0,
-    recyclableCountDisplay: row.recyclableCount ?? 0,
+    recyclableCountDisplay: count,
     size: 1,
   });
 }
@@ -214,6 +223,11 @@ async function handleConfirm() {
 
     const values = cloneDeep(await confirmFormApi.getValues());
     const max = recyclableCount.value;
+    const tenantId = resolveTenantId(selectedRecord.value);
+    if (!tenantId) {
+      window.message.warning('缺少租户信息，无法回收');
+      return;
+    }
     if ((values.size ?? 0) > max) {
       window.message.warning(`回收数量不能超过 ${max}`);
       return;
@@ -225,7 +239,7 @@ async function handleConfirm() {
 
     await inventoryRecycleBatch({
       changeNo: selectedRecord.value.changeNo!,
-      tenantId: selectedRecord.value.tenantId!,
+      tenantId,
       size: values.size,
       remark: values.remark,
     });

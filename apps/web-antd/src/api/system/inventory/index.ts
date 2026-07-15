@@ -7,8 +7,6 @@ import type {
   EuiccInventoryQuery,
   EuiccInventoryVo,
   EuiccRecycleBo,
-  InventoryRecycleRecordQuery,
-  InventoryRecycleRecordVo,
 } from './model';
 import type { ID, PageResult } from '#/api/common';
 
@@ -31,7 +29,6 @@ enum Api {
   assignableCount = '/manager/inventory/assignable/count',
   recycleOne = '/manager/inventory/recycle',
   recycleBatch = '/manager/inventory/recycle/batch',
-  recycleRecords = '/manager/inventory/change',
   deleteImport = '/manager/inventory/delete/import',
 }
 
@@ -159,14 +156,6 @@ export function inventoryRecycleBatch(data: EuiccRecycleBo) {
   return alovaInstance.postWithMsg<void>(Api.recycleBatch, data, {
     successMessageMode: 'none',
   });
-}
-
-/** 查询可批量回收的分配记录 */
-export function inventoryRecycleRecordList(params?: InventoryRecycleRecordQuery) {
-  return alovaInstance.get<PageResult<InventoryRecycleRecordVo>>(
-    Api.recycleRecords,
-    { params },
-  );
 }
 
 /** 批量删除（文件导入） */

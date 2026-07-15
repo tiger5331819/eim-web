@@ -89,20 +89,3 @@ export interface EuiccInventoryImportLogQuery extends PageQuery {
   beginEndTime?: string;
   endEndTime?: string;
 }
-
-/** 批量回收-分配记录（/manager/inventory/change） */
-export interface InventoryRecycleRecordVo {
-  changeNo?: string;
-  tenantId?: string;
-  tenantName?: string;
-  assignCount?: number;
-  recyclableCount?: number;
-  nonRecyclableCount?: number;
-  operateTime?: string;
-}
-
-/** 批量回收-分配记录筛选 */
-export interface InventoryRecycleRecordQuery extends PageQuery {
-  changeNo?: string;
-  tenantId?: string;
-}
