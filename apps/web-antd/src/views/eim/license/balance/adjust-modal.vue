@@ -25,18 +25,27 @@ const previewQuota = computed(() => {
     : currentQuota.value - quotaValue.value;
 });
 
+function syncPreviewFromValues(values: Record<string, any>) {
+  const type = values.adjustType;
+  if (type === 'RECHARGE' || type === 'DEDUCT') {
+    adjustType.value = type;
+  }
+  const quota = Number(values.quota);
+  quotaValue.value = Number.isFinite(quota) && quota > 0 ? quota : undefined;
+}
+
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {
     labelWidth: 90,
+  },
+  handleValuesChange: (values) => {
+    syncPreviewFromValues(values);
   },
   schema: [
     {
       component: 'RadioGroup',
       componentProps: {
         options: ADJUST_TYPE_OPTIONS,
-        onChange: (value: 'DEDUCT' | 'RECHARGE') => {
-          adjustType.value = value;
-        },
       },
       defaultValue: 'RECHARGE',
       fieldName: 'adjustType',
@@ -50,9 +59,6 @@ const [BasicForm, formApi] = useVbenForm({
         precision: 0,
         style: 'width: 100%',
         placeholder: '请输入变动数量',
-        onChange: (value: number) => {
-          quotaValue.value = value;
-        },
       },
       fieldName: 'quota',
       label: '变动数量',
