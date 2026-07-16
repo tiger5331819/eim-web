@@ -6,6 +6,7 @@ import type {
 } from './model';
 import type { ID, PageResult } from '#/api/common';
 
+import { toIdPath } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
@@ -37,7 +38,9 @@ export function handleAllocation(data: AllocationForm) {
 }
 
 export function updateProfileApn(id: ID, apnId: ID) {
-  return alovaInstance.patchWithMsg<void>(`${Api.root}/${id}/apn/${apnId}`);
+  return alovaInstance.patchWithMsg<void>(
+    `${Api.root}/${toIdPath(id)}/apn/${toIdPath(apnId)}`,
+  );
 }
 
 /**

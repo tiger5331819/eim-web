@@ -52,13 +52,18 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await profileChangeSnapshotList({
+        const result = await profileChangeSnapshotList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
           // 抽屉由变动记录打开，始终以当前变动编号为准
           changeNo: changeNo.value,
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },

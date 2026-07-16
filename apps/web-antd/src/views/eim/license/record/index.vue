@@ -35,11 +35,18 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await licenseRecordList({
+        const result = await licenseRecordList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapRecordQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+          tenantId:
+            row.tenantId != null ? String(row.tenantId) : row.tenantId,
+        }));
+        return { ...result, rows };
       },
     },
   },

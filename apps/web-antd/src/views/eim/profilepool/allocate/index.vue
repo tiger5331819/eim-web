@@ -73,12 +73,17 @@ const sourceGridOptions: VxeGridProps = {
         if (!sourceTenantId.value) {
           return { rows: [], total: 0 };
         }
-        return await profileList({
+        const result = await profileList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           assignedTenantId: sourceTenantId.value,
           poolStatus: 'ASSIGNED',
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },

@@ -39,7 +39,7 @@ export interface ProfileBatchRecycleBO {
 
 /** 调配日志视图对象 */
 export interface ProfileAllocationLogVO {
-  id: number;
+  id: string;
   profileId: string;
   iccid: string;
   fromTenantId?: string;
@@ -49,7 +49,7 @@ export interface ProfileAllocationLogVO {
   actionType: string;
   beforeStatus?: string;
   afterStatus?: string;
-  operatorId?: number;
+  operatorId?: string;
   operatorName?: string;
   remark?: string;
   createTime: string;

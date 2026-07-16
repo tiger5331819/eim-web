@@ -54,11 +54,16 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await profileLedgerImportLogList({
+        const result = await profileLedgerImportLogList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapImportLogQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -78,7 +83,7 @@ async function handleDownloadDetail(row: {
 }) {
   detailLoading.value = true;
   try {
-    const blob = await profileLedgerImportDetail(row.id);
+    const blob = await profileLedgerImportDetail(String(row.id));
     const batch = row.importBatch || row.id;
     downloadByData(
       blob,

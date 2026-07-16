@@ -43,11 +43,18 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await licenseTenantList({
+        const result = await licenseTenantList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapTenantQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: row.id != null ? String(row.id) : row.id,
+          tenantId:
+            row.tenantId != null ? String(row.tenantId) : row.tenantId,
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -73,7 +80,7 @@ const { exportBlob, exportLoading } = useBlobExport(licenseTenantExport);
 
 function handleAdjust(record: TenantLicenseVo) {
   adjustModalApi.setData({
-    tenantId: record.tenantId,
+    tenantId: String(record.tenantId),
     tenantName: record.tenantName,
     current: record.availableQuota ?? 0,
   });
@@ -82,7 +89,7 @@ function handleAdjust(record: TenantLicenseVo) {
 
 function handleViewRecord(record: TenantLicenseVo) {
   recordDrawerApi.setData({
-    tenantId: record.tenantId,
+    tenantId: String(record.tenantId),
     tenantName: record.tenantName,
   });
   recordDrawerApi.open();

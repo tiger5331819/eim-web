@@ -61,12 +61,17 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await tenantPoolDetailList({
+        const result = await tenantPoolDetailList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           tenantId: tenantId.value,
           ...formValues,
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -108,7 +113,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       tenantId?: string;
       tenantName?: string;
     };
-    tenantId.value = data?.tenantId ?? '';
+    tenantId.value = data?.tenantId != null ? String(data.tenantId) : '';
     tenantName.value = data?.tenantName ?? '';
   },
   onOpened() {

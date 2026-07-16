@@ -53,11 +53,14 @@ const [BasicModal, modalApi] = useVbenModal({
     isUpdate.value = !!id;
 
     if (isUpdate.value && id) {
-      const record = await getApn(id);
+      const record = await getApn(String(id));
       await formApi.setValues({
-        id: record.id,
+        id: String(record.id),
         name: record.name || record.apn,
-        operatorId: record.operatorId,
+        operatorId:
+          record.operatorId != null
+            ? String(record.operatorId)
+            : record.operatorId,
         remark: record.remark,
       });
     }
@@ -76,10 +79,13 @@ async function handleConfirm() {
     }
     const values = cloneDeep(await formApi.getValues()) as ApnForm;
     const payload: ApnForm = {
-      id: values.id,
+      id: values.id != null ? String(values.id) : values.id,
       name: values.name?.trim(),
       // apn: values.name?.trim(),
-      operatorId: values.operatorId,
+      operatorId:
+        values.operatorId != null
+          ? String(values.operatorId)
+          : values.operatorId,
       remark: values.remark?.trim() || undefined,
     };
 

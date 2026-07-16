@@ -2,7 +2,7 @@ import type { PageQuery } from '#/api/common';
 
 /** API 密钥视图对象 */
 export interface ApiCredentialVO {
-  id: number | string;
+  id: string;
   credentialName?: string;
   appKey?: string;
   /** 仅新建/重置时返回明文，列表通常不返回 */
@@ -25,7 +25,7 @@ export interface ApiCredentialQuery extends PageQuery {
 }
 
 export interface ApiCredentialBo {
-  id?: number | string;
+  id?: string;
   credentialName: string;
   status?: string;
   tenantId?: string;

@@ -47,12 +47,19 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await licenseRecordList({
+        const result = await licenseRecordList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           tenantId: tenantId.value,
           ...mapRecordQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+          tenantId:
+            row.tenantId != null ? String(row.tenantId) : row.tenantId,
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -92,7 +99,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       tenantId?: string;
       tenantName?: string;
     };
-    tenantId.value = data.tenantId ?? '';
+    tenantId.value = data.tenantId != null ? String(data.tenantId) : '';
     tenantName.value = data.tenantName ?? '';
   },
   onOpened() {

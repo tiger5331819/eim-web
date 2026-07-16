@@ -42,11 +42,16 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await profileChangeDetailList({
+        const result = await profileChangeDetailList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapChangeDetailQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },

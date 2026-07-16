@@ -71,7 +71,7 @@ async function setupPackageSelect() {
 
   const options = tenantPackageList.map((item) => ({
     label: item.packageName,
-    value: item.packageId,
+    value: String(item.packageId),
   }));
   formApi.updateSchema([
     {
@@ -88,6 +88,12 @@ async function setupPackageSelect() {
 
 function mapRecordToForm(record: Record<string, any>) {
   const formData = { ...record };
+  if (record.id != null) {
+    formData.id = String(record.id);
+  }
+  if (record.packageId != null) {
+    formData.packageId = String(record.packageId);
+  }
   if (record.accountCount === -1) {
     formData.accountLimitType = 'unlimited';
     delete formData.accountCount;
@@ -102,6 +108,12 @@ function mapRecordToForm(record: Record<string, any>) {
 
 function mapFormToSubmit(data: Record<string, any>) {
   const payload = cloneDeep(data);
+  if (payload.id != null) {
+    payload.id = String(payload.id);
+  }
+  if (payload.packageId != null) {
+    payload.packageId = String(payload.packageId);
+  }
   payload.accountCount =
     payload.accountLimitType === 'unlimited' ? -1 : payload.accountCount;
   delete payload.accountLimitType;
@@ -138,7 +150,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
 
     if (isUpdate.value && id) {
       const [record] = await Promise.all([
-        eimTenantInfo(id),
+        eimTenantInfo(String(id)),
         setupPackageSelect(),
       ]);
       await formApi.setValues(mapRecordToForm(record));

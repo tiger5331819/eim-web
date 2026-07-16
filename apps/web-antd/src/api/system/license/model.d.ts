@@ -2,7 +2,7 @@ import type { PageQuery } from '#/api/common';
 
 /** 租户 License 余额 */
 export interface TenantLicenseVo {
-  id?: number;
+  id?: string;
   tenantId?: string;
   tenantName?: string;
   tenantStatus?: string;
@@ -23,7 +23,7 @@ export interface TenantLicenseVo {
 
 /** License 变更流水 */
 export interface TenantLicenseRecordVo {
-  id?: number | string;
+  id?: string;
   tenantId?: string;
   tenantName?: string;
   changeType?: string;
@@ -33,7 +33,7 @@ export interface TenantLicenseRecordVo {
   afterAvailable?: number;
   bizType?: string;
   bizId?: string;
-  operatorId?: number;
+  operatorId?: string;
   operatorName?: string;
   remark?: string;
   createTime?: string;
@@ -41,7 +41,7 @@ export interface TenantLicenseRecordVo {
 
 /** License 冻结记录 */
 export interface TenantLicenseFreezeVo {
-  id?: number;
+  id?: string;
   tenantId?: string;
   taskId?: string;
   profileId?: string;

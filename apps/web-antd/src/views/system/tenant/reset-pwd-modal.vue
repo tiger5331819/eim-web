@@ -86,7 +86,7 @@ async function handleOpenChange(open: boolean) {
   const { record } = modalApi.getData() as { record: EimTenantVo };
   currentTenant.value = record;
   await formApi.setValues({
-    id: record.id,
+    id: String(record.id),
     companyName: record.companyName,
   });
   modalApi.modalLoading(false);
@@ -100,7 +100,7 @@ async function handleSubmit() {
       return;
     }
     const { id, newPassword } = await formApi.getValues();
-    await eimTenantResetPassword({ id, newPassword });
+    await eimTenantResetPassword({ id: String(id), newPassword });
     window.message.success('密码重置成功');
     emit('reload');
     handleClosed();

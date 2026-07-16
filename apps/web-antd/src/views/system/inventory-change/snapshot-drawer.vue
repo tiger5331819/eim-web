@@ -51,12 +51,17 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await inventoryChangeSnapshotList({
+        const result = await inventoryChangeSnapshotList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           changeNo: changeNo.value,
           ...formValues,
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },

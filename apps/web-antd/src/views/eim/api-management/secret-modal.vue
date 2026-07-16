@@ -34,7 +34,7 @@ const [BasicModal, modalApi] = useVbenModal({
     if (!data?.id) return;
     loading.value = true;
     try {
-      credential.value = await apiCredentialViewSecret(data.id);
+      credential.value = await apiCredentialViewSecret(String(data.id));
     } finally {
       loading.value = false;
     }
@@ -62,7 +62,10 @@ async function toggleSecret() {
   }
   if (!plainSecret.value) {
     try {
-      plainSecret.value = await apiCredentialSecret(credential.value.id, true);
+      plainSecret.value = await apiCredentialSecret(
+        String(credential.value.id),
+        true,
+      );
     } catch {
       window.message.error('获取密钥失败');
       return;

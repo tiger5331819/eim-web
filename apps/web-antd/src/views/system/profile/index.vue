@@ -22,7 +22,19 @@ const gridOptions: VxeGridProps = {
   height: 'auto',
   keepSource: true,
   pagerConfig: {},
-  proxyConfig: { ajax: { query: async ({ page }, formValues = {}) => { return await profileList({ pageNum: page.currentPage, pageSize: page.pageSize, ...formValues }); } } },
+  proxyConfig: { ajax: { query: async ({ page }, formValues = {}) => {
+        const result = await profileList({
+          pageNum: page.currentPage,
+          pageSize: page.pageSize,
+          ...formValues,
+        });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+          apnId: row.apnId != null ? String(row.apnId) : row.apnId,
+        }));
+        return { ...result, rows };
+      } } },
   rowConfig: { keyField: 'iccid' },
   id: 'system-profile-index',
 };

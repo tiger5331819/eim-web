@@ -9,7 +9,7 @@ import { eimTenantLicenseAdjust } from '#/api/system/tenant';
 
 const emit = defineEmits<{ reload: [] }>();
 
-const tenantId = ref<number>(0);
+const tenantId = ref<string>('');
 const currentBalance = ref<number>(0);
 const previewDelta = ref<number | undefined>(undefined);
 
@@ -59,8 +59,8 @@ const [BasicModal, modalApi] = useVbenModal({
   },
   onOpenChange: (isOpen) => {
     if (!isOpen) return;
-    const data = modalApi.getData() as { current: number; tenantId: number };
-    tenantId.value = data.tenantId;
+    const data = modalApi.getData() as { current: number; tenantId: number | string };
+    tenantId.value = String(data.tenantId);
     currentBalance.value = data.current;
   },
 });

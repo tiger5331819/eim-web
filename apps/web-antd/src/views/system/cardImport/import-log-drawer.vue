@@ -58,11 +58,16 @@ const gridOptions: VxeGridProps = {
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await inventoryImportLogList({
+        const result = await inventoryImportLogList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapImportLogQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -82,7 +87,7 @@ async function handleDownloadDetail(row: {
 }) {
   detailLoading.value = true;
   try {
-    const blob = await inventoryImportDetail(row.id);
+    const blob = await inventoryImportDetail(String(row.id));
     const batch = row.importBatch || row.id;
     downloadByData(
       blob,

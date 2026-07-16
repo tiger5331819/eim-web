@@ -46,11 +46,16 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await inventoryChangeLogList({
+        const result = await inventoryChangeLogList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapInventoryChangeLogQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
