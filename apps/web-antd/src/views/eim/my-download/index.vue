@@ -46,6 +46,8 @@ const gridOptions: VxeGridProps = {
     ajax: {
       query: async ({ page }, formValues = {}) => {
         return await downloadTaskList({
+          isAsc: 'desc',
+          orderByColumn: 'creationTime',
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapDownloadTaskQuery(formValues),

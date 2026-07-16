@@ -1,7 +1,7 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getOperatorOptions } from '#/api/system/operator';
+import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 import { CODE_STATUS_OPTIONS } from '#/utils/profileLedgerStatus';
 import { formatTenantPoolName } from '#/utils/tenantPoolStatus';
 
@@ -90,7 +90,7 @@ export const detailQuerySchema: FormSchemaGetter = () => [
     component: 'ApiSelect',
     componentProps: {
       allowClear: true,
-      api: getOperatorOptions,
+      api: getTenantPoolOperatorOptions,
       placeholder: '请选择',
       showSearch: true,
       optionFilterProp: 'label',

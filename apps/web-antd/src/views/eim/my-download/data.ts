@@ -1,7 +1,6 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getLedgerTenantOptions } from '#/api/system/profile-ledger';
 import {
   DOWNLOAD_TASK_PROGRESS_OPTIONS,
   DOWNLOAD_TASK_STATE_OPTIONS,
@@ -14,18 +13,6 @@ export const querySchema: FormSchemaGetter = () => [
     componentProps: { placeholder: '请输入下载ID' },
     fieldName: 'id',
     label: '下载ID',
-  },
-  {
-    component: 'ApiSelect',
-    componentProps: {
-      allowClear: true,
-      api: getLedgerTenantOptions,
-      placeholder: '全部',
-      showSearch: true,
-      optionFilterProp: 'label',
-    },
-    fieldName: 'tenantId',
-    label: '租户',
   },
   {
     component: 'Input',
@@ -74,12 +61,6 @@ export const querySchema: FormSchemaGetter = () => [
 
 export const columns: VxeGridProps['columns'] = [
   { title: '下载ID', field: 'id', minWidth: 100 },
-  {
-    title: '租户',
-    field: 'tenantName',
-    minWidth: 160,
-    formatter: ({ cellValue }) => formatDownloadField(cellValue),
-  },
   { title: 'ICCID', field: 'iccid', minWidth: 190 },
   { title: 'EID', field: 'eid', minWidth: 200 },
   {

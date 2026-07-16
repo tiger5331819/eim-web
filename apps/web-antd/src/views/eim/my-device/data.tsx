@@ -1,14 +1,11 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { getOperatorOptions } from '#/api/system/operator';
-import { getLedgerEnabledTenantOptions } from '#/api/system/profile-ledger';
 import {
   formatEmpty,
   getCreateTime,
   getDeviceApn,
   getOperatorName,
-  getTenantName,
   ONLINE_STATUS_OPTIONS,
   PROFILE_OPERATION_OPTIONS,
 } from '#/utils/deviceLedgerStatus';
@@ -54,27 +51,9 @@ export const querySchema: FormSchemaGetter = () => [
     label: '在线状态',
   },
   {
-    component: 'ApiSelect',
-    componentProps: {
-      allowClear: true,
-      api: getLedgerEnabledTenantOptions,
-      placeholder: '全部',
-      showSearch: true,
-      optionFilterProp: 'label',
-    },
-    fieldName: 'tenantId',
-    label: '所属租户',
-  },
-  {
-    component: 'ApiSelect',
-    componentProps: {
-      allowClear: true,
-      api: getOperatorOptions,
-      placeholder: '全部',
-      showSearch: true,
-      optionFilterProp: 'label',
-    },
-    fieldName: 'operatorId',
+    component: 'Input',
+    componentProps: { placeholder: '请输入' },
+    fieldName: 'operatorName',
     label: '运营商',
   },
   {
@@ -88,17 +67,6 @@ export const querySchema: FormSchemaGetter = () => [
     componentProps: { placeholder: '请输入' },
     fieldName: 'apn',
     label: 'APN',
-  },
-  {
-    component: 'Input',
-    componentProps: { placeholder: '请输入' },
-    fieldName: 'createByName',
-    label: '创建人',
-  },
-  {
-    component: 'RangePicker',
-    fieldName: 'createTime',
-    label: '创建时间',
   },
 ];
 
@@ -140,12 +108,6 @@ export const columns: VxeGridProps['columns'] = [
     slots: { default: 'onlineStatus' },
   },
   {
-    title: '所属租户',
-    field: 'tenantName',
-    minWidth: 160,
-    formatter: ({ row }) => getTenantName(row),
-  },
-  {
     title: '运营商',
     field: 'operatorName',
     minWidth: 120,
@@ -164,13 +126,7 @@ export const columns: VxeGridProps['columns'] = [
     formatter: ({ row }) => getDeviceApn(row),
   },
   {
-    title: '创建人',
-    field: 'createByName',
-    minWidth: 110,
-    formatter: ({ cellValue }) => formatEmpty(cellValue),
-  },
-  {
-    title: '创建时间',
+    title: '分配时间',
     field: 'createTime',
     minWidth: 170,
     formatter: ({ row }) => getCreateTime(row),
@@ -190,7 +146,7 @@ export const profileInfoFilterSchema: FormSchemaGetter = () => [
     component: 'ApiSelect',
     componentProps: {
       allowClear: true,
-      api: getOperatorOptions,
+      api: getTenantPoolOperatorOptions,
       class: 'w-[180px]',
       placeholder: '全部',
       showSearch: true,
@@ -290,11 +246,6 @@ export const ledgerFieldMappingTime = [
   [
     'activationTime',
     ['beginActivationTime', 'endActivationTime'],
-    ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
-  ],
-  [
-    'createTime',
-    ['beginCreateTime', 'endCreateTime'],
     ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
   ],
 ] as [string, [string, string], [string, string]][];

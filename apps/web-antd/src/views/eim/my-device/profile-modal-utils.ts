@@ -1,7 +1,7 @@
 import type { ApnVO } from '#/api/system/apn/model';
 import type { DeviceProfileVo } from '#/api/system/device/model';
 
-import { getOperatorOptions } from '#/api/system/operator';
+import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 
 export function mapApnSelectOptions(list?: ApnVO[]) {
   return (list || []).map((item) => ({
@@ -40,7 +40,7 @@ export async function resolveProfileOperatorId(row: DeviceProfileVo) {
   }
   const operatorName = row.operatorName || row.issuer || row.providerName;
   if (!operatorName) return undefined;
-  const options = await getOperatorOptions();
+  const options = await getTenantPoolOperatorOptions();
   const matched = options.find(
     (item) =>
       item.label === operatorName ||
