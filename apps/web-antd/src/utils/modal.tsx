@@ -14,6 +14,61 @@ export interface ConfirmModalProps extends Omit<ModalFuncProps, 'visible'> {
   onValidated?: () => Promise<void>;
 }
 
+export interface SimpleConfirmModalProps
+  extends Omit<ModalFuncProps, 'visible' | 'content'> {
+  content?: ModalFuncProps['content'];
+  onOk?: () => Promise<void> | void;
+}
+
+/** 删除确认弹窗（点击时锁定行数据，避免表格刷新后 ID 错位） */
+export function confirmDeleteActionModal(
+  props: Pick<SimpleConfirmModalProps, 'content' | 'onCancel' | 'onOk'>,
+) {
+  const { content = '是否确认删除？', onOk, onCancel } = props;
+  return window.modal.confirm({
+    centered: true,
+    title: '删除确认',
+    content,
+    okText: '确定',
+    cancelText: '取消',
+    okButtonProps: { danger: true, type: 'primary' },
+    onCancel,
+    onOk: async () => {
+      if (isFunction(onOk)) {
+        await onOk();
+      }
+    },
+  });
+}
+
+/** 通用操作确认弹窗（出池/回收等，点击时锁定行数据） */
+export function confirmActionModal(
+  props: Pick<
+    SimpleConfirmModalProps,
+    'content' | 'onCancel' | 'onOk' | 'title'
+  >,
+) {
+  const {
+    title = '操作确认',
+    content = '是否确认执行该操作？',
+    onOk,
+    onCancel,
+  } = props;
+  return window.modal.confirm({
+    centered: true,
+    title,
+    content,
+    okText: '确定',
+    cancelText: '取消',
+    onCancel,
+    onOk: async () => {
+      if (isFunction(onOk)) {
+        await onOk();
+      }
+    },
+  });
+}
+
 export function confirmDeleteModal(props: ConfirmModalProps) {
   const placeholder = props.placeholder || `输入'确认删除'`;
   const confirmText = props.confirmText || '确认删除';

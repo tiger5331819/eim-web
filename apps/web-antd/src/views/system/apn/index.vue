@@ -47,11 +47,18 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await listApn({
+        const result = await listApn({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+          operatorId:
+            row.operatorId != null ? String(row.operatorId) : row.operatorId,
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -76,7 +83,7 @@ function handleAdd() {
 }
 
 async function handleEdit(record: ApnVO) {
-  modalApi.setData({ id: record.id });
+  modalApi.setData({ id: String(record.id) });
   modalApi.open();
 }
 
@@ -97,7 +104,7 @@ async function handleChangeStatus(
         onOk: async () => {
           try {
             await apnChangeStatus({
-              id: row.id,
+              id: String(row.id),
               status: EnableStatus.Disable,
             });
             window.message.success('状态变更成功');
@@ -115,7 +122,7 @@ async function handleChangeStatus(
   }
 
   await apnChangeStatus({
-    id: row.id,
+    id: String(row.id),
     status: EnableStatus.Enable,
   });
   window.message.success('状态变更成功');
@@ -148,7 +155,7 @@ async function handleSetDefault(
       centered: true,
       onOk: async () => {
         try {
-          await setDefaultApn(row.id);
+          await setDefaultApn(String(row.id));
           window.message.success('已设为默认APN');
           resolve();
         } catch (error) {

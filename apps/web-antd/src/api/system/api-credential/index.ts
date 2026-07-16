@@ -2,7 +2,7 @@ import type { ApiCredentialBo, ApiCredentialQuery, ApiCredentialVO } from './mod
 
 import type { ID, IDS, PageResult } from '#/api/common';
 
-import { commonExport } from '#/api/helper';
+import { commonExport, toIdPath } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
@@ -29,7 +29,7 @@ export function apiCredentialExport(data: Record<string, any>) {
 /** 切换状态（启用/停用） status: 0启用 1停用 */
 export function apiCredentialChangeStatus(id: ID, status: string) {
   return alovaInstance.putWithMsg<void>(
-    `${Api.root}/${id}/status`,
+    `${Api.root}/${toIdPath(id)}/status`,
     {},
     {
       params: { status },
@@ -41,7 +41,7 @@ export function apiCredentialChangeStatus(id: ID, status: string) {
 /** 重置密钥 */
 export function apiCredentialReset(id: ID) {
   return alovaInstance.putWithMsg<ApiCredentialVO>(
-    `${Api.root}/${id}/reset`,
+    `${Api.root}/${toIdPath(id)}/reset`,
     {},
     { successMessageMode: 'none' },
   );
@@ -49,17 +49,19 @@ export function apiCredentialReset(id: ID) {
 
 /** 查看密钥（含 AppKey / AppSecret 等信息） */
 export function apiCredentialViewSecret(id: ID) {
-  return alovaInstance.get<ApiCredentialVO>(`${Api.root}/${id}/view-secret`);
+  return alovaInstance.get<ApiCredentialVO>(
+    `${Api.root}/${toIdPath(id)}/view-secret`,
+  );
 }
 
 /** 查看 AppSecret 明文 */
 export function apiCredentialSecret(id: ID, reveal = false) {
-  return alovaInstance.get<string>(`${Api.root}/${id}/secret`, {
+  return alovaInstance.get<string>(`${Api.root}/${toIdPath(id)}/secret`, {
     params: { reveal },
   });
 }
 
 /** 删除密钥 */
-export function apiCredentialRemove(ids: IDS) {
-  return alovaInstance.deleteWithMsg<void>(`${Api.root}/${ids}`);
+export function apiCredentialRemove(ids: ID | IDS) {
+  return alovaInstance.deleteWithMsg<void>(`${Api.root}/${toIdPath(ids)}`);
 }

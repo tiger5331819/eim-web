@@ -8,6 +8,7 @@ import type {
 } from './model';
 import type { ID, PageResult } from '#/api/common';
 
+import { toIdPath } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
@@ -38,12 +39,17 @@ export function poolTransfer(data: ProfileTransferBO) {
 
 /** 单个回收 */
 export function poolRecycle(profileId: ID) {
-  return alovaInstance.postWithMsg<void>(`${Api.recycle}/${profileId}`);
+  return alovaInstance.postWithMsg<void>(
+    `${Api.recycle}/${toIdPath(profileId)}`,
+  );
 }
 
 /** 批量回收 */
 export function poolBatchRecycle(data: ProfileBatchRecycleBO) {
-  return alovaInstance.postWithMsg<void>(Api.batchRecycle, data);
+  return alovaInstance.postWithMsg<void>(Api.batchRecycle, {
+    ...data,
+    profileIds: (data.profileIds ?? []).map((id) => String(id)),
+  });
 }
 
 /** 调配日志分页查询 */

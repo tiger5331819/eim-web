@@ -114,6 +114,9 @@ async function handleConfirm() {
     const data = cloneDeep(await formApi.getValues());
     data.menuIds = menuIds;
     if (isUpdate.value) {
+      if (data.packageId != null) {
+        data.packageId = String(data.packageId);
+      }
       await packageUpdate(data as EimTenantPackageBo);
       window.message.success('编辑成功');
     } else {

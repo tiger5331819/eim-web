@@ -7,10 +7,9 @@ import type { ProfileLedgerVo } from '#/api/system/profile-ledger/model';
 import { computed, nextTick, ref, watch } from 'vue';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
 import { DownloadOutlined, DownOutlined, HistoryOutlined, UploadOutlined } from '@antdv-next/icons';
-import { Dropdown, Popconfirm, Space, Tag } from 'antdv-next';
+import { Dropdown, Space, Tag } from 'antdv-next';
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -22,6 +21,7 @@ import {
   profileLedgerPoolRecycleOne,
 } from '#/api/system/profile-ledger';
 import { useBlobExport } from '#/utils/file/export';
+import { confirmActionModal, confirmDeleteActionModal } from '#/utils/modal';
 import {
   canDelete,
   canPoolIn,
@@ -82,11 +82,16 @@ const gridOptions = computed<VxeGridProps>(() => {
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues = {}) => {
-          return await profileLedgerList({
+          const result = await profileLedgerList({
             pageNum: page.currentPage,
             pageSize: page.pageSize,
             ...mapLedgerQuery(formValues),
           });
+          const rows = (result?.rows ?? []).map((row) => ({
+            ...row,
+            id: String(row.id),
+          }));
+          return { ...result, rows };
         },
       },
     },
@@ -203,7 +208,7 @@ function handleConfirmSelect() {
   }
   recycleModalApi.setData({
     mode: 'selected',
-    profileIds: recyclableRows.map((row: ProfileLedgerVo) => row.id),
+    profileIds: recyclableRows.map((row: ProfileLedgerVo) => String(row.id)),
   });
   recycleModalApi.open();
 }
@@ -225,24 +230,47 @@ async function handleExport() {
 }
 
 function handleRowPoolIn(row: ProfileLedgerVo) {
-  poolInModalApi.setData({ mode: 'row', profileId: row.id });
+  poolInModalApi.setData({ mode: 'row', profileId: String(row.id) });
   poolInModalApi.open();
 }
 
+function handleRowPoolOutClick(row: ProfileLedgerVo) {
+  confirmActionModal({
+    title: '出池确认',
+    content: `确认将该码号出池吗？码号：${row.accode} / ${row.iccid}，出池后将退回总池、清除租户归属，可再次入池。`,
+    onOk: () => handleRowPoolOut(row),
+  });
+}
+
 async function handleRowPoolOut(row: ProfileLedgerVo) {
-  await profileLedgerPoolOutOne(row.id);
+  await profileLedgerPoolOutOne(String(row.id));
   window.message.success('出池成功');
   handleReload();
 }
 
+function handleRowRecycleClick(row: ProfileLedgerVo) {
+  confirmActionModal({
+    title: '回收确认',
+    content: `确认回收该码号吗？码号：${row.accode} / ${row.iccid}，回收后将退回总池并转为空闲，可再次入池。`,
+    onOk: () => handleRowRecycle(row),
+  });
+}
+
 async function handleRowRecycle(row: ProfileLedgerVo) {
-  await profileLedgerPoolRecycleOne(row.id);
+  await profileLedgerPoolRecycleOne(String(row.id));
   window.message.success('回收成功');
   handleReload();
 }
 
+function handleRowDeleteClick(row: ProfileLedgerVo) {
+  confirmDeleteActionModal({
+    content: '确认删除该码号吗？删除后不可恢复。',
+    onOk: () => handleRowDelete(row),
+  });
+}
+
 async function handleRowDelete(row: ProfileLedgerVo) {
-  await profileLedgerDelete(row.id);
+  await profileLedgerDelete(String(row.id));
   window.message.success('删除成功');
   handleReload();
 }
@@ -344,36 +372,25 @@ async function handleRowDelete(row: ProfileLedgerVo) {
           >
             入池
           </action-button>
-          <Popconfirm
+          <action-button
             v-if="canPoolOut(row)"
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认将该码号出池吗？"
-            :description="`码号：${row.accode} / ${row.iccid}，出池后将退回总池、清除租户归属，可再次入池。`"
-            @confirm="handleRowPoolOut(row)"
+            @click.stop="handleRowPoolOutClick(row)"
           >
-            <action-button @click.stop="">出池</action-button>
-          </Popconfirm>
-          <Popconfirm
+            出池
+          </action-button>
+          <action-button
             v-if="canRecycle(row)"
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认回收该码号吗？"
-            :description="`码号：${row.accode} / ${row.iccid}，回收后将退回总池并转为空闲，可再次入池。`"
-            @confirm="handleRowRecycle(row)"
+            @click.stop="handleRowRecycleClick(row)"
           >
-            <action-button @click.stop="">回收</action-button>
-          </Popconfirm>
-          <Popconfirm
+            回收
+          </action-button>
+          <action-button
             v-if="canDelete(row)"
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除该码号吗？"
-            description="删除后不可恢复。"
-            @confirm="handleRowDelete(row)"
+            danger
+            @click.stop="handleRowDeleteClick(row)"
           >
-            <action-button danger @click.stop="">删除</action-button>
-          </Popconfirm>
+            删除
+          </action-button>
         </Space>
       </template>
     </BasicTable>

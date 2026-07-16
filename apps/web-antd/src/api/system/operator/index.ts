@@ -9,7 +9,7 @@ import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
 import { EnableStatus } from '@vben/constants';
 
-import { commonExport } from '#/api/helper';
+import { commonExport, toIdPath } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
@@ -27,7 +27,7 @@ export function operatorList(params?: PageQuery) {
 
 /** 获取运营商详情 */
 export function operatorInfo(id: ID) {
-  return alovaInstance.get<OperatorVo>(`${Api.root}/${id}`);
+  return alovaInstance.get<OperatorVo>(`${Api.root}/${toIdPath(id)}`);
 }
 
 /** 新增运营商 */
@@ -39,23 +39,41 @@ export function operatorAdd(data: OperatorBo) {
 
 /** 修改运营商 */
 export function operatorUpdate(data: OperatorBo) {
-  return alovaInstance.putWithMsg<void>(Api.root, data, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.putWithMsg<void>(
+    Api.root,
+    {
+      ...data,
+      ...(data.id != null ? { id: String(data.id) } : {}),
+    },
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** 切换运营商状态 */
 export function operatorChangeStatus(data: OperatorStatusBo) {
-  return alovaInstance.putWithMsg<void>(Api.changeStatus, data, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.putWithMsg<void>(
+    Api.changeStatus,
+    {
+      ...data,
+      id: String(data.id),
+    },
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** 删除运营商 */
-export function operatorRemove(ids: IDS) {
-  return alovaInstance.deleteWithMsg<void>(`${Api.root}/${ids}`, undefined, {
-    successMessageMode: 'none',
-  });
+export function operatorRemove(ids: ID | IDS) {
+  return alovaInstance.deleteWithMsg<void>(
+    `${Api.root}/${toIdPath(ids)}`,
+    undefined,
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** 导出运营商列表 */
@@ -77,7 +95,7 @@ export async function getOperatorOptions() {
   const res = await operatorList({ pageNum: 1, pageSize: 1000 });
   return (res.rows || []).map((item) => ({
     label: item.operatorName,
-    value: item.id,
+    value: String(item.id),
   }));
 }
 
@@ -90,6 +108,6 @@ export async function getEnabledOperatorOptions() {
   });
   return (res.rows || []).map((item) => ({
     label: item.operatorName,
-    value: item.id,
+    value: String(item.id),
   }));
 }

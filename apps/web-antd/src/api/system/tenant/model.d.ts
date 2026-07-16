@@ -6,7 +6,7 @@ export interface Tenant {
   contactUserName: string;
   domain?: string;
   expireTime?: string;
-  id: number;
+  id: string;
   intro: string;
   licenseNumber?: any;
   packageId: string;
@@ -17,7 +17,7 @@ export interface Tenant {
 
 /** eIM 租户列表返回 VO */
 export interface EimTenantVo {
-  id: number;
+  id: string;
   tenantId: string;
   companyName: string;
   contactUserName: string;
@@ -27,7 +27,7 @@ export interface EimTenantVo {
   licenseNumber: string;
   intro: string;
   remark: string;
-  packageId: number;
+  packageId: string;
   expireTime: string;
   accountCount: number;
   status: string;
@@ -49,7 +49,7 @@ export interface EimTenantAddBo {
   contactPhone: string;
   username: string;
   password: string;
-  packageId: number;
+  packageId: string;
   expireTime?: string;
   accountCount?: number;
   domain?: string;
@@ -61,11 +61,11 @@ export interface EimTenantAddBo {
 
 /** eIM 编辑租户 BO */
 export interface EimTenantEditBo {
-  id: number;
+  id: string;
   companyName: string;
   contactUserName: string;
   contactPhone: string;
-  packageId?: number;
+  packageId?: string;
   expireTime?: string;
   accountCount?: number;
   domain?: string;
@@ -79,19 +79,19 @@ export interface EimTenantEditBo {
 
 /** eIM License 调整 BO */
 export interface EimTenantLicenseAdjustBo {
-  tenantId: number;
+  tenantId: string;
   delta: number;
   remark: string;
 }
 
 /** eIM 租户状态切换 BO */
 export interface EimTenantStatusBo {
-  id: number;
+  id: string;
   status: string;
 }
 
 /** eIM 租户管理员密码重置 BO */
 export interface EimTenantResetPwdBo {
-  id: number;
+  id: string;
   newPassword: string;
 }

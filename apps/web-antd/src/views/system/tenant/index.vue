@@ -58,11 +58,18 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await eimTenantList({
+        const result = await eimTenantList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+          packageId:
+            row.packageId != null ? String(row.packageId) : row.packageId,
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -91,7 +98,7 @@ function handleAdd() {
 }
 
 async function handleEdit(record: EimTenantVo) {
-  drawerApi.setData({ id: record.id });
+  drawerApi.setData({ id: String(record.id) });
   drawerApi.open();
 }
 
@@ -135,7 +142,7 @@ async function handleChangeStatus(
   row: EimTenantVo,
 ) {
   await eimTenantChangeStatus({
-    id: row.id,
+    id: String(row.id),
     status: checked ? EnableStatus.Enable : EnableStatus.Disable,
   });
   window.message.success(checked ? '已启用该租户' : '已禁用该租户');
@@ -184,7 +191,7 @@ async function handleChangeStatus(
           :confirm="true"
           :confirm-text="statusConfirmText"
           :disabled="
-            row.id === 1 ||
+            String(row.id) === '1' ||
             !hasAccessByCodes(['eim:tenant:edit', 'system:tenant:edit'])
           "
           @reload="tableApi.query()"
@@ -192,7 +199,7 @@ async function handleChangeStatus(
       </template>
 
       <template #action="{ row }">
-        <Space v-if="row.id !== 1">
+        <Space v-if="String(row.id) !== '1'">
           <action-button
             v-access:code="['eim:tenant:edit', 'system:tenant:edit']"
             @click="handleEdit(row)"

@@ -12,7 +12,8 @@ export interface TenantPackage {
 
 /** eIM 租户套餐列表 VO */
 export interface EimTenantPackageVo {
-  packageId: number;
+  /** 雪花 ID，必须用字符串避免精度丢失 */
+  packageId: string;
   packageName: string;
   menuIds?: string;
   remark?: string;
@@ -26,7 +27,7 @@ export interface EimTenantPackageVo {
 
 /** eIM 租户套餐新增/编辑 BO */
 export interface EimTenantPackageBo {
-  packageId?: number;
+  packageId?: string;
   packageName: string;
   remark?: string;
   menuIds?: number[];
@@ -36,6 +37,6 @@ export interface EimTenantPackageBo {
 
 /** eIM 租户套餐状态切换 BO */
 export interface EimTenantPackageStatusBo {
-  packageId: number;
+  packageId: string;
   status: string;
 }

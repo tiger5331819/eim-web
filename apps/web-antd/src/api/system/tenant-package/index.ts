@@ -7,7 +7,7 @@ import type {
 
 import type { ID, IDS, PageQuery, PageResult } from '#/api/common';
 
-import { commonExport } from '#/api/helper';
+import { commonExport, toIdPath } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 // ============ 旧 API（保留兼容） ============
@@ -57,7 +57,7 @@ export function packageExport(data: Record<string, any>) {
 /** eIM: 获取套餐详情 */
 export function packageInfo(packageId: ID) {
   return alovaInstance.get<EimTenantPackageVo>(
-    `${EimApi.root}/${packageId}`,
+    `${EimApi.root}/${toIdPath(packageId)}`,
   );
 }
 
@@ -70,23 +70,39 @@ export function packageAdd(data: EimTenantPackageBo) {
 
 /** eIM: 修改套餐 */
 export function packageUpdate(data: EimTenantPackageBo) {
-  return alovaInstance.putWithMsg<void>(EimApi.root, data, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.putWithMsg<void>(
+    EimApi.root,
+    {
+      ...data,
+      ...(data.packageId != null ? { packageId: String(data.packageId) } : {}),
+    },
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** eIM: 切换套餐状态 */
 export function packageChangeStatus(data: EimTenantPackageStatusBo) {
-  return alovaInstance.putWithMsg<void>(EimApi.changeStatus, data, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.putWithMsg<void>(
+    EimApi.changeStatus,
+    {
+      ...data,
+      packageId: String(data.packageId),
+    },
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
-/** eIM: 删除套餐 */
-export function packageRemove(packageIds: IDS) {
+/** eIM: 删除套餐（ID 必须保持字符串，避免雪花 ID 精度丢失） */
+export function packageRemove(packageIds: ID | IDS) {
   return alovaInstance.deleteWithMsg<void>(
-    `${EimApi.root}/${packageIds}`,
+    `${EimApi.root}/${toIdPath(packageIds)}`,
     undefined,
-    { successMessageMode: 'none' },
+    {
+      successMessageMode: 'none',
+    },
   );
 }

@@ -14,7 +14,7 @@ import type { ID, PageResult } from '#/api/common';
 
 import { EnableStatus } from '@vben/constants';
 
-import { commonExport } from '#/api/helper';
+import { commonExport, toIdPath } from '#/api/helper';
 import { eimTenantList } from '#/api/system/tenant';
 import { alovaInstance } from '#/utils/http';
 
@@ -56,9 +56,13 @@ export function profileLedgerAdd(data: ProfileCreateBo) {
 
 /** 行删除 */
 export function profileLedgerDelete(profileId: ID) {
-  return alovaInstance.deleteWithMsg<void>(`${Api.root}/${profileId}`, undefined, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.deleteWithMsg<void>(
+    `${Api.root}/${toIdPath(profileId)}`,
+    undefined,
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** 批量导入码号 */
@@ -93,7 +97,7 @@ export function profileLedgerImportLogList(params?: ProfileImportLogQuery) {
 /** 下载导入失败明细 */
 export function profileLedgerImportDetail(logId: ID) {
   return alovaInstance.post<Blob>(
-    `${Api.importDetail}/${logId}`,
+    `${Api.importDetail}/${toIdPath(logId)}`,
     {},
     {
       isTransformResponse: false,
@@ -109,7 +113,7 @@ export function profileLedgerAvailableCount(params: ProfilePoolAvailableQuery) {
     tenantId: params.tenantId,
   };
   if (params.operatorId !== undefined && params.operatorId !== null) {
-    query.operatorId = params.operatorId;
+    query.operatorId = String(params.operatorId);
   }
   return alovaInstance.get<number>(Api.availableCount, { params: query });
 }
@@ -127,7 +131,7 @@ export function profileLedgerPoolInOne(
   params: { tenantId: string; remark: string },
 ) {
   return alovaInstance.postWithMsg<number>(
-    `${Api.poolInOne}/${profileId}`,
+    `${Api.poolInOne}/${toIdPath(profileId)}`,
     undefined,
     {
       params,
@@ -146,7 +150,7 @@ export function profileLedgerPoolOut(data: ProfilePoolOutBo) {
 /** 行出池（单条） */
 export function profileLedgerPoolOutOne(profileId: ID) {
   return alovaInstance.postWithMsg<number>(
-    `${Api.poolOutOne}/${profileId}`,
+    `${Api.poolOutOne}/${toIdPath(profileId)}`,
     undefined,
     {
       successMessageMode: 'none',
@@ -165,15 +169,22 @@ export function profileLedgerPoolRecycle(data: ProfilePoolRecycleBo) {
 export function profileLedgerPoolRecycleSelected(
   data: ProfilePoolRecycleSelectedBo,
 ) {
-  return alovaInstance.postWithMsg<number>(Api.poolRecycleSelected, data, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.postWithMsg<number>(
+    Api.poolRecycleSelected,
+    {
+      ...data,
+      profileIds: (data.profileIds ?? []).map((id) => String(id)),
+    },
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** 行回收（单条） */
 export function profileLedgerPoolRecycleOne(profileId: ID) {
   return alovaInstance.postWithMsg<number>(
-    `${Api.poolRecycleOne}/${profileId}`,
+    `${Api.poolRecycleOne}/${toIdPath(profileId)}`,
     undefined,
     {
       successMessageMode: 'none',

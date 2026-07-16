@@ -9,9 +9,8 @@ import type { OperatorVo } from '#/api/system/operator/model';
 import { useAccess } from '@vben/access';
 import { Page, useVbenDrawer } from '@vben/common-ui';
 import { EnableStatus } from '@vben/constants';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Popconfirm, Space } from 'antdv-next';
+import { Space } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -22,6 +21,7 @@ import {
 } from '#/api/system/operator';
 import { ApiSwitch } from '#/components/global';
 import { useBlobExport } from '#/utils/file/export';
+import { confirmDeleteActionModal } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import operatorDrawer from './operator-drawer.vue';
@@ -49,11 +49,16 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await operatorList({
+        const result = await operatorList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -78,7 +83,7 @@ function handleAdd() {
 }
 
 async function handleEdit(record: OperatorVo) {
-  drawerApi.setData({ id: record.id });
+  drawerApi.setData({ id: String(record.id) });
   drawerApi.open();
 }
 
@@ -93,14 +98,16 @@ function handleDeleteClick(row: OperatorVo) {
     window.message.warning(
       '该运营商下存在关联的APN或码号资源，无法删除，请先解除关联。',
     );
+    return;
   }
+  confirmDeleteActionModal({
+    content: '确认删除该运营商吗？删除后不可恢复。',
+    onOk: () => handleDelete(row),
+  });
 }
 
 async function handleDelete(row: OperatorVo) {
-  if (hasRelatedResources(row)) {
-    return;
-  }
-  await operatorRemove([row.id]);
+  await operatorRemove(String(row.id));
   window.message.success('删除成功');
   await tableApi.query();
 }
@@ -124,7 +131,7 @@ async function handleChangeStatus(
   row: OperatorVo,
 ) {
   await operatorChangeStatus({
-    id: row.id,
+    id: String(row.id),
     status: checked ? EnableStatus.Enable : EnableStatus.Disable,
   });
   window.message.success('操作成功');
@@ -173,23 +180,7 @@ async function handleChangeStatus(
           >
             {{ $t('pages.common.edit') }}
           </action-button>
-          <Popconfirm
-            v-if="!hasRelatedResources(row)"
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除该运营商吗？删除后不可恢复。"
-            @confirm="handleDelete(row)"
-          >
-            <action-button
-              danger
-              v-access:code="['eim:operator:remove']"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </action-button>
-          </Popconfirm>
           <action-button
-            v-else
             danger
             v-access:code="['eim:operator:remove']"
             @click="handleDeleteClick(row)"

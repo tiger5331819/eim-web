@@ -19,7 +19,7 @@ export type ProfileImportStatus = 'PENDING' | 'RUNNING' | 'SUCCESS' | 'ERROR';
 
 /** 码号台账列表项 */
 export interface ProfileLedgerVo {
-  id: number | string;
+  id: string;
   tenantId?: string;
   tenantName?: string;
   productionBatch?: string;
@@ -27,7 +27,7 @@ export interface ProfileLedgerVo {
   iccid?: string;
   msisdn?: string;
   imsi?: string;
-  operatorId?: number;
+  operatorId?: string;
   operatorName?: string;
   resourceSource?: string;
   codeStatus?: ProfileCodeStatus | string;
@@ -51,7 +51,7 @@ export interface ProfileLedgerQuery extends PageQuery {
   iccid?: string;
   msisdn?: string;
   imsi?: string;
-  operatorId?: number;
+  operatorId?: string;
   resourceSource?: string;
   codeStatus?: string;
   downloadUser?: string;
@@ -72,14 +72,14 @@ export interface ProfileCreateBo {
   iccid: string;
   msisdn: string;
   imsi: string;
-  operatorId: number;
+  operatorId: string;
   resourceSource: string;
 }
 
 /** 批量入池 */
 export interface ProfilePoolInBo {
   tenantId: string;
-  operatorId?: number;
+  operatorId?: string;
   size: number;
   remark?: string;
 }
@@ -87,7 +87,7 @@ export interface ProfilePoolInBo {
 /** 批量出池 */
 export interface ProfilePoolOutBo {
   tenantId: string;
-  operatorId?: number;
+  operatorId?: string;
   size: number;
   remark?: string;
 }
@@ -95,14 +95,14 @@ export interface ProfilePoolOutBo {
 /** 批量回收（按数量） */
 export interface ProfilePoolRecycleBo {
   tenantId: string;
-  operatorId?: number;
+  operatorId?: string;
   size: number;
   remark?: string;
 }
 
 /** 批量回收（按选中） */
 export interface ProfilePoolRecycleSelectedBo {
-  profileIds: Array<number | string>;
+  profileIds: string[];
   remark?: string;
 }
 
@@ -110,19 +110,19 @@ export interface ProfilePoolRecycleSelectedBo {
 export interface ProfilePoolAvailableQuery {
   action: ProfilePoolAction;
   tenantId: string;
-  operatorId?: number;
+  operatorId?: string;
 }
 
 /** 导入记录 */
 export interface ProfileImportLogVo {
-  id: number | string;
+  id: string;
   importBatch?: string;
   status?: ProfileImportStatus | string;
   statusText?: string;
   totalCount?: number;
   successCount?: number;
   failCount?: number;
-  operatorId?: number;
+  operatorId?: string;
   operatorName?: string;
   startTime?: string;
   endTime?: string;

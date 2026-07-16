@@ -1,6 +1,6 @@
 /** 运营商新增/编辑 BO */
 export interface OperatorBo {
-  id?: number | string;
+  id?: string;
   operatorName: string;
   recycleEnabled: boolean;
   remark?: string;
@@ -9,13 +9,13 @@ export interface OperatorBo {
 
 /** 运营商状态切换 BO */
 export interface OperatorStatusBo {
-  id: number | string;
+  id: string;
   status: string;
 }
 
 /** 运营商列表返回 VO */
 export interface OperatorVo {
-  id: number | string;
+  id: string;
   operatorName: string;
   status: string;
   recycleEnabled: boolean;

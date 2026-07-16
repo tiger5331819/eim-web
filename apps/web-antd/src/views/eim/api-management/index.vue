@@ -44,11 +44,16 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await apiCredentialList({
+        const result = await apiCredentialList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -65,7 +70,7 @@ const [ViewSecretModal, secretModalApi] = useVbenModal({
 const { hasAccessByCodes } = useAccess();
 
 function handleViewSecret(row: ApiCredentialVO) {
-  secretModalApi.setData({ id: row.id });
+  secretModalApi.setData({ id: String(row.id) });
   secretModalApi.open();
 }
 
@@ -78,7 +83,7 @@ function handleReset(row: ApiCredentialVO) {
     cancelText: '取消',
     onOk: async () => {
       try {
-        await apiCredentialReset(row.id);
+        await apiCredentialReset(String(row.id));
         window.message.success('密钥重置成功');
         await tableApi.query();
       } catch (error: any) {
@@ -105,7 +110,7 @@ async function handleChangeStatus(
       onOk: async () => {
         try {
           await apiCredentialChangeStatus(
-            row.id,
+            String(row.id),
             enabling ? EnableStatus.Enable : EnableStatus.Disable,
           );
           window.message.success('操作成功');

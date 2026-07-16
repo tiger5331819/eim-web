@@ -5,9 +5,8 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { onMounted, ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Popconfirm, Space, Tag } from 'antdv-next';
+import { Space, Tag } from 'antdv-next';
 
 import { useVbenVxeGrid, vxeCheckboxChecked } from '#/adapter/vxe-table';
 import { profileList } from '#/api/system/profile';
@@ -17,6 +16,7 @@ import {
   poolStats,
 } from '#/api/system/profile-pool';
 import type { ProfilePoolStatsVO } from '#/api/system/profile-pool/model';
+import { confirmActionModal } from '#/utils/modal';
 import { getPoolStatusMeta } from '#/utils/poolStatus';
 
 import AllocateModal from './allocate-modal.vue';
@@ -82,11 +82,16 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await profileList({
+        const result = await profileList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
         });
+        const rows = (result?.rows ?? []).map((row: any) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -104,8 +109,16 @@ async function handleAllocate(row?: any) {
   allocateApi.open();
 }
 
+function handleRecycleClick(row: any) {
+  confirmActionModal({
+    title: '回收确认',
+    content: '确认回收？',
+    onOk: () => handleRecycle(row),
+  });
+}
+
 async function handleRecycle(row: any) {
-  await poolRecycle(row.id);
+  await poolRecycle(String(row.id));
   await Promise.all([tableApi.query(), loadStats()]);
 }
 
@@ -171,18 +184,16 @@ onMounted(() => loadStats());
           >
             分配
           </action-button>
-          <Popconfirm
+          <action-button
             v-if="
               row.poolStatus === 'DOWNLOADED' ||
               row.poolStatus === 'RECYCLEABLE'
             "
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认回收？"
-            @confirm="handleRecycle(row)"
+            danger
+            @click.stop="handleRecycleClick(row)"
           >
-            <action-button danger @click.stop="">回收</action-button>
-          </Popconfirm>
+            回收
+          </action-button>
         </Space>
       </template>
     </BasicTable>

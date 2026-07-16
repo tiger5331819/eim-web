@@ -11,9 +11,8 @@ import { computed } from 'vue';
 import { useAccess } from '@vben/access';
 import { Fallback, Page, useVbenDrawer } from '@vben/common-ui';
 import { EnableStatus } from '@vben/constants';
-import { getVxePopupContainer } from '@vben/utils';
 
-import { Popconfirm, Space, Switch, Tooltip } from 'antdv-next';
+import { Space, Switch, Tooltip } from 'antdv-next';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -24,6 +23,7 @@ import {
 } from '#/api/system/tenant-package';
 import { ApiSwitch } from '#/components/global';
 import { useBlobExport } from '#/utils/file/export';
+import { confirmDeleteActionModal } from '#/utils/modal';
 
 import { columns, querySchema } from './data';
 import tenantPackageDrawer from './tenant-package-drawer.vue';
@@ -51,11 +51,17 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await packageList({
+        const result = await packageList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...formValues,
         });
+        // 雪花 ID 统一转字符串，避免 Number 精度丢失导致删除/编辑 ID 错位
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          packageId: String(row.packageId),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -80,21 +86,24 @@ function handleAdd() {
 }
 
 async function handleEdit(record: EimTenantPackageVo) {
-  drawerApi.setData({ id: record.packageId });
+  drawerApi.setData({ id: String(record.packageId) });
   drawerApi.open();
 }
 
 function handleDeleteClick(row: EimTenantPackageVo) {
   if ((row.tenantCount ?? 0) > 0) {
     window.message.warning('该套餐已绑定租户，无法删除，请先解除绑定关系。');
+    return;
   }
+  confirmDeleteActionModal({
+    content: '确认删除该套餐吗？删除后不可恢复。',
+    onOk: () => handleDelete(row),
+  });
 }
 
 async function handleDelete(row: EimTenantPackageVo) {
-  if ((row.tenantCount ?? 0) > 0) {
-    return;
-  }
-  await packageRemove([row.packageId]);
+  const packageId = String(row.packageId);
+  await packageRemove(packageId);
   window.message.success('删除成功');
   await tableApi.query();
 }
@@ -132,7 +141,7 @@ async function handleChangeStatus(
     });
   }
   await packageChangeStatus({
-    packageId: row.packageId,
+    packageId: String(row.packageId),
     status: checked ? EnableStatus.Enable : EnableStatus.Disable,
   });
   window.message.success(checked ? '启用成功' : '禁用成功');
@@ -196,26 +205,7 @@ async function handleChangeStatus(
           >
             {{ $t('pages.common.edit') }}
           </action-button>
-          <Popconfirm
-            v-if="(row.tenantCount ?? 0) === 0"
-            :get-popup-container="getVxePopupContainer"
-            placement="left"
-            title="确认删除该套餐吗？删除后不可恢复。"
-            @confirm="handleDelete(row)"
-          >
-            <action-button
-              danger
-              v-access:code="[
-                'eim:tenantPackage:remove',
-                'system:tenantPackage:remove',
-              ]"
-              @click.stop=""
-            >
-              {{ $t('pages.common.delete') }}
-            </action-button>
-          </Popconfirm>
           <action-button
-            v-else
             danger
             v-access:code="[
               'eim:tenantPackage:remove',

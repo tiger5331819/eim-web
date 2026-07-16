@@ -16,6 +16,14 @@ export const ContentTypeEnum = {
 } as const;
 
 /**
+ * 将雪花 ID 安全转为路径片段，避免 Number 精度丢失
+ */
+export function toIdPath(id: number | string | Array<number | string>) {
+  const ids = Array.isArray(id) ? id : [id];
+  return ids.map((item) => String(item)).join(',');
+}
+
+/**
  * 通用下载接口 封装一层
  * @param url 请求地址
  * @param data  请求参数

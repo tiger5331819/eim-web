@@ -4,14 +4,13 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import type { EuiccInventoryVo } from '#/api/system/inventory/model';
 
 import { Page, useVbenDrawer, useVbenModal } from '@vben/common-ui';
-import { getVxePopupContainer } from '@vben/utils';
 
 import {
   DownloadOutlined,
   HistoryOutlined,
   UploadOutlined,
 } from '@antdv-next/icons';
-import { Popconfirm, Space, Tag } from 'antdv-next';
+import { Space, Tag } from 'antdv-next';
 import dayjs from 'dayjs';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
@@ -28,6 +27,7 @@ import {
   getAssignedMeta,
   mapInventoryQuery,
 } from '#/utils/inventoryStatus';
+import { confirmActionModal, confirmDeleteActionModal } from '#/utils/modal';
 
 import AddModal from './add-modal.vue';
 import AssignImportModal from './assign-import-modal.vue';
@@ -64,11 +64,16 @@ const gridOptions: VxeGridProps = {
   proxyConfig: {
     ajax: {
       query: async ({ page }, formValues = {}) => {
-        return await inventoryList({
+        const result = await inventoryList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
           ...mapInventoryQuery(formValues),
         });
+        const rows = (result?.rows ?? []).map((row) => ({
+          ...row,
+          id: String(row.id),
+        }));
+        return { ...result, rows };
       },
     },
   },
@@ -149,18 +154,33 @@ async function handleExport() {
 }
 
 function handleRowAssign(row: EuiccInventoryVo) {
-  assignModalApi.setData({ inventoryId: row.id });
+  assignModalApi.setData({ inventoryId: String(row.id) });
   assignModalApi.open();
 }
 
+function handleRowDeleteClick(row: EuiccInventoryVo) {
+  confirmDeleteActionModal({
+    content: '确认删除该库存记录？删除后不可恢复。',
+    onOk: () => handleRowDelete(row),
+  });
+}
+
 async function handleRowDelete(row: EuiccInventoryVo) {
-  await inventoryDelete(row.id!);
+  await inventoryDelete(String(row.id!));
   window.message.success('删除成功');
   handleReload();
 }
 
+function handleRowRecycleClick(row: EuiccInventoryVo) {
+  confirmActionModal({
+    title: '回收确认',
+    content: '确认回收该设备吗？回收后将清除租户归属，可重新分配。',
+    onOk: () => handleRowRecycle(row),
+  });
+}
+
 async function handleRowRecycle(row: EuiccInventoryVo) {
-  await inventoryRecycleOne(row.id!);
+  await inventoryRecycleOne(String(row.id!));
   window.message.success('回收成功');
   handleReload();
 }
@@ -206,23 +226,17 @@ async function handleRowRecycle(row: EuiccInventoryVo) {
 
       <template #action="{ row }">
         <Space v-if="canAssign(row)">
-          <Popconfirm
-            :get-popup-container="getVxePopupContainer"
-            title="确认删除该库存记录？删除后不可恢复。"
-            @confirm="handleRowDelete(row)"
-          >
-            <action-button danger @click.stop>删除</action-button>
-          </Popconfirm>
+          <action-button danger @click.stop="handleRowDeleteClick(row)">
+            删除
+          </action-button>
           <action-button @click.stop="handleRowAssign(row)">分配</action-button>
         </Space>
-        <Popconfirm
+        <action-button
           v-else-if="canRecycle(row)"
-          :get-popup-container="getVxePopupContainer"
-          title="确认回收该设备吗？回收后将清除租户归属，可重新分配。"
-          @confirm="handleRowRecycle(row)"
+          @click.stop="handleRowRecycleClick(row)"
         >
-          <action-button @click.stop>回收</action-button>
-        </Popconfirm>
+          回收
+        </action-button>
       </template>
     </BasicTable>
 

@@ -1,10 +1,10 @@
 export interface ApnVO {
-  id: string | number;
+  id: string;
   name: string;
   apn?: string;
   local?: string;
-  providerId?: number;
-  operatorId?: number;
+  providerId?: string;
+  operatorId?: string;
   operatorCode?: string;
   operatorName?: string;
   isDefault?: '0' | '1';
@@ -18,12 +18,12 @@ export interface ApnVO {
 }
 
 export interface ApnForm {
-  id?: string | number;
+  id?: string;
   name?: string;
   apn?: string;
   local?: string;
-  providerId?: number;
-  operatorId?: number;
+  providerId?: string;
+  operatorId?: string;
   isDefault?: '0' | '1';
   status?: '0' | '1';
   sourceType?: string;
@@ -32,7 +32,7 @@ export interface ApnForm {
 }
 
 export interface ApnStatusBo {
-  id: string | number;
+  id: string;
   status: '0' | '1';
 }
 
@@ -40,7 +40,7 @@ export interface ApnQuery {
   pageNum?: number;
   pageSize?: number;
   name?: string;
-  operatorId?: number;
+  operatorId?: string;
   isDefault?: string;
   status?: string;
 }

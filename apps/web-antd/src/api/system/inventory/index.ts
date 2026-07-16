@@ -12,7 +12,7 @@ import type {
 } from './model';
 import type { ID, PageResult } from '#/api/common';
 
-import { commonExport } from '#/api/helper';
+import { commonExport, toIdPath } from '#/api/helper';
 import { alovaInstance } from '#/utils/http';
 
 enum Api {
@@ -55,9 +55,13 @@ export function inventoryAdd(data: EuiccInventoryAddBo) {
 
 /** 行删除 */
 export function inventoryDelete(inventoryId: ID) {
-  return alovaInstance.deleteWithMsg<void>(`${Api.root}/${inventoryId}`, undefined, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.deleteWithMsg<void>(
+    `${Api.root}/${toIdPath(inventoryId)}`,
+    undefined,
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** 批量导入库存 */
@@ -92,7 +96,7 @@ export function inventoryImportLogList(params?: EuiccInventoryImportLogQuery) {
 /** 下载导入失败明细 */
 export function inventoryImportDetail(logId: ID) {
   return alovaInstance.post<Blob>(
-    `${Api.importDetail}/${logId}`,
+    `${Api.importDetail}/${toIdPath(logId)}`,
     {},
     {
       isTransformResponse: false,
@@ -104,7 +108,7 @@ export function inventoryImportDetail(logId: ID) {
 /** 行分配 */
 export function inventoryAssignOne(inventoryId: ID, data: EuiccAssignOneBo) {
   return alovaInstance.postWithMsg<void>(
-    `${Api.assignOne}/${inventoryId}`,
+    `${Api.assignOne}/${toIdPath(inventoryId)}`,
     data,
     { successMessageMode: 'none' },
   );
@@ -112,9 +116,18 @@ export function inventoryAssignOne(inventoryId: ID, data: EuiccAssignOneBo) {
 
 /** 批量分配（按选中 / 按数量） */
 export function inventoryAssignBatch(data: EuiccAssignBatchBo) {
-  return alovaInstance.postWithMsg<void>(Api.assignBatch, data, {
-    successMessageMode: 'none',
-  });
+  return alovaInstance.postWithMsg<void>(
+    Api.assignBatch,
+    {
+      ...data,
+      ...(data.inventoryIds
+        ? { inventoryIds: data.inventoryIds.map((id) => String(id)) }
+        : {}),
+    },
+    {
+      successMessageMode: 'none',
+    },
+  );
 }
 
 /** 批量分配（文件导入） */
@@ -149,7 +162,7 @@ export function inventoryAssignableCount(cardVendor?: string) {
 /** 行回收 */
 export function inventoryRecycleOne(inventoryId: ID) {
   return alovaInstance.postWithMsg<void>(
-    `${Api.recycleOne}/${inventoryId}`,
+    `${Api.recycleOne}/${toIdPath(inventoryId)}`,
     undefined,
     { successMessageMode: 'none' },
   );
