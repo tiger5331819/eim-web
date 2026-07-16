@@ -18,11 +18,12 @@ import { deviceDetail } from '#/api/system/device';
 import {
   formatActivationField,
   formatEmpty,
+  getBoundApn,
+  getBoundIccid,
+  getBoundOperatorName,
   getCreateTime,
-  getDeviceApn,
   getOnlineStatusMeta,
-  getOperatorName,
-  getTenantName,
+  getSeedNumber,
 } from '#/utils/deviceLedgerStatus';
 
 import ProfileInfoPanel from './profile-info-panel.vue';
@@ -43,7 +44,7 @@ const descriptionItems = computed(() => {
   const row = detail.value || {};
   return [
     { label: 'EID', value: formatEmpty(row.eid) },
-    { label: '预制种子号', value: formatEmpty(row.seedNumber || row.iccid) },
+    { label: '预制种子号', value: getSeedNumber(row) },
     {
       label: 'IMEI',
       value: formatActivationField(row.activationTime, row.imei),
@@ -61,10 +62,9 @@ const descriptionItems = computed(() => {
       value: getOnlineStatusMeta(row).text,
       tagColor: getOnlineStatusMeta(row).color,
     },
-    { label: '所属租户', value: getTenantName(row) },
-    { label: '运营商', value: getOperatorName(row) },
-    { label: 'ICCID', value: formatEmpty(row.iccid) },
-    { label: 'APN', value: getDeviceApn(row) },
+    { label: '运营商', value: getBoundOperatorName(row) },
+    { label: 'ICCID', value: getBoundIccid(row) },
+    { label: 'APN', value: getBoundApn(row) },
     { label: '创建人', value: formatEmpty(row.createByName) },
     { label: '创建时间', value: getCreateTime(row) },
   ];

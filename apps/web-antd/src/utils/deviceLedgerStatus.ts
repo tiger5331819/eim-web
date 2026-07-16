@@ -46,6 +46,29 @@ export function getOperatorName(row: DeviceLedgerVo) {
   return row.operatorName || row.providerName || '--';
 }
 
+export function getSeedNumber(row: DeviceLedgerVo) {
+  return formatEmpty(row.seedNumber);
+}
+
+export function hasBoundProfile(row: DeviceLedgerVo) {
+  return Boolean(row.iccid?.trim());
+}
+
+export function getBoundOperatorName(row: DeviceLedgerVo) {
+  if (!hasBoundProfile(row)) return '--';
+  return getOperatorName(row);
+}
+
+export function getBoundIccid(row: DeviceLedgerVo) {
+  if (!hasBoundProfile(row)) return '--';
+  return formatEmpty(row.iccid);
+}
+
+export function getBoundApn(row: DeviceLedgerVo) {
+  if (!hasBoundProfile(row)) return '--';
+  return getDeviceApn(row);
+}
+
 export function getDeviceApn(row: DeviceLedgerVo) {
   return row.apn || row.apnName || '--';
 }

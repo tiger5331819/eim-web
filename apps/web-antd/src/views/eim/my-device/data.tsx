@@ -1,6 +1,7 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 import {
   formatEmpty,
   getCreateTime,
