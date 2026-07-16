@@ -6,7 +6,7 @@ import { useVbenModal } from '@vben/common-ui';
 import { useVbenForm } from '#/adapter/form';
 import { apnByOperator } from '#/api/system/apn';
 import { deviceSimpleDownload } from '#/api/system/device';
-import { getEnabledOperatorOptions } from '#/api/system/operator';
+import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -72,7 +72,7 @@ const [BasicModal, modalApi] = useVbenModal({
     const data = modalApi.getData() as { eid?: string };
     eid.value = data.eid ?? '';
     modalApi.modalLoading(true);
-    const operatorOptions = await getEnabledOperatorOptions();
+    const operatorOptions = await getTenantPoolOperatorOptions();
     formApi.updateSchema([
       {
         fieldName: 'operatorId',
