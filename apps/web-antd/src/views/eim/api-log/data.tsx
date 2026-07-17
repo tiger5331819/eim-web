@@ -1,6 +1,8 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { getLedgerTenantOptions } from '#/api/system/profile-ledger';
+
 const METHOD_COLOR: Record<string, string> = {
   GET: 'blue',
   POST: 'green',
@@ -47,24 +49,25 @@ export const fieldMappingTime: [
   ],
 ];
 
-/** 响应时间：优先用接口字段，否则用请求时间+耗时推算 */
-export function formatResponseTime(row: {
-  responseTime?: string;
-  createTime?: string;
-  costTime?: number;
-}) {
-  if (row.responseTime) return row.responseTime;
-  if (!row.createTime || row.costTime == null) return '--';
-  const time = new Date(row.createTime.replace(/-/g, '/')).getTime();
-  if (Number.isNaN(time)) return '--';
-  const date = new Date(time + Number(row.costTime || 0));
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+/** 响应时间：直接展示接口返回字段 */
+export function formatResponseTime(row: { responseTime?: string }) {
+  return row.responseTime || '--';
 }
 
 export const platformQuerySchema: FormSchemaGetter = () => [
   { component: 'Input', fieldName: 'traceId', label: 'TraceId' },
-  { component: 'Input', fieldName: 'tenantName', label: '租户名称' },
+  {
+    component: 'ApiSelect',
+    componentProps: {
+      allowClear: true,
+      api: getLedgerTenantOptions,
+      placeholder: '全部',
+      showSearch: true,
+      optionFilterProp: 'label',
+    },
+    fieldName: 'tenantId',
+    label: '租户名称',
+  },
   { component: 'Input', fieldName: 'apiName', label: '接口名称' },
   { component: 'Input', fieldName: 'requestUri', label: '接口路径' },
   {
