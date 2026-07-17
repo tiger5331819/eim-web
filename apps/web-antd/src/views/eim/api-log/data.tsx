@@ -64,7 +64,7 @@ export function formatResponseTime(row: {
 
 export const platformQuerySchema: FormSchemaGetter = () => [
   { component: 'Input', fieldName: 'traceId', label: 'TraceId' },
-  { component: 'Input', fieldName: 'tenantId', label: '租户ID' },
+  { component: 'Input', fieldName: 'tenantName', label: '租户名称' },
   { component: 'Input', fieldName: 'apiName', label: '接口名称' },
   { component: 'Input', fieldName: 'requestUri', label: '接口路径' },
   {

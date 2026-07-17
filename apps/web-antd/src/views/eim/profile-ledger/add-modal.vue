@@ -14,7 +14,6 @@ const [BasicForm, formApi] = useVbenForm({
   schema: [
     {
       component: 'Input',
-      componentProps: { maxlength: 32, placeholder: '最长32字符' },
       fieldName: 'accode',
       label: 'ACcode',
       rules: 'required',
