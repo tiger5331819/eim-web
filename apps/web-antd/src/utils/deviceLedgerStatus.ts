@@ -4,7 +4,7 @@ import type { DeviceLedgerVo, DeviceProfileRecordVo } from '#/api/system/device/
 export const ONLINE_STATUS_OPTIONS = [
   { label: '在线', value: 1 },
   { label: '离线', value: 0 },
-  { label: '未知', value: -1 },
+  { label: '未知', value: null },
 ];
 
 /** 码号操作类型筛选项 */
@@ -78,12 +78,8 @@ export function getCreateTime(row: DeviceLedgerVo) {
 }
 
 export function getOnlineStatusMeta(row: {
-  activationTime?: string;
   online?: number;
 }) {
-  if (!row.activationTime) {
-    return { color: 'gold', text: '未知' };
-  }
   if (row.online === 1) {
     return { color: 'green', text: '在线' };
   }
