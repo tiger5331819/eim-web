@@ -101,6 +101,24 @@ export const columns: VxeGridProps['columns'] = [
     minWidth: 110,
   },
   {
+    title: '联系电话',
+    field: 'contactPhone',
+    minWidth: 130,
+    formatter: ({ cellValue }) => cellValue || '--',
+  },
+  {
+    title: '创建人',
+    field: 'createByName',
+    minWidth: 110,
+    formatter: ({ cellValue }) => cellValue || '--',
+  },
+  {
+    title: '创建时间',
+    field: 'createTime',
+    minWidth: 170,
+    formatter: ({ cellValue }) => cellValue || '--',
+  },
+  {
     field: 'action',
     fixed: 'right',
     slots: { default: 'action' },

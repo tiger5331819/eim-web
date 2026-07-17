@@ -113,7 +113,6 @@ export const drawerSchema: FormSchemaGetter = () => [
       placeholder: '请输入备注信息',
     },
     fieldName: 'remark',
-    formItemClass: 'items-start',
     label: '备注',
   },
   {
