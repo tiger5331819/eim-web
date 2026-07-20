@@ -115,6 +115,14 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
     };
     tenantId.value = data?.tenantId != null ? String(data.tenantId) : '';
     tenantName.value = data?.tenantName ?? '';
+    tableApi.formApi.updateSchema([
+      {
+        fieldName: 'operatorId',
+        componentProps: {
+          params: tenantId.value ? { tenantId: tenantId.value } : {},
+        },
+      },
+    ]);
   },
   onOpened() {
     void tableApi.reload();

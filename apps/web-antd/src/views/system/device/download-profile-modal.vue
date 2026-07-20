@@ -11,6 +11,7 @@ import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 const emit = defineEmits<{ reload: [] }>();
 
 const eid = ref('');
+const tenantId = ref('');
 const apnOptions = ref<Array<{ label: string; value: string }>>([]);
 
 const [BasicForm, formApi] = useVbenForm({
@@ -69,10 +70,13 @@ const [BasicModal, modalApi] = useVbenModal({
   onConfirm: handleConfirm,
   onOpenChange: async (isOpen) => {
     if (!isOpen) return;
-    const data = modalApi.getData() as { eid?: string };
+    const data = modalApi.getData() as { eid?: string; tenantId?: string };
     eid.value = data.eid ?? '';
+    tenantId.value = data.tenantId != null ? String(data.tenantId) : '';
     modalApi.modalLoading(true);
-    const operatorOptions = await getTenantPoolOperatorOptions();
+    const operatorOptions = await getTenantPoolOperatorOptions(
+      tenantId.value ? { tenantId: tenantId.value } : undefined,
+    );
     formApi.updateSchema([
       {
         fieldName: 'operatorId',

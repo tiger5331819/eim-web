@@ -91,6 +91,8 @@ export const detailQuerySchema: FormSchemaGetter = () => [
     componentProps: {
       allowClear: true,
       api: getTenantPoolOperatorOptions,
+      params: {},
+      shouldFetch: (params: { tenantId?: string }) => !!params.tenantId,
       placeholder: '请选择',
       showSearch: true,
       optionFilterProp: 'label',

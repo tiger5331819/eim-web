@@ -115,6 +115,21 @@ watch(
   { immediate: true },
 );
 
+watch(
+  () => props.detail?.tenantId,
+  (tenantId) => {
+    filterFormApi.updateSchema([
+      {
+        fieldName: 'operatorId',
+        componentProps: {
+          params: tenantId != null ? { tenantId: String(tenantId) } : {},
+        },
+      },
+    ]);
+  },
+  { immediate: true },
+);
+
 async function applyFilter() {
   const values = await filterFormApi.getValues();
   filteredList.value = profileList.value.filter((item) => {
@@ -150,7 +165,10 @@ async function handleSync() {
 }
 
 function handleDownload() {
-  downloadModalApi.setData({ eid: props.eid });
+  downloadModalApi.setData({
+    eid: props.eid,
+    tenantId: props.detail?.tenantId,
+  });
   downloadModalApi.open();
 }
 
@@ -192,7 +210,7 @@ function buildProfileModalData(row: DeviceProfileVo) {
 
 async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   if (checked) {
-    const operatorId = await resolveProfileOperatorId(row);
+    const operatorId = await resolveProfileOperatorId(row, props.detail?.tenantId);
     if (!operatorId) {
       window.message.warning('无法识别码号所属运营商，请先同步数据');
       emit('reload');
@@ -219,7 +237,7 @@ async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
 }
 
 async function handleUpdateApn(row: DeviceProfileVo) {
-  const operatorId = await resolveProfileOperatorId(row);
+  const operatorId = await resolveProfileOperatorId(row, props.detail?.tenantId);
   if (!operatorId) {
     window.message.warning('无法识别码号所属运营商，请先同步数据');
     return;

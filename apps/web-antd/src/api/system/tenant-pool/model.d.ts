@@ -35,6 +35,11 @@ export interface TenantPoolDetailVo {
   createTime?: string;
 }
 
+/** 租户码号池运营商列表查询 */
+export interface TenantPoolOperatorQuery {
+  tenantId?: string;
+}
+
 /** 租户码号明细查询 */
 export interface TenantPoolDetailQuery extends PageQuery {
   tenantId?: string;

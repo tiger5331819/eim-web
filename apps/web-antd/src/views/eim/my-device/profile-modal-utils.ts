@@ -34,13 +34,18 @@ export function resolveDefaultApnId(
   return list[0] ? String(list[0].id) : undefined;
 }
 
-export async function resolveProfileOperatorId(row: DeviceProfileVo) {
+export async function resolveProfileOperatorId(
+  row: DeviceProfileVo,
+  tenantId?: string,
+) {
   if (row.operatorId !== undefined && row.operatorId !== null && row.operatorId !== '') {
     return row.operatorId;
   }
   const operatorName = row.operatorName || row.issuer || row.providerName;
   if (!operatorName) return undefined;
-  const options = await getTenantPoolOperatorOptions();
+  const options = await getTenantPoolOperatorOptions(
+    tenantId ? { tenantId: String(tenantId) } : undefined,
+  );
   const matched = options.find(
     (item) =>
       item.label === operatorName ||

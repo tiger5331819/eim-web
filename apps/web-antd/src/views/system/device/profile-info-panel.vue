@@ -150,7 +150,10 @@ async function handleSync() {
 }
 
 function handleDownload() {
-  downloadModalApi.setData({ eid: props.eid });
+  downloadModalApi.setData({
+    eid: props.eid,
+    tenantId: props.detail?.tenantId,
+  });
   downloadModalApi.open();
 }
 

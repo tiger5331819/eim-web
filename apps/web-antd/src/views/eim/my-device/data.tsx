@@ -148,6 +148,8 @@ export const profileInfoFilterSchema: FormSchemaGetter = () => [
     componentProps: {
       allowClear: true,
       api: getTenantPoolOperatorOptions,
+      params: {},
+      shouldFetch: (params: { tenantId?: string }) => !!params.tenantId,
       class: 'w-[180px]',
       placeholder: '全部',
       showSearch: true,
