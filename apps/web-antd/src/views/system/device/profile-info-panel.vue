@@ -24,7 +24,6 @@ import {
 import DownloadBusinessModal from './download-business-modal.vue';
 import DownloadProfileModal from './download-profile-modal.vue';
 import EnableProfileModal from './enable-profile-modal.vue';
-import { resolveProfileOperatorId } from './profile-modal-utils';
 import UpdateApnModal from './update-apn-modal.vue';
 import { createProfileInfoFilterSchema } from './data';
 
@@ -198,18 +197,14 @@ function buildProfileModalData(row: DeviceProfileVo) {
   };
 }
 
-async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
+function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   if (checked) {
-    const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
-    if (!operatorId) {
-      window.message.warning('无法识别码号所属运营商，请先同步数据');
+    if (!row.operatorId) {
+      window.message.warning('此码号不允许变更APN');
       emit('reload');
       return;
     }
-    enableModalApi.setData({
-      ...buildProfileModalData(row),
-      operatorId,
-    });
+    enableModalApi.setData(buildProfileModalData(row));
     enableModalApi.open();
     return;
   }
@@ -226,16 +221,12 @@ async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   });
 }
 
-async function handleUpdateApn(row: DeviceProfileVo) {
-  const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
-  if (!operatorId) {
-    window.message.warning('无法识别码号所属运营商，请先同步数据');
+function handleUpdateApn(row: DeviceProfileVo) {
+  if (!row.operatorId) {
+    window.message.warning('此码号不允许变更APN');
     return;
   }
-  updateApnModalApi.setData({
-    ...buildProfileModalData(row),
-    operatorId,
-  });
+  updateApnModalApi.setData(buildProfileModalData(row));
   updateApnModalApi.open();
 }
 
