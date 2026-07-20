@@ -16,15 +16,11 @@ import {
   updateDetail,
 } from '#/api/system/device';
 import { useBlobExport } from '#/utils/file/export';
-import {
-  formatEmpty,
-  isProfileEnabled,
-} from '#/utils/deviceLedgerStatus';
+import { formatEmpty } from '#/utils/deviceLedgerStatus';
 
 import DownloadBusinessModal from './download-business-modal.vue';
 import DownloadProfileModal from './download-profile-modal.vue';
 import EnableProfileModal from './enable-profile-modal.vue';
-import { resolveProfileOperatorId } from './profile-modal-utils';
 import UpdateApnModal from './update-apn-modal.vue';
 import { createProfileInfoFilterSchema } from './data';
 
@@ -111,10 +107,7 @@ const tableColumns = computed(() => [
 watch(
   () => props.detail?.profileList,
   async (list) => {
-    profileList.value = (list || []).map((item) => ({
-      ...item,
-      state: item.state ?? '0',
-    }));
+    profileList.value = list || [];
     await applyFilter();
   },
   { immediate: true },
@@ -198,18 +191,14 @@ function buildProfileModalData(row: DeviceProfileVo) {
   };
 }
 
-async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
+function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   if (checked) {
-    const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
-    if (!operatorId) {
-      window.message.warning('无法识别码号所属运营商，请先同步数据');
+    if (!row.operatorId) {
+      window.message.warning('此码号不允许变更APN');
       emit('reload');
       return;
     }
-    enableModalApi.setData({
-      ...buildProfileModalData(row),
-      operatorId,
-    });
+    enableModalApi.setData(buildProfileModalData(row));
     enableModalApi.open();
     return;
   }
@@ -226,21 +215,17 @@ async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   });
 }
 
-async function handleUpdateApn(row: DeviceProfileVo) {
-  const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
-  if (!operatorId) {
-    window.message.warning('无法识别码号所属运营商，请先同步数据');
+function handleUpdateApn(row: DeviceProfileVo) {
+  if (!row.operatorId) {
+    window.message.warning('此码号不允许变更APN');
     return;
   }
-  updateApnModalApi.setData({
-    ...buildProfileModalData(row),
-    operatorId,
-  });
+  updateApnModalApi.setData(buildProfileModalData(row));
   updateApnModalApi.open();
 }
 
 async function handleDelete(row: DeviceProfileVo) {
-  if (isProfileEnabled(row.state)) {
+  if (String(row.state) === '1') {
     window.message.warning('启用状态的码号不可删除，请先停用');
     return;
   }
@@ -296,7 +281,7 @@ function handleChildReload() {
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'state'">
           <Switch
-            :checked="isProfileEnabled(record.state)"
+            :checked="String(record.state) === '1'"
             checked-children="启用"
             un-checked-children="停用"
             @change="(checked) => handleProfileSwitch(!!checked, record)"

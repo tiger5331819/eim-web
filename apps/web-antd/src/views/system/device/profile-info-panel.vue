@@ -16,10 +16,7 @@ import {
   updateDetail,
 } from '#/api/system/device';
 import { useBlobExport } from '#/utils/file/export';
-import {
-  formatEmpty,
-  isProfileEnabled,
-} from '#/utils/deviceLedgerStatus';
+import { formatEmpty } from '#/utils/deviceLedgerStatus';
 
 import DownloadBusinessModal from './download-business-modal.vue';
 import DownloadProfileModal from './download-profile-modal.vue';
@@ -110,10 +107,7 @@ const tableColumns = computed(() => [
 watch(
   () => props.detail?.profileList,
   async (list) => {
-    profileList.value = (list || []).map((item) => ({
-      ...item,
-      state: item.state ?? '0',
-    }));
+    profileList.value = list || [];
     await applyFilter();
   },
   { immediate: true },
@@ -231,7 +225,7 @@ function handleUpdateApn(row: DeviceProfileVo) {
 }
 
 async function handleDelete(row: DeviceProfileVo) {
-  if (isProfileEnabled(row.state)) {
+  if (String(row.state) === '1') {
     window.message.warning('启用状态的码号不可删除，请先停用');
     return;
   }
@@ -287,7 +281,7 @@ function handleChildReload() {
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'state'">
           <Switch
-            :checked="isProfileEnabled(record.state)"
+            :checked="String(record.state) === '1'"
             checked-children="启用"
             un-checked-children="停用"
             @change="(checked) => handleProfileSwitch(!!checked, record)"
