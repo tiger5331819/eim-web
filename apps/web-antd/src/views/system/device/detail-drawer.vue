@@ -24,7 +24,10 @@ import {
   getOperatorName,
   getTenantName,
 } from '#/utils/deviceLedgerStatus';
+import { useDeviceStore } from '#/store/device';
 
+import EimPanel from './detail/module/eim.vue';
+import OperationPanel from './detail/module/operation.vue';
 import ProfileInfoPanel from './profile-info-panel.vue';
 import ProfileRecordPanel from './profile-record-panel.vue';
 
@@ -36,7 +39,10 @@ const loading = ref(false);
 const detail = ref<DeviceDetailVo | null>(null);
 const activeTab = ref('profile');
 const recordLoaded = ref(false);
+const operationLoaded = ref(false);
+const eimLoaded = ref(false);
 const recordPanelRef = ref<InstanceType<typeof ProfileRecordPanel>>();
+const deviceStore = useDeviceStore();
 
 const drawerTitle = computed(() => '设备详情');
 
@@ -97,6 +103,12 @@ async function handleTabChange(key: number | string) {
     await nextTick();
     recordPanelRef.value?.query();
   }
+  if (key === 'operation' && !operationLoaded.value) {
+    operationLoaded.value = true;
+  }
+  if (key === 'eim' && !eimLoaded.value) {
+    eimLoaded.value = true;
+  }
 }
 
 const [BasicDrawer, drawerApi] = useVbenDrawer({
@@ -107,10 +119,14 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
       detail.value = null;
       activeTab.value = 'profile';
       recordLoaded.value = false;
+      operationLoaded.value = false;
+      eimLoaded.value = false;
+      deviceStore.setCurrentEid('');
       return;
     }
     const data = drawerApi.getData() as { eid?: string; tenantId?: string };
     eid.value = data.eid ?? '';
+    deviceStore.setCurrentEid(eid.value);
     tenantId.value =
       data.tenantId != null ? String(data.tenantId) : undefined;
     await loadDetail();
@@ -152,6 +168,12 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
             ref="recordPanelRef"
             :eid="eid"
           />
+        </TabPane>
+        <TabPane key="operation" tab="运营信息">
+          <OperationPanel v-if="operationLoaded" />
+        </TabPane>
+        <TabPane key="eim" tab="EIM LIST">
+          <EimPanel v-if="eimLoaded" />
         </TabPane>
       </Tabs>
     </Spin>
