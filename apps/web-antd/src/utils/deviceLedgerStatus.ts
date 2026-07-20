@@ -4,7 +4,7 @@ import type { DeviceLedgerVo, DeviceProfileRecordVo } from '#/api/system/device/
 export const ONLINE_STATUS_OPTIONS = [
   { label: '在线', value: 1 },
   { label: '离线', value: 0 },
-  { label: '未知', value: null },
+  { label: '未知', value: -1 },
 ];
 
 /** 码号操作类型筛选项 */
