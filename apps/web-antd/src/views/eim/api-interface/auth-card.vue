@@ -106,8 +106,8 @@ defineExpose({ reload: loadCredential });
             readonly
           />
           <a-button @click="toggleSecret">
-            <EyeOutlined v-if="!secretVisible" />
-            <EyeInvisibleOutlined v-else />
+            <EyeInvisibleOutlined v-if="!secretVisible" />
+            <EyeOutlined v-else />
           </a-button>
           <a-button @click="handleCopy(plainSecret)" :disabled="!plainSecret">
             <CopyOutlined />
