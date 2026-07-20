@@ -131,10 +131,7 @@ export function isProfileEnabled(state?: number | string) {
 export function normalizeProfileRecord(row: DeviceProfileRecordVo) {
   return {
     ...row,
-    operationTypeText:
-      row.operationTypeText ||
-      getProfileOperationMeta(row.operationType, undefined, row.name).text,
     operatorName: row.operatorName || '--',
-    operationTime: row.operationTime || row.creationTime || '--',
+    operateTime: row.operateTime || row.creationTime || '--',
   };
 }

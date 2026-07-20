@@ -20,7 +20,8 @@ enum Api {
   eimProfile = '/eimProfile',
   batchDownload = '/manager/device/batch/profileDownload',
   profileBatch = '/manager/profile/productionBatch',
-  profileRecordList = '/log/list',
+  profileRecordList = '/profile/oper/log',
+  deviceLogList = '/log/list',
   profileExport = '/profile/export',
 }
 
@@ -100,7 +101,10 @@ export function toDelete(eid: ID, iccid: string) {
 }
 
 export function operationLog(eid: ID, params?: DeviceProfileRecordQuery) {
-  return deviceProfileRecordList(eid, params);
+  return alovaInstance.get<PageResult<DeviceProfileRecordVo>>(
+    `${Api.deviceRoot}/${eid}${Api.deviceLogList}`,
+    { params },
+  );
 }
 
 export function eimList(eid: ID) {

@@ -85,20 +85,18 @@ export interface DeviceProfileRecordQuery {
   pageSize?: number;
   id?: string;
   iccid?: string;
-  operationType?: string;
+  operType?: string;
   operatorName?: string;
-  beginOperationTime?: string;
-  endOperationTime?: string;
+  beginOperateTime?: string;
+  endOperateTime?: string;
 }
 
 export interface DeviceProfileRecordVo {
   id?: number | string;
   iccid?: string;
-  operationType?: string;
-  operationTypeText?: string;
+  operType?: string;
   operatorName?: string;
-  operationTime?: string;
-  name?: string;
+  operateTime?: string;
   message?: string;
   creationTime?: string;
 }

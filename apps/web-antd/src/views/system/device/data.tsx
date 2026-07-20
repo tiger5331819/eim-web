@@ -248,7 +248,7 @@ export const profileRecordQuerySchema: FormSchemaGetter = () => [
       options: PROFILE_OPERATION_OPTIONS,
       placeholder: '全部',
     },
-    fieldName: 'operationType',
+    fieldName: 'operType',
     label: '操作类型',
   },
   {
@@ -259,7 +259,7 @@ export const profileRecordQuerySchema: FormSchemaGetter = () => [
   },
   {
     component: 'RangePicker',
-    fieldName: 'operationTime',
+    fieldName: 'operateTime',
     label: '操作时间',
   },
 ];
@@ -279,9 +279,9 @@ export const profileRecordColumns: VxeGridProps['columns'] = [
   },
   {
     title: '操作类型',
-    field: 'operationType',
+    field: 'operType',
     minWidth: 110,
-    slots: { default: 'operationType' },
+    slots: { default: 'operType' },
   },
   {
     title: '操作人',
@@ -291,10 +291,10 @@ export const profileRecordColumns: VxeGridProps['columns'] = [
   },
   {
     title: '操作时间',
-    field: 'operationTime',
+    field: 'operateTime',
     minWidth: 170,
     formatter: ({ row }) =>
-      formatEmpty(row.operationTime || row.creationTime),
+      formatEmpty(row.operateTime || row.creationTime),
   },
 ];
 
@@ -313,8 +313,8 @@ export const ledgerFieldMappingTime = [
 
 export const profileRecordFieldMappingTime = [
   [
-    'operationTime',
-    ['beginOperationTime', 'endOperationTime'],
+    'operateTime',
+    ['beginOperateTime', 'endOperateTime'],
     ['YYYY-MM-DD 00:00:00', 'YYYY-MM-DD 23:59:59'],
   ],
 ] as [string, [string, string], [string, string]][];

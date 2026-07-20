@@ -83,21 +83,17 @@ defineExpose({ query });
 
 <template>
   <BasicTable v-if="ready">
-    <template #operationType="{ row }">
+    <template #operType="{ row }">
       <Tag
         :color="
           getProfileOperationMeta(
-            row.operationType,
-            row.operationTypeText,
-            row.name,
+            row.operType,
           ).color
         "
       >
         {{
           getProfileOperationMeta(
-            row.operationType,
-            row.operationTypeText,
-            row.name,
+            row.operType,
           ).text
         }}
       </Tag>
