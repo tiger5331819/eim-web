@@ -2,7 +2,7 @@
 import type { VbenFormProps } from '@vben/common-ui';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 
@@ -20,16 +20,15 @@ import { getCodeStatusMeta, formatDownloadField } from '#/utils/profileLedgerSta
 import { formatTenantPoolName } from '#/utils/tenantPoolStatus';
 
 import {
+  createDetailQuerySchema,
   detailColumns,
   detailFieldMappingTime,
-  detailQuerySchema,
 } from './data';
 
-const tenantId = ref('');
-const tenantName = ref('');
+const baseInfo = ref<{ tenantId?: string; tenantName?: string }>({});
 
 const drawerTitle = computed(
-  () => `${formatTenantPoolName(tenantName.value)} - 码号明细`,
+  () => `${formatTenantPoolName(baseInfo.value.tenantName)} - 码号明细`,
 );
 
 const formOptions: VbenFormProps = {
@@ -37,7 +36,7 @@ const formOptions: VbenFormProps = {
     labelWidth: 80,
     componentProps: { allowClear: true },
   },
-  schema: detailQuerySchema(),
+  schema: createDetailQuerySchema(() => baseInfo.value.tenantId),
   wrapperClass: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
   fieldMappingTime: [...detailFieldMappingTime],
 };
@@ -57,14 +56,13 @@ const gridOptions: VxeGridProps = {
     pageSizes: [10, 20, 50, 100],
   },
   proxyConfig: {
-    // 由 onOpened 触发加载，避免与全局 autoLoad 重复请求
     autoLoad: false,
     ajax: {
       query: async ({ page }, formValues = {}) => {
         const result = await tenantPoolDetailList({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
-          tenantId: tenantId.value,
+          tenantId: baseInfo.value.tenantId,
           ...formValues,
         });
         const rows = (result?.rows ?? []).map((row) => ({
@@ -89,12 +87,12 @@ const { exportBlob, exportLoading } = useBlobExport(tenantPoolDetailExport);
 
 async function handleExport() {
   const formValues = await tableApi.formApi.getValues();
-  const name = formatTenantPoolName(tenantName.value);
+  const name = formatTenantPoolName(baseInfo.value.tenantName);
   const fileName = `${name}_码号明细_${dayjs().format('YYYYMMDD')}.xlsx`;
   try {
     await exportBlob({
       data: {
-        tenantId: tenantId.value,
+        tenantId: baseInfo.value.tenantId,
         ...formValues,
       },
       fileName,
@@ -105,27 +103,35 @@ async function handleExport() {
   }
 }
 
+async function handleClosed() {
+  await tableApi.formApi.resetForm();
+  baseInfo.value = {};
+}
+
 const [BasicDrawer, drawerApi] = useVbenDrawer({
   contentClass: 'flex min-h-0 flex-1 flex-col overflow-hidden',
-  onOpenChange(isOpen) {
-    if (!isOpen) return;
-    const data = drawerApi.getData() as {
+  showConfirmButton: false,
+  cancelText: '关闭',
+  destroyOnClose: true,
+  onClosed: handleClosed,
+  async onOpenChange(isOpen) {
+    if (!isOpen) return null;
+    drawerApi.drawerLoading(true);
+    const row = drawerApi.getData() as {
       tenantId?: string;
       tenantName?: string;
     };
-    tenantId.value = data?.tenantId != null ? String(data.tenantId) : '';
-    tenantName.value = data?.tenantName ?? '';
-    tableApi.formApi.updateSchema([
-      {
-        fieldName: 'operatorId',
-        componentProps: {
-          params: tenantId.value ? { tenantId: tenantId.value } : {},
-        },
-      },
-    ]);
-  },
-  onOpened() {
-    void tableApi.reload();
+    if (row?.tenantId != null) {
+      baseInfo.value = {
+        tenantId: String(row.tenantId),
+        tenantName: row.tenantName ?? '',
+      };
+    } else if (row) {
+      baseInfo.value = { tenantName: row.tenantName ?? '' };
+    }
+    drawerApi.drawerLoading(false);
+    await nextTick();
+    await tableApi.reload();
   },
 });
 </script>

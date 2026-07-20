@@ -142,18 +142,26 @@ export const columns: VxeGridProps['columns'] = [
   },
 ];
 
-export const profileInfoFilterSchema: FormSchemaGetter = () => [
+export function createProfileInfoFilterSchema(
+  getTenantId?: () => string | undefined,
+) {
+  return [
   {
     component: 'ApiSelect',
     componentProps: {
       allowClear: true,
-      api: getTenantPoolOperatorOptions,
-      params: {},
-      shouldFetch: (params: { tenantId?: string }) => !!params.tenantId,
       class: 'w-[180px]',
       placeholder: '全部',
       showSearch: true,
       optionFilterProp: 'label',
+      immediate: false,
+      alwaysLoad: true,
+      api: async () => {
+        const tenantId = getTenantId?.();
+        return getTenantPoolOperatorOptions({
+          tenantId: tenantId != null ? String(tenantId) : undefined,
+        });
+      },
     },
     fieldName: 'operatorId',
     formItemClass: 'items-center',
@@ -173,7 +181,8 @@ export const profileInfoFilterSchema: FormSchemaGetter = () => [
     formItemClass: 'items-center',
     label: 'APN',
   },
-];
+  ];
+}
 
 export const profileRecordQuerySchema: FormSchemaGetter = () => [
   {

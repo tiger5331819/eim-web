@@ -72,7 +72,10 @@ function handleReload() {
 }
 
 function handleDetail(row: DeviceLedgerVo) {
-  detailDrawerApi.setData({ eid: row.eid });
+  detailDrawerApi.setData({
+    eid: row.eid,
+    tenantId: row.tenantId != null ? String(row.tenantId) : undefined,
+  });
   detailDrawerApi.open();
 }
 

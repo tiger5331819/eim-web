@@ -26,12 +26,17 @@ import DownloadProfileModal from './download-profile-modal.vue';
 import EnableProfileModal from './enable-profile-modal.vue';
 import { resolveProfileOperatorId } from './profile-modal-utils';
 import UpdateApnModal from './update-apn-modal.vue';
-import { profileInfoFilterSchema } from './data';
+import { createProfileInfoFilterSchema } from './data';
 
 const props = defineProps<{
   detail?: DeviceDetailVo | null;
   eid: string;
+  tenantId?: string;
 }>();
+
+function resolveTenantId() {
+  return props.tenantId ?? props.detail?.tenantId;
+}
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -55,7 +60,7 @@ const [FilterForm, filterFormApi] = useVbenForm({
     },
     formItemClass: 'mb-0 items-center',
   },
-  schema: profileInfoFilterSchema(),
+  schema: createProfileInfoFilterSchema(resolveTenantId),
   wrapperClass: 'flex flex-wrap items-center gap-x-4 gap-y-2',
   actionLayout: 'inline',
   actionWrapperClass: 'ml-auto shrink-0',
@@ -115,21 +120,6 @@ watch(
   { immediate: true },
 );
 
-watch(
-  () => props.detail?.tenantId,
-  (tenantId) => {
-    filterFormApi.updateSchema([
-      {
-        fieldName: 'operatorId',
-        componentProps: {
-          params: tenantId != null ? { tenantId: String(tenantId) } : {},
-        },
-      },
-    ]);
-  },
-  { immediate: true },
-);
-
 async function applyFilter() {
   const values = await filterFormApi.getValues();
   filteredList.value = profileList.value.filter((item) => {
@@ -167,7 +157,7 @@ async function handleSync() {
 function handleDownload() {
   downloadModalApi.setData({
     eid: props.eid,
-    tenantId: props.detail?.tenantId,
+    tenantId: resolveTenantId(),
   });
   downloadModalApi.open();
 }
@@ -210,7 +200,7 @@ function buildProfileModalData(row: DeviceProfileVo) {
 
 async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   if (checked) {
-    const operatorId = await resolveProfileOperatorId(row, props.detail?.tenantId);
+    const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
     if (!operatorId) {
       window.message.warning('无法识别码号所属运营商，请先同步数据');
       emit('reload');
@@ -237,7 +227,7 @@ async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
 }
 
 async function handleUpdateApn(row: DeviceProfileVo) {
-  const operatorId = await resolveProfileOperatorId(row, props.detail?.tenantId);
+  const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
   if (!operatorId) {
     window.message.warning('无法识别码号所属运营商，请先同步数据');
     return;

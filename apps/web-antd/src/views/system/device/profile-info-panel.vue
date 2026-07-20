@@ -31,7 +31,12 @@ import { profileInfoFilterSchema } from './data';
 const props = defineProps<{
   detail?: DeviceDetailVo | null;
   eid: string;
+  tenantId?: string;
 }>();
+
+function resolveTenantId() {
+  return props.tenantId ?? props.detail?.tenantId;
+}
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -152,7 +157,7 @@ async function handleSync() {
 function handleDownload() {
   downloadModalApi.setData({
     eid: props.eid,
-    tenantId: props.detail?.tenantId,
+    tenantId: resolveTenantId(),
   });
   downloadModalApi.open();
 }

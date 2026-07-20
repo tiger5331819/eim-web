@@ -11,23 +11,26 @@ import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 const emit = defineEmits<{ reload: [] }>();
 
 const eid = ref('');
-const tenantId = ref('');
+const tenantId = ref<string | undefined>();
 const apnOptions = ref<Array<{ label: string; value: string }>>([]);
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: { labelWidth: 90 },
   schema: [
     {
-      component: 'Select',
+      component: 'ApiSelect',
       fieldName: 'operatorId',
       label: '运营商',
       rules: 'required',
       componentProps: {
+        alwaysLoad: true,
+        immediate: false,
         showSearch: true,
         optionFilterProp: 'label',
         placeholder: '请选择运营商',
-        options: [],
         style: { width: '100%' },
+        api: async () =>
+          getTenantPoolOperatorOptions({ tenantId: tenantId.value }),
         onChange: (value: number | string) => loadApnOptions(value),
       },
     },
@@ -72,23 +75,10 @@ const [BasicModal, modalApi] = useVbenModal({
     if (!isOpen) return;
     const data = modalApi.getData() as { eid?: string; tenantId?: string };
     eid.value = data.eid ?? '';
-    tenantId.value = data.tenantId != null ? String(data.tenantId) : '';
-    modalApi.modalLoading(true);
-    const operatorOptions = await getTenantPoolOperatorOptions(
-      tenantId.value ? { tenantId: tenantId.value } : undefined,
-    );
-    formApi.updateSchema([
-      {
-        fieldName: 'operatorId',
-        componentProps: {
-          options: operatorOptions,
-          onChange: (value: number | string) => loadApnOptions(value),
-        },
-      },
-    ]);
+    tenantId.value =
+      data.tenantId != null ? String(data.tenantId) : undefined;
     await formApi.resetForm();
     apnOptions.value = [];
-    modalApi.modalLoading(false);
   },
 });
 

@@ -31,6 +31,7 @@ import ProfileRecordPanel from './profile-record-panel.vue';
 const emit = defineEmits<{ reload: [] }>();
 
 const eid = ref('');
+const tenantId = ref<string | undefined>();
 const loading = ref(false);
 const detail = ref<DeviceDetailVo | null>(null);
 const activeTab = ref('profile');
@@ -105,14 +106,20 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
   onOpenChange: async (isOpen) => {
     if (!isOpen) {
       eid.value = '';
+      tenantId.value = undefined;
       detail.value = null;
       activeTab.value = 'profile';
       recordLoaded.value = false;
       return;
     }
-    const data = drawerApi.getData() as { eid?: string };
+    const data = drawerApi.getData() as { eid?: string; tenantId?: string };
     eid.value = data.eid ?? '';
+    tenantId.value =
+      data.tenantId != null ? String(data.tenantId) : undefined;
     await loadDetail();
+    if (detail.value?.tenantId != null) {
+      tenantId.value = String(detail.value.tenantId);
+    }
   },
 });
 </script>
@@ -138,6 +145,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           <ProfileInfoPanel
             :detail="detail"
             :eid="eid"
+            :tenant-id="tenantId"
             @reload="handleReload"
           />
         </TabPane>

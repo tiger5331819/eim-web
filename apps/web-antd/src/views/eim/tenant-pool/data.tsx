@@ -67,7 +67,8 @@ export const columns: VxeGridProps['columns'] = [
   },
 ];
 
-export const detailQuerySchema: FormSchemaGetter = () => [
+export function createDetailQuerySchema(getTenantId?: () => string | undefined) {
+  return [
   {
     component: 'Input',
     componentProps: { placeholder: '请输入' },
@@ -90,12 +91,15 @@ export const detailQuerySchema: FormSchemaGetter = () => [
     component: 'ApiSelect',
     componentProps: {
       allowClear: true,
-      api: getTenantPoolOperatorOptions,
-      params: {},
-      shouldFetch: (params: { tenantId?: string }) => !!params.tenantId,
       placeholder: '请选择',
       showSearch: true,
       optionFilterProp: 'label',
+      immediate: false,
+      alwaysLoad: true,
+      api: async () => {
+        const tenantId = getTenantId?.();
+        return getTenantPoolOperatorOptions({ tenantId });
+      },
     },
     fieldName: 'operatorId',
     label: '运营商',
@@ -127,6 +131,7 @@ export const detailQuerySchema: FormSchemaGetter = () => [
     label: '下载时间',
   },
 ];
+}
 
 export const detailColumns: VxeGridProps['columns'] = [
   { title: 'ACcode', field: 'accode', minWidth: 130 },
