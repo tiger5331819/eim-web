@@ -46,14 +46,11 @@ const descriptionItems = computed(() => {
     { label: 'EID', value: formatEmpty(row.eid) },
     { label: '预制种子号', value: formatEmpty(row.seedNumber || row.iccid) },
     {
-      label: 'IMEI',
-      value: formatActivationField(row.activationTime, row.imei),
-    },
-    {
       label: '设备SN',
       value: formatActivationField(
         row.activationTime,
-        row.deviceSn || row.name,
+        // 兼容后端可能返回的 name 字段（DeviceDetailVo 未声明 name）
+        row.deviceSn || (row as { name?: string }).name,
       ),
     },
     { label: '激活时间', value: formatEmpty(row.activationTime) },

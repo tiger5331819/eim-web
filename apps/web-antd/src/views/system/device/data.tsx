@@ -7,7 +7,6 @@ import { getLedgerEnabledTenantOptions } from '#/api/system/profile-ledger';
 import {
   formatEmpty,
   getCreateTime,
-  getDeviceApn,
   getOperatorName,
   getTenantName,
   ONLINE_STATUS_OPTIONS,
@@ -26,12 +25,6 @@ export const querySchema: FormSchemaGetter = () => [
     componentProps: { placeholder: '请输入' },
     fieldName: 'seedNumber',
     label: '预制种子号',
-  },
-  {
-    component: 'Input',
-    componentProps: { placeholder: '请输入' },
-    fieldName: 'imei',
-    label: 'IMEI',
   },
   {
     component: 'Input',
@@ -117,16 +110,9 @@ export const columns: VxeGridProps['columns'] = [
     formatter: ({ row }) => formatEmpty(row.seedNumber || row.iccid),
   },
   {
-    title: 'IMEI',
-    field: 'imei',
-    minWidth: 150,
-    slots: { default: 'imei' },
-  },
-  {
     title: '设备SN',
-    field: 'deviceSn',
+    field: 'name',
     minWidth: 140,
-    slots: { default: 'deviceSn' },
   },
   {
     title: '激活时间',
@@ -160,9 +146,8 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: 'APN',
-    field: 'apn',
+    field: 'apnName',
     minWidth: 120,
-    formatter: ({ row }) => getDeviceApn(row),
   },
   {
     title: '创建人',
