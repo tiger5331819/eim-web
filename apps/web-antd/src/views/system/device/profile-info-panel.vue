@@ -26,7 +26,7 @@ import DownloadProfileModal from './download-profile-modal.vue';
 import EnableProfileModal from './enable-profile-modal.vue';
 import { resolveProfileOperatorId } from './profile-modal-utils';
 import UpdateApnModal from './update-apn-modal.vue';
-import { profileInfoFilterSchema } from './data';
+import { createProfileInfoFilterSchema } from './data';
 
 const props = defineProps<{
   detail?: DeviceDetailVo | null;
@@ -60,7 +60,7 @@ const [FilterForm, filterFormApi] = useVbenForm({
     },
     formItemClass: 'mb-0 items-center',
   },
-  schema: profileInfoFilterSchema(),
+  schema: createProfileInfoFilterSchema(resolveTenantId),
   wrapperClass: 'flex flex-wrap items-center gap-x-4 gap-y-2',
   actionLayout: 'inline',
   actionWrapperClass: 'ml-auto shrink-0',
@@ -200,7 +200,7 @@ function buildProfileModalData(row: DeviceProfileVo) {
 
 async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   if (checked) {
-    const operatorId = await resolveProfileOperatorId(row);
+    const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
     if (!operatorId) {
       window.message.warning('无法识别码号所属运营商，请先同步数据');
       emit('reload');
@@ -227,7 +227,7 @@ async function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
 }
 
 async function handleUpdateApn(row: DeviceProfileVo) {
-  const operatorId = await resolveProfileOperatorId(row);
+  const operatorId = await resolveProfileOperatorId(row, resolveTenantId());
   if (!operatorId) {
     window.message.warning('无法识别码号所属运营商，请先同步数据');
     return;
