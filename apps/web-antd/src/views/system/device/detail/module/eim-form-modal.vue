@@ -5,7 +5,7 @@ import { useVbenModal } from '@vben/common-ui';
 
 import { Upload } from 'antdv-next';
 
-import { useVbenForm } from '#/adapter/form';
+import { useVbenForm, z } from '#/adapter/form';
 import { eimAdd, eimDetail, eimEdit } from '#/api/system/device';
 import { getDictOptions } from '#/utils/dict';
 
@@ -20,6 +20,11 @@ const authMethod = ref('0');
 
 const modalTitle = computed(() => (isEdit.value ? '更新EIM' : '新增EIM'));
 
+const optionalAlnum = z
+  .string()
+  .regex(/^[A-Za-z0-9]*$/, { message: '输入不合法' })
+  .optional();
+
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: { labelWidth: 180 },
   schema: [
@@ -27,22 +32,19 @@ const [BasicForm, formApi] = useVbenForm({
       component: 'Input',
       fieldName: 'eimId',
       label: 'EIMId',
-      rules: [
-        { required: true, message: 'EIMId不能为空' },
-        { pattern: /^\d+(\.{1}\d+)+$/, message: '输入不合法' },
-      ],
+      rules: z
+        .string()
+        .min(1, { message: 'EIMId不能为空' })
+        .regex(/^\d+(\.\d+)+$/, { message: '输入不合法' }),
     },
     {
       component: 'Input',
       fieldName: 'eimFqdn',
       label: 'EIM地址',
-      rules: [
-        { required: true, message: 'EIM地址不能为空' },
-        {
-          pattern: /^\d+(\.{1}\d+)+(\:{1}\d+){1}$/,
-          message: '输入不合法',
-        },
-      ],
+      rules: z
+        .string()
+        .min(1, { message: 'EIM地址不能为空' })
+        .regex(/^\d+(\.\d+)+:\d+$/, { message: '输入不合法' }),
     },
     {
       component: 'Select',
@@ -58,7 +60,7 @@ const [BasicForm, formApi] = useVbenForm({
       component: 'Input',
       fieldName: 'counterValue',
       label: 'counterValue',
-      rules: [{ pattern: /^[A-Za-z0-9]*$/, message: '输入不合法' }],
+      rules: optionalAlnum,
     },
     {
       component: 'Input',
@@ -87,15 +89,19 @@ const [BasicForm, formApi] = useVbenForm({
         show(values) {
           return values.authenticationMethod === '0';
         },
+        rules(values) {
+          if (values.authenticationMethod === '0') {
+            return z
+              .string()
+              .min(1, { message: 'eimPublicKey不能为空' })
+              .regex(/^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]*$/, {
+                message: '输入不合法',
+              });
+          }
+          return z.string().optional();
+        },
         triggerFields: ['authenticationMethod'],
       },
-      rules: [
-        { required: true, message: 'eimPublicKey不能为空' },
-        {
-          pattern: /^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};:'"\\|,.<>/?]*$/,
-          message: '输入不合法',
-        },
-      ],
     },
     {
       component: 'Input',
@@ -116,7 +122,7 @@ const [BasicForm, formApi] = useVbenForm({
       component: 'Input',
       fieldName: 'trustedEimPkTls',
       label: 'trustedPublicKeyDataTls',
-      rules: [{ pattern: /^[A-Za-z0-9]*$/, message: '输入不合法' }],
+      rules: optionalAlnum,
     },
     {
       component: 'Select',
@@ -132,7 +138,7 @@ const [BasicForm, formApi] = useVbenForm({
       component: 'Input',
       fieldName: 'euiccCipkId',
       label: 'euiccCiPKld',
-      rules: [{ pattern: /^[A-Za-z0-9]*$/, message: '输入不合法' }],
+      rules: optionalAlnum,
     },
   ],
   showDefaultActions: false,
