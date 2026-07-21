@@ -16,8 +16,8 @@ import {
 
 import { deviceDetail } from '#/api/system/device';
 import {
-  formatActivationField,
   formatEmpty,
+  getActivationDeviceSn,
   getCreateTime,
   getDeviceApn,
   getOnlineStatusMeta,
@@ -53,11 +53,7 @@ const descriptionItems = computed(() => {
     { label: '预制种子号', value: formatEmpty(row.seedNumber || row.iccid) },
     {
       label: '设备SN',
-      value: formatActivationField(
-        row.activationTime,
-        // 兼容后端可能返回的 name 字段（DeviceDetailVo 未声明 name）
-        row.deviceSn || (row as { name?: string }).name,
-      ),
+      value: getActivationDeviceSn(row),
     },
     { label: '激活时间', value: formatEmpty(row.activationTime) },
     {

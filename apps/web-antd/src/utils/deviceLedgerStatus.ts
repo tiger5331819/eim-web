@@ -1,4 +1,4 @@
-import type { DeviceLedgerVo, DeviceProfileRecordVo } from '#/api/system/device/model';
+import type { DeviceLedgerVo, DeviceProfileRecordVo, DeviceProfileVo } from '#/api/system/device/model';
 
 /** 在线状态筛选项 */
 export const ONLINE_STATUS_OPTIONS = [
@@ -38,12 +38,35 @@ export function formatActivationField(
   return activationTime ? formatEmpty(value) : '--';
 }
 
+type DeviceSnRow = DeviceLedgerVo & { name?: string };
+
+/** 设备 SN 取值：deviceSn > name > imei（imei 仅作兼容，不在界面单独展示） */
+export function resolveDeviceSn(row: DeviceSnRow) {
+  return row.deviceSn || row.name || row.imei;
+}
+
+export function getActivationDeviceSn(row: DeviceSnRow) {
+  return formatActivationField(row.activationTime, resolveDeviceSn(row));
+}
+
+export function getDeviceSn(row: DeviceSnRow) {
+  return formatEmpty(resolveDeviceSn(row));
+}
+
 export function getTenantName(row: DeviceLedgerVo) {
   return row.tenantName || row.companyName || '--';
 }
 
 export function getOperatorName(row: DeviceLedgerVo) {
   return row.operatorName || row.providerName || '--';
+}
+
+export function getProfileOperatorName(row: DeviceProfileVo) {
+  return formatEmpty(row.operatorName || row.issuer || row.providerName);
+}
+
+export function getProfileApn(row: DeviceProfileVo) {
+  return formatEmpty(row.apn || row.apnName);
 }
 
 export function getSeedNumber(row: DeviceLedgerVo) {

@@ -138,8 +138,6 @@ const tableColumns = [
   {
     title: '状态',
     key: 'state',
-    customRender: ({ record }: any) =>
-      renderDict(record.state ?? '', 'sys_profile_status'),
   },
   { title: 'APNID', dataIndex: 'apnId' },
   { title: 'APN名称', dataIndex: 'apnName' },
@@ -191,7 +189,12 @@ onMounted(() => {
         :columns="tableColumns"
       >
         <template #bodyCell="{ column, record }">
-          <template v-if="column.key === 'action'">
+          <template v-if="column.key === 'state'">
+            <component
+              :is="() => renderDict(record.state ?? '', 'sys_profile_status')"
+            />
+          </template>
+          <template v-else-if="column.key === 'action'">
             <Space>
               <Switch
                 :checked="record.state === '1'"

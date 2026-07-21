@@ -11,12 +11,15 @@ import {
 const DOWNLOAD_RESULT_API_MAP: Record<string, string> = {
   成功: 'SUCCESS',
   失败: 'FAIL',
+  下载中: 'DOWNLOAD',
 };
 
 const CHANGE_TYPE_API_MAP: Record<string, string> = {
   充值: 'ADD',
   扣减: 'ADJUST',
   回退: 'RELEASE',
+  冻结: 'FREEZE',
+  消耗: 'CONFIRM',
 };
 
 export function mapFreezeQuery(formValues: Record<string, any> = {}) {

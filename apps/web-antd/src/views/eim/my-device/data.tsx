@@ -4,6 +4,7 @@ import type { VxeGridProps } from '#/adapter/vxe-table';
 import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 import {
   formatEmpty,
+  getActivationDeviceSn,
   getCreateTime,
   getDeviceApn,
   getOperatorName,
@@ -23,12 +24,6 @@ export const querySchema: FormSchemaGetter = () => [
     componentProps: { placeholder: '请输入' },
     fieldName: 'seedNumber',
     label: '预制种子号',
-  },
-  {
-    component: 'Input',
-    componentProps: { placeholder: '请输入' },
-    fieldName: 'imei',
-    label: 'IMEI',
   },
   {
     component: 'Input',
@@ -85,16 +80,10 @@ export const columns: VxeGridProps['columns'] = [
     formatter: ({ row }) => formatEmpty(row.seedNumber || row.iccid),
   },
   {
-    title: 'IMEI',
-    field: 'imei',
-    minWidth: 150,
-    slots: { default: 'imei' },
-  },
-  {
     title: '设备SN',
     field: 'deviceSn',
     minWidth: 140,
-    slots: { default: 'deviceSn' },
+    formatter: ({ row }) => getActivationDeviceSn(row),
   },
   {
     title: '激活时间',

@@ -2,8 +2,10 @@
 const DOWNLOAD_RESULT_MAP: Record<string, { color: string; text: string }> = {
   SUCCESS: { color: 'green', text: '成功' },
   FAIL: { color: 'red', text: '失败' },
+  DOWNLOAD: { color: 'blue', text: '下载中' },
   成功: { color: 'green', text: '成功' },
   失败: { color: 'red', text: '失败' },
+  下载中: { color: 'blue', text: '下载中' },
 };
 
 export function getDownloadResultMeta(result?: string) {
@@ -20,6 +22,7 @@ export function getDownloadResultMeta(result?: string) {
 export const DOWNLOAD_RESULT_OPTIONS = [
   { value: '成功', label: '成功' },
   { value: '失败', label: '失败' },
+  { value: '下载中', label: '下载中' },
 ];
 
 /** 变动类型 */
@@ -28,11 +31,13 @@ const CHANGE_TYPE_MAP: Record<string, { color: string; text: string }> = {
   ADJUST: { color: 'red', text: '扣减' },
   RELEASE: { color: 'orange', text: '回退' },
   FREEZE: { color: 'orange', text: '冻结' },
-  CONFIRM: { color: 'green', text: '确认扣减' },
+  CONFIRM: { color: 'red', text: '消耗' },
   EXPIRE: { color: 'red', text: '过期' },
   充值: { color: 'green', text: '充值' },
   扣减: { color: 'red', text: '扣减' },
   回退: { color: 'orange', text: '回退' },
+  冻结: { color: 'orange', text: '冻结' },
+  消耗: { color: 'red', text: '消耗' },
 };
 
 export function getChangeTypeMeta(type?: string, typeText?: string) {
@@ -54,6 +59,8 @@ export const CHANGE_TYPE_OPTIONS = [
   { value: '充值', label: '充值' },
   { value: '扣减', label: '扣减' },
   { value: '回退', label: '回退' },
+  { value: '冻结', label: '冻结' },
+  { value: '消耗', label: '消耗' },
 ];
 
 export function getAvailableQuotaClass(quota?: number) {

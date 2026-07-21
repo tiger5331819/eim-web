@@ -16,8 +16,8 @@ import {
 
 import { deviceDetail } from '#/api/system/device';
 import {
-  formatActivationField,
   formatEmpty,
+  getActivationDeviceSn,
   getBoundApn,
   getBoundIccid,
   getBoundOperatorName,
@@ -47,15 +47,8 @@ const descriptionItems = computed(() => {
     { label: 'EID', value: formatEmpty(row.eid) },
     { label: '预制种子号', value: getSeedNumber(row) },
     {
-      label: 'IMEI',
-      value: formatActivationField(row.activationTime, row.imei),
-    },
-    {
       label: '设备SN',
-      value: formatActivationField(
-        row.activationTime,
-        row.deviceSn || row.name,
-      ),
+      value: getActivationDeviceSn(row),
     },
     { label: '激活时间', value: formatEmpty(row.activationTime) },
     {

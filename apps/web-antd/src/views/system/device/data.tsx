@@ -6,6 +6,7 @@ import { getOperatorOptions } from '#/api/system/operator';
 import { getLedgerEnabledTenantOptions } from '#/api/system/profile-ledger';
 import {
   formatEmpty,
+  getActivationDeviceSn,
   getCreateTime,
   getOperatorName,
   getTenantName,
@@ -111,8 +112,9 @@ export const columns: VxeGridProps['columns'] = [
   },
   {
     title: '设备SN',
-    field: 'name',
+    field: 'deviceSn',
     minWidth: 140,
+    formatter: ({ row }) => getActivationDeviceSn(row),
   },
   {
     title: '激活时间',

@@ -2,6 +2,7 @@ import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
 import {
+  CHANGE_TYPE_OPTIONS,
   getAvailableQuotaClass,
   TENANT_STATUS_OPTIONS,
   WARN_LEVEL_OPTIONS,
@@ -112,12 +113,7 @@ export const drawerRecordQuerySchema: FormSchemaGetter = () => [
     component: 'Select',
     componentProps: {
       allowClear: true,
-      options: [
-        { value: '充值', label: '充值' },
-        { value: '消耗', label: '消耗' },
-        { value: '回退', label: '回退' },
-        { value: '扣减', label: '扣减' },
-      ],
+      options: CHANGE_TYPE_OPTIONS,
       placeholder: '请选择',
     },
     fieldName: 'changeType',

@@ -16,7 +16,7 @@ import {
   updateDetail,
 } from '#/api/system/device';
 import { useBlobExport } from '#/utils/file/export';
-import { formatEmpty } from '#/utils/deviceLedgerStatus';
+import { getProfileApn, getProfileOperatorName } from '#/utils/deviceLedgerStatus';
 
 import DownloadBusinessModal from './download-business-modal.vue';
 import DownloadProfileModal from './download-profile-modal.vue';
@@ -89,16 +89,14 @@ const { exportBlob, exportLoading } = useBlobExport((data) =>
 const tableColumns = computed(() => [
   {
     title: '运营商',
+    key: 'operatorName',
     dataIndex: 'operatorName',
-    customRender: ({ record }: { record: DeviceProfileVo }) =>
-      formatEmpty(record.operatorName || record.issuer || record.providerName),
   },
-  { title: 'ICCID', dataIndex: 'iccid' },
+  { title: 'ICCID', key: 'iccid', dataIndex: 'iccid' },
   {
     title: 'APN',
+    key: 'apn',
     dataIndex: 'apn',
-    customRender: ({ record }: { record: DeviceProfileVo }) =>
-      formatEmpty(record.apn || record.apnName),
   },
   { title: '状态', key: 'state', width: 100 },
   { title: '操作', key: 'action', width: 160 },
@@ -279,7 +277,13 @@ function handleChildReload() {
       size="middle"
     >
       <template #bodyCell="{ column, record }">
-        <template v-if="column.key === 'state'">
+        <template v-if="column.key === 'operatorName'">
+          {{ getProfileOperatorName(record) }}
+        </template>
+        <template v-else-if="column.key === 'apn'">
+          {{ getProfileApn(record) }}
+        </template>
+        <template v-else-if="column.key === 'state'">
           <Switch
             :checked="String(record.state) === '1'"
             checked-children="启用"
