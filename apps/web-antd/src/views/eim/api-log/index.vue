@@ -87,7 +87,6 @@ async function handleExport() {
     <BasicTable table-title="接口日志">
       <template #toolbar-tools>
         <a-button
-          v-access:code="['eim:api:log:export']"
           :disabled="exportLoading"
           :loading="exportLoading"
           @click="handleExport"

@@ -1,6 +1,7 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
 
+import { getOperatorOptions } from '#/api/system/operator';
 import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 import {
   formatEmpty,
@@ -47,9 +48,15 @@ export const querySchema: FormSchemaGetter = () => [
     label: '在线状态',
   },
   {
-    component: 'Input',
-    componentProps: { placeholder: '请输入' },
-    fieldName: 'operatorName',
+    component: 'ApiSelect',
+    componentProps: {
+      allowClear: true,
+      api: getOperatorOptions,
+      placeholder: '全部',
+      showSearch: true,
+      optionFilterProp: 'label',
+    },
+    fieldName: 'operatorId',
     label: '运营商',
   },
   {
