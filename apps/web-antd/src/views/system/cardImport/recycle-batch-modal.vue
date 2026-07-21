@@ -16,7 +16,7 @@ import {
   inventoryRecycleBatch,
 } from '#/api/system/inventory';
 
-import { recycleRecordColumns, recycleRecordQuerySchema } from './data';
+import { recycleRecordColumns, recycleRecordQuerySchema, formatUnrecyclableDisplay } from './data';
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -117,6 +117,12 @@ const [ConfirmForm, confirmFormApi] = useVbenForm({
     },
     {
       component: 'Input',
+      fieldName: 'unrecyclableCountDisplay',
+      label: '不可回收',
+      componentProps: { disabled: true },
+    },
+    {
+      component: 'Input',
       fieldName: 'recyclableCountDisplay',
       label: '可回收数量',
       componentProps: { disabled: true },
@@ -192,6 +198,7 @@ function handleNext() {
     tenantName: row.tenantName || '--',
     assignCount: row.totalCount ?? '--',
     operateTime: row.operateTime || '--',
+    unrecyclableCountDisplay: formatUnrecyclableDisplay(row),
     recyclableCountDisplay: row.recyclableCount ?? 0,
     size: 1,
   });

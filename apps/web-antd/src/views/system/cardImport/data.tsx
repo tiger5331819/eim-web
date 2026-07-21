@@ -1,5 +1,6 @@
 import type { FormSchemaGetter } from '#/adapter/form';
 import type { VxeGridProps } from '#/adapter/vxe-table';
+import type { EuiccAssignRecordVo } from '#/api/system/inventory/model';
 
 import { getLedgerTenantOptions } from '#/api/system/profile-ledger';
 import {
@@ -242,6 +243,21 @@ export const importLogColumns: VxeGridProps['columns'] = [
     width: 100,
   },
 ];
+
+export function getUnrecyclableCount(row: EuiccAssignRecordVo) {
+  if (row.unrecyclableCount != null) return row.unrecyclableCount;
+  if (row.downloadedCount != null) return row.downloadedCount;
+  if (row.totalCount != null && row.recyclableCount != null) {
+    return Math.max(row.totalCount - row.recyclableCount, 0);
+  }
+  return undefined;
+}
+
+export function formatUnrecyclableDisplay(row: EuiccAssignRecordVo) {
+  const count = getUnrecyclableCount(row);
+  if (count === undefined) return '--';
+  return `${count} (已下载号码)`;
+}
 
 export const recycleRecordQuerySchema: FormSchemaGetter = () => [
   {

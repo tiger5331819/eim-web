@@ -74,6 +74,10 @@ export interface EuiccAssignRecordVo {
   totalCount?: number;
   /** 可回收数量 */
   recyclableCount?: number;
+  /** 不可回收数量 */
+  unrecyclableCount?: number;
+  /** 不可回收数量（已下载号码，部分接口字段） */
+  downloadedCount?: number;
   operateTime?: string;
 }
 
