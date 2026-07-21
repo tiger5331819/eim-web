@@ -173,7 +173,7 @@ const [BasicDrawer, drawerApi] = useVbenDrawer({
           <OperationPanel v-if="operationLoaded" />
         </TabPane>
         <TabPane key="eim" tab="EIM LIST">
-          <EimPanel v-if="eimLoaded" />
+          <EimPanel v-if="eimLoaded" :eid="eid" />
         </TabPane>
       </Tabs>
     </Spin>
