@@ -55,18 +55,18 @@ const WARN_LEVEL_API_MAP: Record<string, string> = {
   锁定: 'LOCKED',
 };
 
-/** 变动类型 */
+/** 变动类型：充值/回退=绿 / 冻结=蓝 / 扣减/消耗/过期=红 */
 const CHANGE_TYPE_MAP: Record<string, { color: string; text: string }> = {
   ADD: { color: 'green', text: '充值' },
   ADJUST: { color: 'red', text: '扣减' },
-  RELEASE: { color: 'orange', text: '回退' },
+  RELEASE: { color: 'green', text: '回退' },
   CONFIRM: { color: 'red', text: '消耗' },
-  FREEZE: { color: 'orange', text: '冻结' },
+  FREEZE: { color: 'blue', text: '冻结' },
   EXPIRE: { color: 'red', text: '过期' },
   充值: { color: 'green', text: '充值' },
   扣减: { color: 'red', text: '扣减' },
-  回退: { color: 'orange', text: '回退' },
-  冻结: { color: 'orange', text: '冻结' },
+  回退: { color: 'green', text: '回退' },
+  冻结: { color: 'blue', text: '冻结' },
   消耗: { color: 'red', text: '消耗' },
 };
 
