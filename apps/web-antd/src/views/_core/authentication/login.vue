@@ -58,10 +58,10 @@ const tenantInfo = ref<TenantResp>({
 async function loadTenant() {
   const resp = await tenantList();
   tenantInfo.value = resp;
-  // 选中第一个租户
   if (resp.tenantEnabled && resp.voList.length > 0) {
-    const firstTenantId = resp.voList[0]!.tenantId;
-    loginFormRef.value?.getFormApi().setFieldValue('tenantId', firstTenantId);
+    const tenantId = resp.voList[0]!.tenantId;
+    loginFormRef.value?.getFormApi().setFieldValue('tenantId', tenantId);
+    loginTenantId.value = tenantId;
   }
 }
 
@@ -89,7 +89,9 @@ const formSchema = computed((): VbenFormSchema[] => {
       },
       defaultValue: DEFAULT_TENANT_ID,
       dependencies: {
-        if: () => tenantInfo.value.tenantEnabled,
+        if: () =>
+          tenantInfo.value.tenantEnabled &&
+          tenantInfo.value.voList.length > 1,
         // 可以把这里当做watch
         trigger: (model) => {
           // 给oauth登录使用
@@ -149,6 +151,13 @@ const formSchema = computed((): VbenFormSchema[] => {
 async function handleAccountLogin(values: LoginAndRegisterParams) {
   try {
     const requestParam: any = omit(values, ['code']);
+    if (
+      !requestParam.tenantId &&
+      tenantInfo.value.tenantEnabled &&
+      tenantInfo.value.voList.length === 1
+    ) {
+      requestParam.tenantId = tenantInfo.value.voList[0]!.tenantId;
+    }
     // 验证码
     if (captchaInfo.value.captchaEnabled) {
       requestParam.code = values.code;

@@ -29,10 +29,9 @@ const codeLoginRef = useTemplateRef('codeLoginRef');
 async function loadTenant() {
   const resp = await tenantList();
   tenantInfo.value = resp;
-  // 选中第一个租户
   if (resp.tenantEnabled && resp.voList.length > 0) {
-    const firstTenantId = resp.voList[0]!.tenantId;
-    codeLoginRef.value?.getFormApi().setFieldValue('tenantId', firstTenantId);
+    const tenantId = resp.voList[0]!.tenantId;
+    codeLoginRef.value?.getFormApi().setFieldValue('tenantId', tenantId);
   }
 }
 
@@ -53,7 +52,9 @@ const formSchema = computed((): VbenFormSchema[] => {
       },
       defaultValue: DEFAULT_TENANT_ID,
       dependencies: {
-        if: () => tenantInfo.value.tenantEnabled,
+        if: () =>
+          tenantInfo.value.tenantEnabled &&
+          tenantInfo.value.voList.length > 1,
         triggerFields: [''],
       },
       fieldName: 'tenantId',
@@ -112,8 +113,14 @@ const formSchema = computed((): VbenFormSchema[] => {
 const authStore = useAuthStore();
 async function handleLogin(values: LoginCodeParams) {
   try {
+    const tenantId =
+      values.tenantId ??
+      (tenantInfo.value.tenantEnabled &&
+      tenantInfo.value.voList.length === 1
+        ? tenantInfo.value.voList[0]!.tenantId
+        : undefined);
     const requestParams: any = {
-      tenantId: values.tenantId,
+      tenantId,
       phonenumber: values.phoneNumber,
       smsCode: values.code,
       grantType: 'sms',
