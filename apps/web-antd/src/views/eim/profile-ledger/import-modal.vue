@@ -13,6 +13,7 @@ import {
   profileLedgerImportTemplate,
 } from '#/api/system/profile-ledger';
 import { useBlobExport } from '#/utils/file/export';
+import { beforeManualImportUpload } from '#/utils/file/uploadLimit';
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -82,7 +83,7 @@ async function handleSubmit() {
     <UploadDragger
       v-model:file-list="fileList"
       class="import-upload-dragger"
-      :before-upload="() => false"
+      :before-upload="beforeManualImportUpload"
       :max-count="1"
       accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
     >

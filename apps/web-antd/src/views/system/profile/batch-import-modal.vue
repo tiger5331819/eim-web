@@ -4,6 +4,8 @@ import { useVbenModal } from '@vben/common-ui';
 import { message, Table, Pagination, Upload, Alert } from 'antdv-next';
 import { useAccessStore } from '@vben/stores';
 
+import { beforeAutoImportUpload } from '#/utils/file/uploadLimit';
+
 const emit = defineEmits<{ reload: [] }>();
 const fileList = ref<any[]>([]);
 const tableData = ref<any[]>([]);
@@ -42,10 +44,23 @@ const [BasicModal, modalApi] = useVbenModal({ fullscreenButton: false, width: 12
 
 <template>
   <BasicModal title="批量导入">
-    <Upload v-model:file-list="fileList" accept=".xlsx" :max-count="1" :action="uploadUrl" :headers="uploadHeaders" @change="handleUploadChange">
+    <Upload
+      v-model:file-list="fileList"
+      accept=".xlsx"
+      :max-count="1"
+      :action="uploadUrl"
+      :headers="uploadHeaders"
+      :before-upload="beforeAutoImportUpload"
+      @change="handleUploadChange"
+    >
       <a-button>上传文件</a-button>
     </Upload>
-    <Alert class="mt-4" type="info" show-icon message="温馨提示：请按照模板格式输入信息，数据量不要超过10000条；只支持xlsx格式文件" />
+    <Alert
+      class="mt-4"
+      type="info"
+      show-icon
+      message="温馨提示：请按照模板格式输入信息，数据量不要超过10000条；只支持xlsx格式文件；文件大小不超过50MB"
+    />
     <div v-if="paginatedData.length > 0" class="mt-4">
       <p>导入失败记录</p>
       <Table :columns="tableColumns" :data-source="paginatedData" :pagination="false" row-key="iccid" />

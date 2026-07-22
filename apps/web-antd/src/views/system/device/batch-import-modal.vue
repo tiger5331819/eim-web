@@ -7,6 +7,8 @@ import { message, Table, Pagination, Upload, Alert, RadioGroup, RadioButton } fr
 
 import { useAccessStore } from '@vben/stores';
 
+import { beforeAutoImportUpload } from '#/utils/file/uploadLimit';
+
 const emit = defineEmits<{ reload: [] }>();
 
 const fileList = ref<any[]>([]);
@@ -79,12 +81,23 @@ const [BasicModal, modalApi] = useVbenModal({
         <RadioButton :value="false">否</RadioButton>
       </RadioGroup>
     </div>
-    <Upload v-model:file-list="fileList" accept=".xlsx" :max-count="1"
+    <Upload
+      v-model:file-list="fileList"
+      accept=".xlsx"
+      :max-count="1"
       :action="uploadAction"
-      :headers="uploadHeaders" @change="handleUploadChange">
+      :headers="uploadHeaders"
+      :before-upload="beforeAutoImportUpload"
+      @change="handleUploadChange"
+    >
       <a-button>上传文件</a-button>
     </Upload>
-    <Alert class="mt-4" type="info" show-icon message="温馨提示：请按照模板格式输入信息，数据量不要超过10000条；只支持xlsx格式文件；默认每个设备分配1个资源码号" />
+    <Alert
+      class="mt-4"
+      type="info"
+      show-icon
+      message="温馨提示：请按照模板格式输入信息，数据量不要超过10000条；只支持xlsx格式文件；文件大小不超过50MB；默认每个设备分配1个资源码号"
+    />
     <div v-if="paginatedData.length > 0" class="mt-4">
       <Table :columns="tableColumns" :data-source="paginatedData" :pagination="false" row-key="eid" />
       <Pagination class="mt-4" :current="currentPage" :page-size="pageSize" :total="totalItems"

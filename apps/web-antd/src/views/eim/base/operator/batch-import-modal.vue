@@ -8,6 +8,7 @@ import { Alert, Pagination, Table, Upload } from 'antdv-next';
 import type { OperatorImportFailItem } from '#/api/system/operator/model';
 
 import { operatorImport } from '#/api/system/operator';
+import { beforeAutoImportUpload } from '#/utils/file/uploadLimit';
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -104,6 +105,7 @@ const [BasicModal, modalApi] = useVbenModal({
       accept=".xlsx"
       :max-count="1"
       :custom-request="customRequest"
+      :before-upload="beforeAutoImportUpload"
       :disabled="uploading"
     >
       <a-button :loading="uploading">上传文件</a-button>
@@ -112,7 +114,7 @@ const [BasicModal, modalApi] = useVbenModal({
       class="mt-4"
       type="info"
       show-icon
-      message="温馨提示：请按照模板格式输入信息；只支持 xlsx 格式文件"
+      message="温馨提示：请按照模板格式输入信息；只支持 xlsx 格式文件；文件大小不超过50MB"
     />
     <div v-if="importResult" class="mt-4 flex gap-6">
       <span class="text-emerald-600">成功：{{ importResult.successCount }} 条</span>

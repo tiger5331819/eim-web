@@ -5,17 +5,15 @@ import { computed, ref, watch } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { DownloadOutlined, DownOutlined } from '@antdv-next/icons';
+import { DownOutlined } from '@antdv-next/icons';
 import { Dropdown, Popconfirm, Space, Switch, Table } from 'antdv-next';
 
 import { useVbenForm } from '#/adapter/form';
 import {
-  deviceProfileExport,
   toDelete,
   toDisable,
   updateDetail,
 } from '#/api/system/device';
-import { useBlobExport } from '#/utils/file/export';
 import { getProfileApn, getProfileOperatorName } from '#/utils/deviceLedgerStatus';
 
 import DownloadBusinessModal from './download-business-modal.vue';
@@ -81,10 +79,6 @@ const [EnableModalComp, enableModalApi] = useVbenModal({
 const [UpdateApnModalComp, updateApnModalApi] = useVbenModal({
   connectedComponent: UpdateApnModal,
 });
-
-const { exportBlob, exportLoading } = useBlobExport((data) =>
-  deviceProfileExport(props.eid, data),
-);
 
 const tableColumns = computed(() => [
   {
@@ -168,16 +162,6 @@ function handleDownloadMenu({ key }: { key: string | number }) {
   }
 }
 
-async function handleExport() {
-  const values = await filterFormApi.getValues();
-  try {
-    await exportBlob({ data: values, fileName: '码号信息.xlsx' });
-    window.message.success('导出成功');
-  } catch {
-    window.message.error('当前筛选条件下无数据可导出');
-  }
-}
-
 function buildProfileModalData(row: DeviceProfileVo) {
   return {
     eid: props.eid,
@@ -243,7 +227,7 @@ function handleChildReload() {
       <FilterForm />
     </div>
 
-    <div class="mb-3 flex items-center justify-between">
+    <div class="mb-3 flex items-center">
       <Space>
         <Dropdown
           :menu="{
@@ -258,14 +242,6 @@ function handleChildReload() {
         </Dropdown>
         <a-button :loading="syncing" @click="handleSync">同步数据</a-button>
       </Space>
-      <a-button
-        :disabled="exportLoading"
-        :loading="exportLoading"
-        @click="handleExport"
-      >
-        <DownloadOutlined />
-        导出
-      </a-button>
     </div>
 
     <Table
