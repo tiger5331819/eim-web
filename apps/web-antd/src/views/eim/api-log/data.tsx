@@ -132,7 +132,7 @@ export const tenantQuerySchema: FormSchemaGetter = () => [
       placeholder: '全部',
     },
   },
-  { component: 'Input', fieldName: 'deviceEid', label: '调用设备EID' },
+  { component: 'Input', fieldName: 'eid', label: '调用设备EID' },
   { component: 'Input', fieldName: 'requestParams', label: '请求参数' },
   { component: 'Input', fieldName: 'errorMsg', label: '异常信息' },
 ];
@@ -222,7 +222,7 @@ export const tenantColumns: VxeGridProps['columns'] = [
   overflowCol('异常信息', 'errorMsg', 140),
   {
     title: '调用设备EID',
-    field: 'deviceEid',
+    field: 'eid',
     minWidth: 160,
     showOverflow: true,
   },
