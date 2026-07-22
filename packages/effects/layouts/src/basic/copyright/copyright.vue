@@ -12,7 +12,7 @@ defineOptions({
 });
 
 withDefaults(defineProps<Props>(), {
-  companyName: 'YUNBAI eIM',
+  companyName: 'eIM',
   companySiteLink: '',
   date: '2024',
   icp: '',

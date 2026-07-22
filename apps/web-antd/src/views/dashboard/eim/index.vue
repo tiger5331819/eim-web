@@ -70,7 +70,7 @@ function navigate(path: string) {
         <h1
           class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-3xl font-bold text-transparent"
         >
-          YUNBAI eIM
+          eIM
         </h1>
         <p class="mt-2 text-gray-500">eSIM 管理平台 · 一站式设备与码号资源管理</p>
       </div>
