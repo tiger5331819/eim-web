@@ -7,6 +7,7 @@ const METHOD_COLOR: Record<string, string> = {
   GET: 'blue',
   POST: 'green',
   PUT: 'orange',
+  PATCH: 'purple',
   DELETE: 'red',
 };
 
@@ -19,6 +20,7 @@ export const METHOD_OPTIONS = [
   { label: 'GET', value: 'GET' },
   { label: 'POST', value: 'POST' },
   { label: 'PUT', value: 'PUT' },
+  { label: 'PATCH', value: 'PATCH' },
   { label: 'DELETE', value: 'DELETE' },
 ];
 

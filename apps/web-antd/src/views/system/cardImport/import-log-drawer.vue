@@ -122,7 +122,7 @@ const [BasicDrawer] = useVbenDrawer({
 
         <template #action="{ row }">
           <action-button
-            v-if="canDownloadImportDetail(row.status)"
+            v-if="canDownloadImportDetail(row)"
             :disabled="detailLoading"
             @click.stop="handleDownloadDetail(row)"
           >

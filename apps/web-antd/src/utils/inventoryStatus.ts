@@ -71,7 +71,9 @@ export function canRecycle(row: { assigned?: boolean }) {
   return isAssigned(row);
 }
 
-export function canDownloadImportDetail(status?: string) {
-  const value = status?.toUpperCase();
-  return value === 'SUCCESS' || value === 'ERROR';
+export function canDownloadImportDetail(row: {
+  failCount?: number | string | null;
+}) {
+  const failCount = Number(row.failCount ?? 0);
+  return Number.isFinite(failCount) && failCount > 0;
 }

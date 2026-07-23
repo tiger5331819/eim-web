@@ -13,7 +13,8 @@ enum Api {
   log = '/manager/inventory/change/log',
   logExport = '/manager/inventory/change/log/export',
   snapshot = '/manager/inventory/change/snapshot',
-  snapshotExport = '/manager/inventory/change/snapshot/export',
+  /** 变动台账明细导出 */
+  snapshotExport = '/manager/inventory/change/snapshot/detail/export',
   detail = '/manager/inventory/change/detail',
   detailExport = '/manager/inventory/change/detail/export',
 }
@@ -37,7 +38,7 @@ export function inventoryChangeSnapshotList(
   });
 }
 
-/** 变动快照导出 */
+/** 变动台账明细导出 */
 export function inventoryChangeSnapshotExport(data: Record<string, any>) {
   return commonExport(Api.snapshotExport, data);
 }

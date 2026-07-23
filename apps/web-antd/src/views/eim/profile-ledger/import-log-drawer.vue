@@ -118,11 +118,13 @@ const [BasicDrawer] = useVbenDrawer({
 
       <template #action="{ row }">
         <action-button
+          v-if="Number(row.failCount ?? 0) > 0"
           :disabled="detailLoading"
           @click.stop="handleDownloadDetail(row)"
         >
           下载明细
         </action-button>
+        <span v-else class="text-foreground/45">--</span>
       </template>
       </BasicTable>
     </div>
