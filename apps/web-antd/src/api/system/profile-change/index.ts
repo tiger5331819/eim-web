@@ -13,7 +13,8 @@ enum Api {
   log = '/manager/profile/change/log',
   logExport = '/manager/profile/change/log/export',
   snapshot = '/manager/profile/change/snapshot',
-  snapshotExport = '/manager/profile/change/snapshot/export',
+  /** 变动快照-变动明细导出 */
+  snapshotExport = '/manager/profile/change/snapshot/detail/export',
   detail = '/manager/profile/change/detail',
   detailExport = '/manager/profile/change/detail/export',
 }
@@ -35,7 +36,7 @@ export function profileChangeSnapshotList(params?: ProfileChangeSnapshotQuery) {
   });
 }
 
-/** 变动快照导出 */
+/** 变动快照-变动明细导出 */
 export function profileChangeSnapshotExport(data: Record<string, any>) {
   return commonExport(Api.snapshotExport, data);
 }
