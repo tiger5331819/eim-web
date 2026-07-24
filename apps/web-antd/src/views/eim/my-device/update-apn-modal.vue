@@ -59,15 +59,21 @@ const [BasicModal, modalApi] = useVbenModal({
     iccid.value = data.iccid ?? '';
     modalApi.modalLoading(true);
     apnOptions.value = [];
-    await formApi.resetForm();
-    if (data.operatorId) {
-      const list = await apnByOperator(data.operatorId);
-      apnOptions.value = mapApnSelectOptions(list);
-      await formApi.setValues({
-        apnId: resolveDefaultApnId(list, data),
-      });
+    try {
+      await formApi.resetForm();
+      if (data.operatorId) {
+        const list = await apnByOperator(data.operatorId);
+        apnOptions.value = mapApnSelectOptions(list);
+        await formApi.setValues({
+          apnId: resolveDefaultApnId(list, data),
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      modalApi.close();
+    } finally {
+      modalApi.modalLoading(false);
     }
-    modalApi.modalLoading(false);
   },
 });
 
