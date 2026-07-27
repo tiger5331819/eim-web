@@ -81,9 +81,15 @@ export function userProfileUpdate(data: Record<string, any>) {
 }
 
 /**
- * 修改用户密码
+ * 修改用户密码（加密传输）
  * @param data 包含 oldPassword 和 newPassword
  */
 export function userUpdatePassword(data: UpdatePasswordParam) {
-  return alovaInstance.putWithMsg<void>('/system/user/profile/updatePwd', data);
+  return alovaInstance.putWithMsg<void>(
+    '/system/user/profile/updatePwd',
+    data,
+    {
+      encrypt: true,
+    },
+  );
 }
