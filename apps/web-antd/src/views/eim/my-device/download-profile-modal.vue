@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import { useVbenModal } from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
-import { apnByOperator } from '#/api/system/apn';
+// import { apnByOperator } from '#/api/system/apn';
 import { deviceSimpleDownload } from '#/api/system/device';
 import { getTenantPoolOperatorOptions } from '#/api/system/tenant-pool';
 
@@ -12,7 +12,7 @@ const emit = defineEmits<{ reload: [] }>();
 
 const eid = ref('');
 const tenantId = ref<string | undefined>();
-const apnOptions = ref<Array<{ label: string; value: string }>>([]);
+// const apnOptions = ref<Array<{ label: string; value: string }>>([]);
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: { labelWidth: 90 },
@@ -31,42 +31,42 @@ const [BasicForm, formApi] = useVbenForm({
         style: { width: '100%' },
         api: async () =>
           getTenantPoolOperatorOptions({ tenantId: tenantId.value }),
-        onChange: (value: number | string) => loadApnOptions(value),
+        // onChange: (value: number | string) => loadApnOptions(value),
       },
     },
-    {
-      component: 'Select',
-      fieldName: 'apnId',
-      label: 'APN',
-      rules: 'required',
-      componentProps: {
-        showSearch: true,
-        optionFilterProp: 'label',
-        placeholder: '请选择APN',
-        options: apnOptions,
-        style: { width: '100%' },
-      },
-    },
+    // {
+    //   component: 'Select',
+    //   fieldName: 'apnId',
+    //   label: 'APN',
+    //   rules: 'required',
+    //   componentProps: {
+    //     showSearch: true,
+    //     optionFilterProp: 'label',
+    //     placeholder: '请选择APN',
+    //     options: apnOptions,
+    //     style: { width: '100%' },
+    //   },
+    // },
   ],
   showDefaultActions: false,
 });
 
-async function loadApnOptions(operatorId?: number | string) {
-  if (!operatorId) {
-    apnOptions.value = [];
-    await formApi.setValues({ apnId: undefined });
-    return;
-  }
-  const list = await apnByOperator(operatorId);
-  apnOptions.value = (list || []).map((item) => ({
-    label: item.name || item.apn || String(item.id),
-    value: String(item.id),
-  }));
-  const defaultApn = list?.find((item) => item.isDefault === '1');
-  await formApi.setValues({
-    apnId: defaultApn ? String(defaultApn.id) : apnOptions.value[0]?.value,
-  });
-}
+// async function loadApnOptions(operatorId?: number | string) {
+//   if (!operatorId) {
+//     apnOptions.value = [];
+//     await formApi.setValues({ apnId: undefined });
+//     return;
+//   }
+//   const list = await apnByOperator(operatorId);
+//   apnOptions.value = (list || []).map((item) => ({
+//     label: item.name || item.apn || String(item.id),
+//     value: String(item.id),
+//   }));
+//   const defaultApn = list?.find((item) => item.isDefault === '1');
+//   await formApi.setValues({
+//     apnId: defaultApn ? String(defaultApn.id) : apnOptions.value[0]?.value,
+//   });
+// }
 
 const [BasicModal, modalApi] = useVbenModal({
   fullscreenButton: false,
@@ -78,7 +78,7 @@ const [BasicModal, modalApi] = useVbenModal({
     tenantId.value =
       data.tenantId != null ? String(data.tenantId) : undefined;
     await formApi.resetForm();
-    apnOptions.value = [];
+    // apnOptions.value = [];
   },
 });
 
@@ -91,7 +91,7 @@ async function handleConfirm() {
     await deviceSimpleDownload(eid.value, {
       eid: eid.value,
       operatorId: values.operatorId,
-      apnId: values.apnId,
+      // apnId: values.apnId,
     });
     window.message.success(
       '已发起下载码号任务，可在下载码号任务中查询下载进度',
