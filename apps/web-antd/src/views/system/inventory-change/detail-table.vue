@@ -95,6 +95,7 @@ defineExpose({ query: () => tableApi.query() });
       <a-button
         :disabled="exportLoading"
         :loading="exportLoading"
+        v-access:code="['eim:inventoryChange:export']"
         @click="handleExport"
       >
         <DownloadOutlined />

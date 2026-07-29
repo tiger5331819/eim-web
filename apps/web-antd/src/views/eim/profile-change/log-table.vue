@@ -102,6 +102,7 @@ defineExpose({ query: () => tableApi.query() });
       <a-button
         :disabled="exportLoading"
         :loading="exportLoading"
+        v-access:code="['eim:profileChange:export']"
         @click="handleExport"
       >
         <DownloadOutlined />
@@ -122,7 +123,10 @@ defineExpose({ query: () => tableApi.query() });
     </template>
 
     <template #action="{ row }">
-      <action-button @click.stop="handleViewSnapshot(row)">
+      <action-button
+        v-access:code="['eim:profileChange:detail']"
+        @click.stop="handleViewSnapshot(row)"
+      >
         变动明细
       </action-button>
     </template>

@@ -294,18 +294,38 @@ async function handleRowDelete(row: ProfileLedgerVo) {
     <BasicTable>
       <template #toolbar-actions>
         <Space v-if="!selectMode">
-          <a-button type="primary" @click="handleAdd">新增</a-button>
-          <a-button @click="handleImport">
+          <a-button
+            type="primary"
+            v-access:code="['eim:profile:add']"
+            @click="handleAdd"
+          >
+            新增
+          </a-button>
+          <a-button v-access:code="['eim:profile:import']" @click="handleImport">
             <UploadOutlined />
             批量导入
           </a-button>
-          <a-button @click="handleImportLog">
+          <a-button
+            v-access:code="['eim:profile:detail']"
+            @click="handleImportLog"
+          >
             <HistoryOutlined />
             导入记录
           </a-button>
-          <a-button @click="handleBatchPoolIn">批量入池</a-button>
-          <a-button @click="handleBatchPoolOut">批量出池</a-button>
+          <a-button
+            v-access:code="['eim:profile:poolIn']"
+            @click="handleBatchPoolIn"
+          >
+            批量入池
+          </a-button>
+          <a-button
+            v-access:code="['eim:profile:poolOut']"
+            @click="handleBatchPoolOut"
+          >
+            批量出池
+          </a-button>
           <Dropdown
+            v-access:code="['eim:profile:recycle']"
             :menu="{
               items: recycleMenuItems,
               onClick: handleRecycleMenu,
@@ -327,6 +347,7 @@ async function handleRowDelete(row: ProfileLedgerVo) {
           v-if="!selectMode"
           :disabled="exportLoading"
           :loading="exportLoading"
+          v-access:code="['eim:profile:export']"
           @click="handleExport"
         >
           <DownloadOutlined />
@@ -368,18 +389,21 @@ async function handleRowDelete(row: ProfileLedgerVo) {
         <Space>
           <action-button
             v-if="canPoolIn(row)"
+            v-access:code="['eim:profile:poolIn']"
             @click.stop="handleRowPoolIn(row)"
           >
             入池
           </action-button>
           <action-button
             v-if="canPoolOut(row)"
+            v-access:code="['eim:profile:poolOut']"
             @click.stop="handleRowPoolOutClick(row)"
           >
             出池
           </action-button>
           <action-button
             v-if="canRecycle(row)"
+            v-access:code="['eim:profile:recycle']"
             @click.stop="handleRowRecycleClick(row)"
           >
             回收
@@ -387,6 +411,7 @@ async function handleRowDelete(row: ProfileLedgerVo) {
           <action-button
             v-if="canDelete(row)"
             danger
+            v-access:code="['eim:profile:delete']"
             @click.stop="handleRowDeleteClick(row)"
           >
             删除

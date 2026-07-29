@@ -85,6 +85,7 @@ async function handleExport() {
         <a-button
           :disabled="exportLoading"
           :loading="exportLoading"
+          v-access:code="['eim:myDownload:export']"
           @click="handleExport"
         >
           <DownloadOutlined />

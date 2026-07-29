@@ -91,6 +91,7 @@ async function handleExport() {
         <a-button
           :disabled="exportLoading"
           :loading="exportLoading"
+          v-access:code="['eim:apiInterface:export']"
           @click="handleExport"
         >
           <DownloadOutlined />
@@ -108,7 +109,12 @@ async function handleExport() {
         </Tag>
       </template>
       <template #action="{ row }">
-        <a-button type="link" size="small" @click="handleView(row)">
+        <a-button
+          type="link"
+          size="small"
+          v-access:code="['eim:apiInterface:detail']"
+          @click="handleView(row)"
+        >
           详情
         </a-button>
       </template>

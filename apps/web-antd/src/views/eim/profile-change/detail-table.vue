@@ -99,6 +99,7 @@ defineExpose({ query: () => tableApi.query() });
           <a-button
             :disabled="exportLoading"
             :loading="exportLoading"
+            v-access:code="['eim:profileChange:export']"
             @click="handleExport"
           >
             <DownloadOutlined />

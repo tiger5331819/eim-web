@@ -192,18 +192,36 @@ async function handleRowRecycle(row: EuiccInventoryVo) {
     <BasicTable>
       <template #toolbar-actions>
         <Space>
-          <a-button type="primary" @click="handleAdd">新增</a-button>
-          <a-button @click="handleImport">
+          <a-button
+            type="primary"
+            v-access:code="['eim:inventory:add']"
+            @click="handleAdd"
+          >
+            新增
+          </a-button>
+          <a-button v-access:code="['eim:inventory:import']" @click="handleImport">
             <UploadOutlined />
             批量导入
           </a-button>
-          <a-button @click="handleImportLog">
+          <a-button
+            v-access:code="['eim:inventory:detail']"
+            @click="handleImportLog"
+          >
             <HistoryOutlined />
             入库记录
           </a-button>
-          <a-button @click="handleBatchAssign">批量分配</a-button>
-          <a-button @click="handleBatchRecycle">批量回收</a-button>
-          <a-button @click="handleBatchDelete">批量删除</a-button>
+          <a-button v-access:code="['eim:inventory:assign']" @click="handleBatchAssign">
+            批量分配
+          </a-button>
+          <a-button
+            v-access:code="['eim:inventory:recycle']"
+            @click="handleBatchRecycle"
+          >
+            批量回收
+          </a-button>
+          <a-button v-access:code="['eim:inventory:delete']" @click="handleBatchDelete">
+            批量删除
+          </a-button>
         </Space>
       </template>
 
@@ -211,6 +229,7 @@ async function handleRowRecycle(row: EuiccInventoryVo) {
         <a-button
           :disabled="exportLoading"
           :loading="exportLoading"
+          v-access:code="['eim:inventory:export']"
           @click="handleExport"
         >
           <DownloadOutlined />
@@ -226,13 +245,23 @@ async function handleRowRecycle(row: EuiccInventoryVo) {
 
       <template #action="{ row }">
         <Space v-if="canAssign(row)">
-          <action-button danger @click.stop="handleRowDeleteClick(row)">
+          <action-button
+            danger
+            v-access:code="['eim:inventory:delete']"
+            @click.stop="handleRowDeleteClick(row)"
+          >
             删除
           </action-button>
-          <action-button @click.stop="handleRowAssign(row)">分配</action-button>
+          <action-button
+            v-access:code="['eim:inventory:assign']"
+            @click.stop="handleRowAssign(row)"
+          >
+            分配
+          </action-button>
         </Space>
         <action-button
           v-else-if="canRecycle(row)"
+          v-access:code="['eim:inventory:recycle']"
           @click.stop="handleRowRecycleClick(row)"
         >
           回收

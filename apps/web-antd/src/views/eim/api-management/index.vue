@@ -133,20 +133,19 @@ async function handleChangeStatus(
         <ApiSwitch
           :value="row.status === EnableStatus.Enable"
           :api="(checked) => handleChangeStatus(checked, row)"
-          :disabled="!hasAccessByCodes(['eim:api:credential:edit'])"
           @reload="tableApi.query()"
         />
       </template>
       <template #action="{ row }">
         <Space>
           <action-button
-            v-access:code="['eim:api:credential:query']"
+            v-access:code="['eim:apiManagement:detail']"
             @click.stop="handleViewSecret(row)"
           >
             查看密钥
           </action-button>
           <action-button
-            v-access:code="['eim:api:credential:reset']"
+            v-access:code="['eim:apiManagement:reset']"
             @click.stop="handleReset(row)"
           >
             重置密钥

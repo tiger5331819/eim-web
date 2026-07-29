@@ -111,12 +111,18 @@ onMounted(() => {
 
     <BasicTable>
       <template #toolbar-actions>
-        <a-button @click="handleOpenDeleteLog">删除记录</a-button>
+        <a-button
+          v-access:code="['eim:myProfile:delete']"
+          @click="handleOpenDeleteLog"
+        >
+          删除记录
+        </a-button>
       </template>
       <template #toolbar-tools>
         <a-button
           :disabled="exportLoading"
           :loading="exportLoading"
+          v-access:code="['eim:myProfile:export']"
           @click="handleExport"
         >
           导出

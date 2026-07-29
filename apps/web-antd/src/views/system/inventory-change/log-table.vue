@@ -105,6 +105,7 @@ defineExpose({ query: () => tableApi.query() });
       <a-button
         :disabled="exportLoading"
         :loading="exportLoading"
+        v-access:code="['eim:inventoryChange:export']"
         @click="handleExport"
       >
         <DownloadOutlined />
@@ -129,7 +130,12 @@ defineExpose({ query: () => tableApi.query() });
     </template>
 
     <template #action="{ row }">
-      <action-button @click.stop="handleViewSnapshot(row)">明细</action-button>
+      <action-button
+        v-access:code="['eim:inventoryChange:detail']"
+        @click.stop="handleViewSnapshot(row)"
+      >
+        明细
+      </action-button>
     </template>
   </BasicTable>
 

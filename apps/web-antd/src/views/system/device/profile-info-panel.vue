@@ -3,6 +3,7 @@ import type { DeviceDetailVo, DeviceProfileVo } from '#/api/system/device/model'
 
 import { computed, ref, watch } from 'vue';
 
+import { useAccess } from '@vben/access';
 import { useVbenModal } from '@vben/common-ui';
 
 import { DownOutlined } from '@antdv-next/icons';
@@ -38,10 +39,18 @@ const profileList = ref<DeviceProfileVo[]>([]);
 const filteredList = ref<DeviceProfileVo[]>([]);
 const syncing = ref(false);
 
-const downloadMenuItems = [
-  { key: 'profile', label: '下载码号' },
-  { key: 'business', label: '下载业务号' },
-];
+const { hasAccessByCodes } = useAccess();
+
+const downloadMenuItems = computed(() => {
+  const items = [];
+  if (hasAccessByCodes(['eim:device:download'])) {
+    items.push({ key: 'profile', label: '下载码号' });
+  }
+  if (hasAccessByCodes(['eim:device:downloadBiz'])) {
+    items.push({ key: 'business', label: '下载业务号' });
+  }
+  return items;
+});
 
 const [FilterForm, filterFormApi] = useVbenForm({
   compact: true,
@@ -230,6 +239,7 @@ function handleChildReload() {
     <div class="mb-3 flex items-center">
       <Space>
         <Dropdown
+          v-if="downloadMenuItems.length > 0"
           :menu="{
             items: downloadMenuItems,
             onClick: handleDownloadMenu,
@@ -240,7 +250,13 @@ function handleChildReload() {
             <DownOutlined />
           </a-button>
         </Dropdown>
-        <a-button :loading="syncing" @click="handleSync">同步数据</a-button>
+        <a-button
+          :loading="syncing"
+          v-access:code="['eim:device:sync']"
+          @click="handleSync"
+        >
+          同步数据
+        </a-button>
       </Space>
     </div>
 
@@ -269,7 +285,10 @@ function handleChildReload() {
         </template>
         <template v-else-if="column.key === 'action'">
           <Space>
-            <action-button @click.stop="handleUpdateApn(record)">
+            <action-button
+              v-access:code="['eim:device:update']"
+              @click.stop="handleUpdateApn(record)"
+            >
               更新APN
             </action-button>
             <Popconfirm
@@ -277,7 +296,13 @@ function handleChildReload() {
               title="确认删除该码号？删除后将从设备中移除，且码号不可恢复。"
               @confirm="handleDelete(record)"
             >
-              <action-button danger @click.stop="">删除</action-button>
+              <action-button
+                danger
+                v-access:code="['eim:device:delete']"
+                @click.stop=""
+              >
+                删除
+              </action-button>
             </Popconfirm>
           </Space>
         </template>

@@ -64,11 +64,24 @@ onMounted(() => { getData(); });
         <InputNumber v-model:value="form.count" :min="0" />
         <span>批次：</span>
         <Select v-model:value="form.productionBatch" :options="batchDict" placeholder="请选择批次" class="w-48" />
-        <AButton type="primary" @click="allocation">分配适用</AButton>
+        <AButton
+          type="primary"
+          v-access:code="['eim:downloadBiz:assign']"
+          @click="allocation"
+        >
+          分配适用
+        </AButton>
         <span>资源立即启用：</span>
         <RadioGroup v-model:value="form.use"><RadioButton :value="true">是</RadioButton><RadioButton :value="false">否</RadioButton></RadioGroup>
       </div>
-      <AButton type="primary" class="mb-4" @click="handleDownload">资源分配并执行下载工作</AButton>
+      <AButton
+        type="primary"
+        class="mb-4"
+        v-access:code="['eim:downloadBiz:execute']"
+        @click="handleDownload"
+      >
+        资源分配并执行下载工作
+      </AButton>
       <Table :data-source="paginatedData" row-key="eid" :pagination="false">
         <TableColumn title="EID" data-index="eid" />
         <TableColumn title="预制种子号" data-index="iccid" />

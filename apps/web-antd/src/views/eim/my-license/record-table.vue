@@ -86,6 +86,7 @@ defineExpose({ query: () => tableApi.query() });
       <a-button
         :disabled="exportLoading"
         :loading="exportLoading"
+        v-access:code="['eim:myLicense:export']"
         @click="handleExport"
       >
         导出

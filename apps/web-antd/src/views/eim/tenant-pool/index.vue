@@ -93,6 +93,7 @@ async function handleExport() {
         <a-button
           :disabled="exportLoading"
           :loading="exportLoading"
+          v-access:code="['eim:tenantPool:export']"
           @click="handleExport"
         >
           <DownloadOutlined />
@@ -135,7 +136,10 @@ async function handleExport() {
       </template>
 
       <template #action="{ row }">
-        <action-button @click.stop="handleViewDetail(row)">
+        <action-button
+          v-access:code="['eim:tenantPool:detail']"
+          @click.stop="handleViewDetail(row)"
+        >
           查看明细
         </action-button>
       </template>

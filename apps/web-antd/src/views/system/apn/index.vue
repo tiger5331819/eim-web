@@ -182,7 +182,11 @@ async function handleExport() {
   <Page :auto-content-height="true">
     <BasicTable>
       <template #toolbar-actions>
-        <a-button type="primary" @click="handleAdd">
+        <a-button
+          type="primary"
+          v-access:code="['eim:apn:add']"
+          @click="handleAdd"
+        >
           {{ $t('pages.common.add') }}
         </a-button>
       </template>
@@ -190,6 +194,7 @@ async function handleExport() {
         <a-button
           :loading="exportLoading"
           :disabled="exportLoading"
+          v-access:code="['eim:apn:export']"
           @click="handleExport"
         >
           {{ $t('pages.common.export') }}
@@ -221,7 +226,10 @@ async function handleExport() {
 
       <template #action="{ row }">
         <Space>
-          <action-button @click.stop="handleEdit(row)">
+          <action-button
+            v-access:code="['eim:apn:edit']"
+            @click.stop="handleEdit(row)"
+          >
             {{ $t('pages.common.edit') }}
           </action-button>
         </Space>
