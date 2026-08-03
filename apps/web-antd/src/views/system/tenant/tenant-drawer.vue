@@ -56,7 +56,7 @@ async function setupPackageSelect() {
           Button,
           {
             onClick: () => {
-              router.push('/tenant/tenantPackage');
+              router.push('/platform_manage/tenantPackage');
               closeMessage();
             },
             type: 'link',
