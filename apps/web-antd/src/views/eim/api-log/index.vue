@@ -110,7 +110,7 @@ async function handleExport() {
         <a-button
           type="link"
           size="small"
-          v-access:code="['eim:apiLog:detail']"
+          v-access:code="['eim:openapilog:query']"
           @click="handleView(row)"
         >
           详情
