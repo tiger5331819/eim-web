@@ -117,7 +117,7 @@ async function handleExport() {
       <template #action="{ row }">
         <Space>
           <action-button
-            v-access:code="['eim:myDevice:detail']"
+            v-access:code="['eim:device:detail']"
             @click.stop="handleDetail(row)"
           >
             详情

@@ -43,10 +43,10 @@ const { hasAccessByCodes } = useAccess();
 
 const downloadMenuItems = computed(() => {
   const items = [];
-  if (hasAccessByCodes(['eim:myDevice:download'])) {
+  if (hasAccessByCodes(['eim:device:download'])) {
     items.push({ key: 'profile', label: '下载码号' });
   }
-  if (hasAccessByCodes(['eim:myDevice:downloadBiz'])) {
+  if (hasAccessByCodes(['eim:device:downloadBiz'])) {
     items.push({ key: 'business', label: '下载业务号' });
   }
   return items;
@@ -252,7 +252,7 @@ function handleChildReload() {
         </Dropdown>
         <a-button
           :loading="syncing"
-          v-access:code="['eim:myDevice:sync']"
+          v-access:code="['eim:device:sync']"
           @click="handleSync"
         >
           同步数据
@@ -286,7 +286,7 @@ function handleChildReload() {
         <template v-else-if="column.key === 'action'">
           <Space>
             <action-button
-              v-access:code="['eim:myDevice:update']"
+              v-access:code="['eim:device:update']"
               @click.stop="handleUpdateApn(record)"
             >
               更新APN
@@ -298,7 +298,7 @@ function handleChildReload() {
             >
               <action-button
                 danger
-                v-access:code="['eim:myDevice:delete']"
+                v-access:code="['eim:device:delete']"
                 @click.stop=""
               >
                 删除
