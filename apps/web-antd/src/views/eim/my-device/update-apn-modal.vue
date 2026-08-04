@@ -32,8 +32,10 @@ const [BasicForm, formApi] = useVbenForm({
       componentProps: {
         showSearch: true,
         optionFilterProp: 'label',
-        placeholder: '请选择APN',
+        placeholder: '请选择或输入APN',
         options: apnOptions,
+        notFoundContent: null,
+        mode: 'combobox',
         style: { width: '100%' },
       },
     },
@@ -48,12 +50,12 @@ const [BasicModal, modalApi] = useVbenModal({
   onOpenChange: async (isOpen) => {
     if (!isOpen) return;
     const data = modalApi.getData() as {
+      apn?: string;
+      apnId?: string;
+      apnName?: string;
       eid?: string;
       iccid?: string;
       operatorId?: number | string;
-      apnId?: string;
-      apn?: string;
-      apnName?: string;
     };
     eid.value = data.eid ?? '';
     iccid.value = data.iccid ?? '';

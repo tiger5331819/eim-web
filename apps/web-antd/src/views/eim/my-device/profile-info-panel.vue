@@ -17,11 +17,11 @@ import {
 } from '#/api/system/device';
 import { getProfileApn, getProfileOperatorName } from '#/utils/deviceLedgerStatus';
 
+import { createProfileInfoFilterSchema } from './data';
 import DownloadBusinessModal from './download-business-modal.vue';
 import DownloadProfileModal from './download-profile-modal.vue';
 import EnableProfileModal from './enable-profile-modal.vue';
 import UpdateApnModal from './update-apn-modal.vue';
-import { createProfileInfoFilterSchema } from './data';
 
 const props = defineProps<{
   detail?: DeviceDetailVo | null;
@@ -29,11 +29,11 @@ const props = defineProps<{
   tenantId?: string;
 }>();
 
+const emit = defineEmits<{ reload: [] }>();
+
 function resolveTenantId() {
   return props.tenantId ?? props.detail?.tenantId;
 }
-
-const emit = defineEmits<{ reload: [] }>();
 
 const profileList = ref<DeviceProfileVo[]>([]);
 const filteredList = ref<DeviceProfileVo[]>([]);
@@ -156,7 +156,7 @@ function handleDownload() {
   downloadModalApi.open();
 }
 
-function handleDownloadMenu({ key }: { key: string | number }) {
+function handleDownloadMenu({ key }: { key: number | string }) {
   if (key === 'profile') {
     handleDownload();
     return;
@@ -207,10 +207,6 @@ function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
 }
 
 function handleUpdateApn(row: DeviceProfileVo) {
-  if (!row.operatorId) {
-    window.message.warning('此码号不允许变更APN');
-    return;
-  }
   updateApnModalApi.setData(buildProfileModalData(row));
   updateApnModalApi.open();
 }
