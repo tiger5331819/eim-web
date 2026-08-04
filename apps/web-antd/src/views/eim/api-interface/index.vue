@@ -91,7 +91,7 @@ async function handleExport() {
         <a-button
           :disabled="exportLoading"
           :loading="exportLoading"
-          v-access:code="['eim:apiInterface:export']"
+          v-access:code="['eim:apiLog:export']"
           @click="handleExport"
         >
           <DownloadOutlined />
