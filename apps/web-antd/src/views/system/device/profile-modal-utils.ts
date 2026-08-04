@@ -44,7 +44,7 @@ export async function resolveProfileOperatorId(
   const operatorName = row.operatorName || row.issuer || row.providerName;
   if (!operatorName) return undefined;
   const options = await getTenantPoolOperatorOptions({
-    tenantId: tenantId != null ? String(tenantId) : undefined,
+    tenantId: tenantId == null ? undefined : String(tenantId),
   });
   const matched = options.find(
     (item) =>
