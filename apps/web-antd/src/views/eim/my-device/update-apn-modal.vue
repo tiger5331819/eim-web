@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -7,10 +7,7 @@ import { useVbenForm, z } from '#/adapter/form';
 import { apnByOperator } from '#/api/system/apn';
 import { updateProfileApn } from '#/api/system/device';
 
-import {
-  mapApnSelectOptions,
-  resolveDefaultApnId,
-} from './profile-modal-utils';
+import { mapApnSelectOptions, resolveDefaultApnId } from './profile-modal-utils';
 
 const emit = defineEmits<{ reload: [] }>();
 
@@ -28,22 +25,22 @@ const [BasicForm, formApi] = useVbenForm({
   },
   schema: [
     {
-      component: 'Select',
+      component: 'AutoComplete',
       fieldName: 'apnId',
       label: '当前运营商可用APN',
       rules: z.string().min(1, '请选择或输入APN').max(50, 'APN不能超过50个字符'),
       componentProps: {
-        showSearch: true,
-        optionFilterProp: 'label',
+        maxLength: 50,
         placeholder: '请选择或输入APN',
         options: apnOptions,
         notFoundContent: null,
         allowClear: true,
         style: { width: '100%' },
         onSearch: (val: string) => {
-          typedApn.value = val;
-          apnSource.value = val ? 'typed' : 'empty';
-          formApi.setFieldValue('apnId', val);
+          const v = val.length > 50 ? val.slice(0, 50) : val;
+          typedApn.value = v;
+          apnSource.value = v ? 'typed' : 'empty';
+          formApi.setFieldValue('apnId', v);
         },
         onSelect: (val: string) => {
           selectedApnId.value = String(val);
@@ -110,6 +107,16 @@ const [BasicModal, modalApi] = useVbenModal({
     } finally {
       modalApi.modalLoading(false);
     }
+    await nextTick();
+    await nextTick();
+    const applyMaxLength = () => {
+      const el = document.querySelector<HTMLInputElement>(
+        '.ant-select-auto-complete .ant-select-selection-search-input',
+      );
+      if (el) { el.maxLength = 50; return true; }
+      return false;
+    };
+    if (!applyMaxLength()) setTimeout(applyMaxLength, 50);
   },
 });
 
@@ -120,9 +127,7 @@ async function handleConfirm() {
     if (!valid) return;
     const values = await formApi.getValues();
     const apnValue =
-      apnSource.value === 'typed'
-        ? typedApn.value
-        : (selectedApnId.value ?? values.apnId);
+      apnSource.value === 'typed' ? typedApn.value : (selectedApnId.value ?? values.apnId);
     await updateProfileApn(eid.value, iccid.value, apnValue);
     window.message.success('APN更新成功');
     emit('reload');
