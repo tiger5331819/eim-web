@@ -223,6 +223,7 @@ async function handleChangeStatus(checked: SwitchProps['checked'], row: Role) {
               权限
             </action-button>
             <action-button
+              v-if="false"
               v-access:code="['system:role:edit']"
               @click.stop="handleAssignRole(row)"
             >
