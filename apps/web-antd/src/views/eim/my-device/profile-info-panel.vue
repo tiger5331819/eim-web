@@ -184,12 +184,10 @@ function buildProfileModalData(row: DeviceProfileVo) {
 
 function handleProfileSwitch(checked: boolean, row: DeviceProfileVo) {
   if (checked) {
-    if (!row.operatorId) {
-      window.message.warning('此码号不允许变更APN');
-      emit('reload');
-      return;
-    }
-    enableModalApi.setData(buildProfileModalData(row));
+    enableModalApi.setData({
+      eid: props.eid,
+      iccid: row.iccid,
+    });
     enableModalApi.open();
     return;
   }
