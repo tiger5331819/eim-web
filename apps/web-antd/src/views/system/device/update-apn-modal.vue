@@ -46,7 +46,8 @@ const [BasicForm, formApi] = useVbenForm({
           selectedApnId.value = String(val);
           typedApn.value = '';
           apnSource.value = 'selected';
-          formApi.setFieldValue('apnId', val);
+          const label = apnOptions.value.find((o) => o.value === String(val))?.label ?? val;
+          formApi.setFieldValue('apnId', label);
         },
         onChange: (val?: string) => {
           if (val == null || val === '') {
@@ -95,7 +96,12 @@ const [BasicModal, modalApi] = useVbenModal({
         const list = await apnByOperator(data.operatorId);
         apnOptions.value = mapApnSelectOptions(list);
         const defaultId = resolveDefaultApnId(list, data);
-        await formApi.setValues({ apnId: defaultId });
+        const defaultLabel = defaultId
+          ? list.find((item) => String(item.id) === defaultId)?.apn ||
+            list.find((item) => String(item.id) === defaultId)?.name ||
+            defaultId
+          : undefined;
+        await formApi.setValues({ apnId: defaultLabel ?? defaultId ?? '' });
         selectedApnId.value = defaultId;
         apnSource.value = defaultId ? 'selected' : 'empty';
       } else {
