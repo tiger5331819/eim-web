@@ -17,6 +17,9 @@ const emit = defineEmits<{ reload: [] }>();
 const eid = ref('');
 const iccid = ref('');
 const apnOptions = ref<Array<{ label: string; value: string }>>([]);
+const typedApn = ref('');
+const selectedApnId = ref<string>();
+const apnSource = ref<'empty' | 'selected' | 'typed'>('empty');
 
 const [BasicForm, formApi] = useVbenForm({
   commonConfig: {
@@ -28,15 +31,35 @@ const [BasicForm, formApi] = useVbenForm({
       component: 'Select',
       fieldName: 'apnId',
       label: '当前运营商可用APN',
-      rules: 'required',
       componentProps: {
         showSearch: true,
         optionFilterProp: 'label',
         placeholder: '请选择或输入APN',
         options: apnOptions,
         notFoundContent: null,
-        mode: 'combobox',
+        allowClear: true,
         style: { width: '100%' },
+        onSearch: (val: string) => {
+          typedApn.value = val;
+          apnSource.value = val ? 'typed' : 'empty';
+        },
+        onSelect: (val: string) => {
+          selectedApnId.value = String(val);
+          typedApn.value = '';
+          apnSource.value = 'selected';
+        },
+        onChange: (val?: string) => {
+          if (val == null || val === '') {
+            selectedApnId.value = undefined;
+            typedApn.value = '';
+            apnSource.value = 'empty';
+          }
+        },
+        onClear: () => {
+          selectedApnId.value = undefined;
+          typedApn.value = '';
+          apnSource.value = 'empty';
+        },
       },
     },
   ],
@@ -61,14 +84,18 @@ const [BasicModal, modalApi] = useVbenModal({
     iccid.value = data.iccid ?? '';
     modalApi.modalLoading(true);
     apnOptions.value = [];
+    typedApn.value = '';
+    selectedApnId.value = undefined;
+    apnSource.value = 'empty';
     try {
       await formApi.resetForm();
       if (data.operatorId) {
         const list = await apnByOperator(data.operatorId);
         apnOptions.value = mapApnSelectOptions(list);
-        await formApi.setValues({
-          apnId: resolveDefaultApnId(list, data),
-        });
+        const defaultId = resolveDefaultApnId(list, data);
+        await formApi.setValues({ apnId: defaultId });
+        selectedApnId.value = defaultId;
+        apnSource.value = defaultId ? 'selected' : 'empty';
       }
     } catch (error) {
       console.error(error);
@@ -82,10 +109,18 @@ const [BasicModal, modalApi] = useVbenModal({
 async function handleConfirm() {
   try {
     modalApi.lock(true);
-    const { valid } = await formApi.validate();
-    if (!valid) return;
     const values = await formApi.getValues();
-    await updateProfileApn(eid.value, iccid.value, values.apnId);
+    const apnValue =
+      apnSource.value === 'typed'
+        ? typedApn.value
+        : (apnSource.value === 'selected'
+          ? (selectedApnId.value ?? values.apnId)
+          : undefined);
+    if (!apnValue || (apnSource.value === 'typed' && !apnValue.trim())) {
+      window.message.warning('请选择或输入APN');
+      return;
+    }
+    await updateProfileApn(eid.value, iccid.value, apnValue);
     window.message.success('APN更新成功');
     emit('reload');
     modalApi.close();
