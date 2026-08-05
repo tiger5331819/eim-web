@@ -197,13 +197,7 @@ export const drawerSchema: FormSchemaGetter = () => [
     },
     fieldName: 'roleIds',
     label: '角色',
-    dependencies: {
-      // 后端逻辑为新增可以为空 编辑时不能为空
-      rules: (model) => {
-        return model.userId ? 'selectRequired' : null;
-      },
-      triggerFields: ['userId'],
-    },
+    rules: 'selectRequired',
   },
   {
     component: 'Textarea',
