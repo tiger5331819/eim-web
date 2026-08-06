@@ -61,7 +61,6 @@ const CHANGE_TYPE_MAP: Record<string, { color: string; text: string }> = {
   ADJUST: { color: 'red', text: '扣减' },
   RELEASE: { color: 'green', text: '回退' },
   CONFIRM: { color: 'red', text: '消耗' },
-  FREEZE: { color: 'blue', text: '冻结' },
   EXPIRE: { color: 'red', text: '过期' },
   充值: { color: 'green', text: '充值' },
   扣减: { color: 'red', text: '扣减' },
@@ -90,14 +89,12 @@ export const CHANGE_TYPE_OPTIONS = [
   { value: '消耗', label: '消耗' },
   { value: '回退', label: '回退' },
   { value: '扣减', label: '扣减' },
-  { value: '冻结', label: '冻结' },
 ];
 
 const CHANGE_TYPE_API_MAP: Record<string, string> = {
   充值: 'ADD',
   扣减: 'ADJUST',
   回退: 'RELEASE',
-  冻结: 'FREEZE',
   消耗: 'CONFIRM',
 };
 
