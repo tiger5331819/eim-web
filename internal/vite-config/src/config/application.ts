@@ -65,9 +65,11 @@ function defineApplicationConfig(userConfigPromise?: DefineApplicationOptions) {
             entryFileNames: "jse/index-[name]-[hash].js",
             // experimentalMinChunkSize: 20 * 1024,
             manualChunks(id) {
-              if (id.includes("antdv-next")) {
-                return "antdv-next";
-              }
+              if (id.includes("antdv-next") && id.includes("icons"))
+                return "antdv-icons";
+              if (id.includes("antdv-next")) return "antdv-next";
+              if (id.includes("lodash-es")) return "lodash-es";
+              if (id.includes("@v-c/")) return "vc-lib";
             },
             minify: isBuild
               ? {
