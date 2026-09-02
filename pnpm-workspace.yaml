@@ -151,7 +151,7 @@ catalog:
   lodash-es: ^4.17.21
   lodash.clonedeep: ^4.5.0
   lucide-vue-next: ^0.577.0
-  motion-v: ^1.10.2
+  motion-v: ^2.4.0
   nitropack: ^2.13.1
   nprogress: ^0.2.0
   ora: ^9.4.0
